@@ -1,3 +1,6 @@
-# https://onlinedevtools.app/*  https://onlinedevtools.app/:splat  301
+# Canonical host redirect
+https://www.onlinedevtools.app/*    https://onlinedevtools.app/:splat    301!
+
+# Clean URLs
 /index.html                         /                               301
 /*.html                             /:splat                         301
