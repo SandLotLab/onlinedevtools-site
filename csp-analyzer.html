@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Free Online CSP & Security Headers Analyzer — Parse, Score, Report (Local) | Online Dev Tools</title>
+  <meta name="description" content="Analyze Content-Security-Policy and security headers. Parse directives, flag unsafe patterns, severity findings, and export a report. Runs locally in your browser — no uploads." />
+  <link rel="canonical" href="https://onlinedevtools.app/csp-analyzer" />
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free Online CSP & Security Headers Analyzer (Local)">
+  <meta property="og:description" content="Parse CSP + security headers, severity findings, and export reports. Runs locally — no uploads.">
+  <meta property="og:url" content="https://onlinedevtools.app/csp-analyzer">
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"CSP & Security Headers Analyzer",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/csp-analyzer",
+    "description":"Analyze Content-Security-Policy and security headers. Parse directives, flag unsafe patterns, severity findings, and export reports. Runs locally in your browser — no uploads."
+  }
+  </script>
+
+  <!-- REMOVED: CSP/Referrer/Permissions/XFO hardening meta tags (they were blocking AdSense) -->
+
+  <style>
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+    .col{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1 1 220px}
+    .lbl{font-size:12px;color:var(--muted)}
+    .ta,.pre{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(23,36,59,.8);
+      background:rgba(11,21,40,.35);
+      color:var(--text);
+      padding:12px;
+      font-family:inherit;
+      font-size:12.5px;
+      line-height:1.55;
+      outline:none;
+    }
+    .ta{min-height:240px}
+    .pre{min-height:240px;white-space:pre;overflow:auto}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .msg{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.5;white-space:pre-wrap}
+    .msg.ok{color:#5cff9d}
+    .msg.bad{color:#ff6b6b}
+    .findings{margin-top:12px}
+    .finding{
+      border:1px solid rgba(23,36,59,.8);
+      border-radius:12px;
+      background:rgba(11,21,40,.22);
+      padding:10px 12px;
+      margin-top:10px;
+    }
+    .finding .top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .sev{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(23,36,59,.85);
+      background:rgba(11,21,40,.55);
+      font-size:12px;color:var(--muted);
+    }
+    .sev b{color:var(--text)}
+    .sev.high{border-color: rgba(255,107,107,.55)}
+    .sev.med{border-color: rgba(246,195,74,.55)}
+    .sev.low{border-color: rgba(92,255,157,.35)}
+    .sev.info{border-color: rgba(23,36,59,.85)}
+    .muted2{color:var(--muted);font-size:12.5px;line-height:1.55}
+  </style>
+
+  <script>
+  async function loadPartials() {
+    const header = await fetch('/partials/header.html');
+    const footer = await fetch('/partials/footer.html');
+
+    const h = document.getElementById('site-header');
+    const f = document.getElementById('site-footer');
+
+    if (h) h.innerHTML = await header.text();
+    if (f) f.innerHTML = await footer.text();
+
+    if (window.SWY_renderToolUse) window.SWY_renderToolUse();
+  }
+  loadPartials();
+  </script>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+</head>
+
+<body>
+  <div class="page">
+    <div id="site-header"></div>
+
+    <main>
+      <div class="wrap">
+        <section class="grid">
+
+          <div class="card">
+            <div class="pad">
+              <h1 class="h1" style="margin:0;">Free Online CSP &amp; Security Headers Analyzer</h1>
+              <h2 class="muted" style="margin:2px 0 0 0;font-size:12px;font-weight:normal;">
+                Parse directives • Flag risky patterns • Export findings report (local, no uploads)
+              </h2>
+
+              <div class="muted" style="margin-top:10px">
+                Analyze <span class="mono">Content-Security-Policy</span> and common response security headers in seconds. Paste a CSP header (or a full header block) to see normalized directives, severity findings, and a shareable report — everything runs locally in your browser.
+              </div>
+
+              <div class="muted" style="margin-top:10px">
+                Built for incident response, PR reviews, and hardening work: quickly spot unsafe tokens, overly-broad sources, and missing protections like <span class="mono">frame-ancestors</span> or strong defaults.
+              </div>
+
+              <div class="hr"></div>
+
+              <!-- Optional ad unit placement (script alone won't render ads) -->
+              <!--
+              <ins class="adsbygoogle"
+                   style="display:block; margin: 10px 0;"
+                   data-ad-client="ca-pub-7167291111213614"
+                   data-ad-slot="YOUR_SLOT_ID"
+                   data-ad-format="auto"
+                   data-full-width-responsive="true"></ins>
+              <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+              </script>
+              <div class="hr"></div>
+              -->
+
+              <div class="row">
+                <div class="col" style="flex:2 1 360px; min-width:280px">
+                  <div class="lbl">Paste CSP or response headers</div>
+                  <textarea id="inBox" class="ta" spellcheck="false" placeholder="Content-Security-Policy: default-src 'self'; script-src 'self' https: 'unsafe-inline'; object-src 'none'; ..."></textarea>
+                </div>
+
+                <div class="col">
+                  <div class="lbl">Options</div>
+                  <label style="display:flex;gap:8px;align-items:center">
+                    <input id="optNormalize" type="checkbox" checked>
+                    <span>Normalize whitespace</span>
+                  </label>
+                  <label style="display:flex;gap:8px;align-items:center">
+                    <input id="optShowParsed" type="checkbox" checked>
+                    <span>Show parsed directives</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="btnrow">
+                <button class="pill" type="button" id="btnAnalyze">Analyze</button>
+                <button class="pill" type="button" id="btnClear">Clear</button>
+                <button class="pill" type="button" id="btnCopyReport">Copy report</button>
+                <button class="pill" type="button" id="btnDownloadTxt">Download .txt</button>
+                <button class="pill" type="button" id="btnDownloadJson">Download .json</button>
+              </div>
+
+              <div class="msg" id="status"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pad">
+              <div class="h1">Findings</div>
+              <div class="muted2">Severity buckets: High / Medium / Low / Info.</div>
+
+              <div class="hr"></div>
+
+              <div class="findings" id="findings"></div>
+
+              <div class="hr"></div>
+
+              <div class="h1">Parsed</div>
+              <div class="muted2">Directive → sources/tokens (normalized).</div>
+              <div class="hr"></div>
+              <div class="pre" id="parsedOut" aria-label="Parsed CSP"></div>
+
+            </div>
+          </div>
+
+
+          
+
+        </section>
+        <section class="card">
+          <div class="pad">
+           
+            <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              This free online CSP analyzer parses <span class="mono">Content-Security-Policy</span> directives and common response security headers, normalizes sources, and flags patterns that weaken protections against XSS, clickjacking, and injection paths. Paste a CSP header or a full response header block and get severity-scored findings plus an exportable report — processing is local-only in your browser with no uploads.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
+            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
+              <li>Validate a CSP change before deploying to production</li>
+              <li>Quickly assess security posture during incident response or triage</li>
+              <li>Review third-party integrations for overly-broad allowlists</li>
+              <li>Generate a lightweight findings report for PRs, tickets, or audits</li>
+              <li>Check for missing headers like <span class="mono">X-Content-Type-Options</span>, <span class="mono">Referrer-Policy</span>, and <span class="mono">Permissions-Policy</span></li>
+            </ul>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              Input is parsed client-side. CSP directives are tokenized into sources/keywords, whitespace is normalized, and each directive is evaluated against a ruleset to produce findings (High/Medium/Low/Info). If you paste full response headers, the analyzer extracts CSP and also evaluates other common hardening headers alongside it. The “Parsed” view shows normalized directives and token mapping so you can verify exactly what the browser would interpret.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Does this tool upload my headers or CSP?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Analysis runs locally in your browser and nothing is sent to a backend.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Can I paste full response headers instead of only CSP?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">Yes. Paste the header block and the analyzer will extract CSP and evaluate other common security headers.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Why are <span class="mono">'unsafe-inline'</span> / <span class="mono">'unsafe-eval'</span> flagged?</h4>
+            <p class="muted" style="margin:0; line-height:1.6;">They weaken script/style restrictions and can open injection paths. Prefer nonces/hashes and narrower sources.</p>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+
+  const inBox = $("inBox");
+  const optNormalize = $("optNormalize");
+  const optShowParsed = $("optShowParsed");
+
+  const btnAnalyze = $("btnAnalyze");
+  const btnClear = $("btnClear");
+  const btnCopyReport = $("btnCopyReport");
+  const btnDownloadTxt = $("btnDownloadTxt");
+  const btnDownloadJson = $("btnDownloadJson");
+
+  const status = $("status");
+  const findingsEl = $("findings");
+  const parsedOut = $("parsedOut");
+
+  let lastReportText = "";
+  let lastReportJson = null;
+
+  function setStatus(msg, cls){
+    status.textContent = msg || "";
+    status.className = "msg " + (cls || "");
+  }
+
+  function setToolUse(){
+    if (window.SWY_toolUse) window.SWY_toolUse();
+  }
+
+  function downloadText(filename, text, mime){
+    const blob = new Blob([text || ""], { type: mime || "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function copyText(text){
+    if(!text) return setStatus("Nothing to copy.");
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus("Copied.", "ok");
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setStatus("Copied.", "ok");
+    }
+  }
+
+  function normalize(s){
+    let t = String(s || "");
+    if(optNormalize.checked) t = t.replace(/\r\n/g,"\n").trim();
+    return t;
+  }
+
+  function extractHeadersOrCsp(raw){
+    const text = normalize(raw);
+    const lines = text.split("\n").map(x => x.trim()).filter(Boolean);
+
+    const headers = {};
+    for(const line of lines){
+      const idx = line.indexOf(":");
+      if(idx > 0){
+        const k = line.slice(0, idx).trim().toLowerCase();
+        const v = line.slice(idx+1).trim();
+        headers[k] = (headers[k] ? (headers[k] + ", " + v) : v);
+      }
+    }
+
+    const csp = headers["content-security-policy"] || headers["content-security-policy-report-only"] || null;
+    if(csp) return { headers, csp };
+
+    const looksLikeCsp = /(\bdefault-src\b|\bscript-src\b|\bstyle-src\b|\bframe-ancestors\b|\bbase-uri\b)/i.test(text);
+    return { headers, csp: looksLikeCsp ? text : null };
+  }
+
+  function parseCsp(policy){
+    const out = {};
+    const p = String(policy || "").trim();
+    if(!p) return out;
+
+    const parts = p.split(";").map(x => x.trim()).filter(Boolean);
+    for(const part of parts){
+      const tokens = part.split(/\s+/).filter(Boolean);
+      if(tokens.length === 0) continue;
+      const dir = tokens[0].toLowerCase();
+      const vals = tokens.slice(1);
+      out[dir] = vals;
+    }
+    return out;
+  }
+
+  function has(out, dir, token){
+    const arr = out[dir];
+    if(!arr) return false;
+    return arr.includes(token);
+  }
+
+  function any(out, dir, pred){
+    const arr = out[dir] || [];
+    return arr.some(pred);
+  }
+
+  function addFinding(list, sev, title, detail, source){
+    list.push({ severity: sev, title, detail, source });
+  }
+
+  function analyze(){
+    findingsEl.innerHTML = "";
+    parsedOut.textContent = "";
+    lastReportText = "";
+    lastReportJson = null;
+
+    const raw = inBox.value;
+    if(!raw.trim()) return setStatus("Paste CSP or headers first.");
+
+    const { headers, csp } = extractHeadersOrCsp(raw);
+
+    const findings = [];
+    const parsed = csp ? parseCsp(csp) : {};
+
+    if(!csp){
+      addFinding(findings, "high", "No CSP found", "No Content-Security-Policy detected in input.", "CSP");
+    } else {
+      if(!parsed["default-src"]) addFinding(findings, "med", "default-src missing", "Consider setting default-src as a baseline policy.", "CSP");
+
+      if(has(parsed, "script-src", "'unsafe-inline'")) addFinding(findings, "high", "script-src allows 'unsafe-inline'", "Inline scripts are easier to abuse. Prefer nonce/hash.", "CSP");
+      if(has(parsed, "script-src", "'unsafe-eval'")) addFinding(findings, "high", "script-src allows 'unsafe-eval'", "Eval-like sinks increase XSS impact.", "CSP");
+      if(any(parsed, "script-src", v => v === "*" )) addFinding(findings, "high", "script-src allows *", "Wildcard sources weaken script isolation.", "CSP");
+      if(any(parsed, "script-src", v => v === "data:")) addFinding(findings, "high", "script-src allows data:", "data: scripts are high-risk.", "CSP");
+
+      if(!parsed["object-src"]) addFinding(findings, "med", "object-src missing", "Set object-src 'none' to reduce plugin/embed risk.", "CSP");
+      if(parsed["object-src"] && !has(parsed,"object-src","'none'")) addFinding(findings, "med", "object-src not 'none'", "Consider object-src 'none'.", "CSP");
+
+      if(!parsed["frame-ancestors"]) addFinding(findings, "med", "frame-ancestors missing", "Add frame-ancestors 'none' (or a strict allowlist).", "CSP");
+      if(has(parsed,"frame-ancestors","*")) addFinding(findings, "high", "frame-ancestors allows *", "Allows clickjacking by any origin.", "CSP");
+
+      if(!parsed["base-uri"]) addFinding(findings, "low", "base-uri missing", "Consider base-uri 'none' or 'self'.", "CSP");
+
+      if(headers["content-security-policy-report-only"]) addFinding(findings, "info", "Report-Only CSP present", "Policy is report-only; enforcement may be off.", "CSP");
+
+      if(has(parsed, "script-src", "'strict-dynamic'")) addFinding(findings, "info", "Uses 'strict-dynamic'", "This typically pairs with nonces/hashes.", "CSP");
+    }
+
+    if(Object.keys(headers || {}).length){
+      const h = headers;
+
+      if(!h["strict-transport-security"]) addFinding(findings, "med", "HSTS missing", "Strict-Transport-Security header not found.", "Headers");
+      if(!h["x-content-type-options"]) addFinding(findings, "low", "X-Content-Type-Options missing", "Consider X-Content-Type-Options: nosniff.", "Headers");
+      if(!h["referrer-policy"]) addFinding(findings, "low", "Referrer-Policy missing", "Consider Referrer-Policy: no-referrer (or strict-origin-when-cross-origin).", "Headers");
+      if(!h["permissions-policy"]) addFinding(findings, "info", "Permissions-Policy missing", "Optional hardening for browser features.", "Headers");
+
+      if(!h["x-frame-options"] && !(csp && parsed["frame-ancestors"])) {
+        addFinding(findings, "med", "Clickjacking protection missing", "Add CSP frame-ancestors and/or X-Frame-Options.", "Headers");
+      }
+
+      if(!h["cross-origin-opener-policy"]) addFinding(findings, "info", "COOP missing", "Optional isolation hardening.", "Headers");
+      if(!h["cross-origin-embedder-policy"]) addFinding(findings, "info", "COEP missing", "Optional isolation hardening.", "Headers");
+      if(!h["cross-origin-resource-policy"]) addFinding(findings, "info", "CORP missing", "Optional resource policy hardening.", "Headers");
+    }
+
+    findingsEl.innerHTML = "";
+    const order = { high:0, med:1, low:2, info:3 };
+    findings.sort((a,b) => (order[a.severity] ?? 9) - (order[b.severity] ?? 9));
+
+    for(const f of findings){
+      const div = document.createElement("div");
+      div.className = "finding";
+
+      const top = document.createElement("div");
+      top.className = "top";
+
+      const sev = document.createElement("span");
+      sev.className = "sev " + f.severity;
+      sev.innerHTML = `<b>${f.severity.toUpperCase()}</b><span>${f.source}</span>`;
+
+      const title = document.createElement("div");
+      title.style.color = "var(--text)";
+      title.style.fontWeight = "800";
+      title.textContent = f.title;
+
+      top.appendChild(sev);
+      top.appendChild(title);
+
+      const detail = document.createElement("div");
+      detail.className = "muted2";
+      detail.style.marginTop = "8px";
+      detail.textContent = f.detail;
+
+      div.appendChild(top);
+      div.appendChild(detail);
+      findingsEl.appendChild(div);
+    }
+
+    if(optShowParsed.checked && csp){
+      parsedOut.textContent = JSON.stringify(parsed, null, 2);
+    } else {
+      parsedOut.textContent = "";
+    }
+
+    const report = [];
+    report.push("CSP & Security Headers Analyzer — Local Report");
+    report.push("time: " + new Date().toISOString());
+    report.push("");
+    if(csp) report.push("csp: " + csp);
+    else report.push("csp: (not found)");
+    report.push("");
+    report.push("findings:");
+    for(const f of findings){
+      report.push(`- [${f.severity.toUpperCase()}] (${f.source}) ${f.title} — ${f.detail}`);
+    }
+
+    lastReportText = report.join("\n");
+    lastReportJson = { time: new Date().toISOString(), csp: csp || null, headers: headers || {}, findings };
+
+    setStatus("Analyzed. Findings: " + findings.length, "ok");
+    setToolUse();
+  }
+
+  btnAnalyze.addEventListener("click", analyze);
+
+  btnClear.addEventListener("click", () => {
+    inBox.value = "";
+    findingsEl.innerHTML = "";
+    parsedOut.textContent = "";
+    lastReportText = "";
+    lastReportJson = null;
+    setStatus("");
+  });
+
+  btnCopyReport.addEventListener("click", () => copyText(lastReportText || ""));
+  btnDownloadTxt.addEventListener("click", () => downloadText("csp-report.txt", lastReportText || "", "text/plain;charset=utf-8"));
+  btnDownloadJson.addEventListener("click", () => downloadText("csp-report.json", JSON.stringify(lastReportJson || {}, null, 2), "application/json;charset=utf-8"));
+
+})();
+</script>
+</body>
+</html>

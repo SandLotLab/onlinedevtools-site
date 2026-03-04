@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head> 
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — Online Dev Tools</title>
+
+  <!-- SEO -->
+  <meta name="description" content="About Online Dev Tools: an independent web studio building fast, lightweight browser tools and small interactive games. Local-first design. No accounts required." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/about" />
+
+  <meta property="og:title" content="About — Online Dev Tools" />
+  <meta property="og:description" content="Independent web studio focused on fast browser tools, lightweight games, and privacy-first design." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://onlinedevtools.app/about" />
+
+  <link rel="stylesheet" href="/assets/site.css">
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+	 
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About Online Dev Tools Dev Studio",
+  "url": "https://onlinedevtools.app/about",
+  "description": "Independent web studio building fast browser tools and lightweight games with privacy-first principles."
+}
+</script>
+	 
+</head>
+
+<body>
+  <div class="page">
+   
+   <div id="site-header"></div>
+
+    <main>
+      <div class="wrap">
+        <section class="grid" style="grid-template-columns:1fr;">
+          <div class="card">
+            <div class="pad">
+
+              <h1 class="h1" style="margin:0;">About</h1>
+              <h2 class="muted" style="margin:2px 0 0 0;font-size:12px;font-weight:normal;">
+                Fast tools. Lightweight games. Local-first design.
+              </h2>
+
+              <div class="muted">
+
+                Online Dev Tools is an independent web studio focused on building fast, lightweight browser tools and small interactive games.
+
+                <div class="hr"></div>
+
+                This site is designed to provide:
+                <br>- Quick functional utilities that solve small tasks efficiently.
+                <br>- Browser-based developer and security tools (JSON formatting, JWT decoding, CSP analysis, hash generation, UUID generation, and log inspection).
+                <br>- Lightweight browser-native games that load instantly.
+                <br>- A clean, minimal environment without social feeds or account systems.
+
+                <div class="hr"></div>
+
+                Design Principles:
+
+                <br><br><strong>Speed.</strong>
+                Pages are intentionally lightweight and optimized for fast load times.
+
+                <br><br><strong>Privacy.</strong>
+                No accounts required. No forced sign-in. No unnecessary data collection.
+
+                <br><br><strong>Local-first interaction.</strong>
+                Tool inputs and outputs are designed to stay in your browser whenever technically possible.
+                Some tools or games may use local storage to remember preferences or progress.
+
+                <br><br><strong>Focused utility.</strong>
+                Each page aims to solve a specific problem cleanly, without turning into a bloated dashboard.
+
+                <br><br><strong>Sustainable support.</strong>
+                Advertising may be displayed to support hosting and development.
+                Core functionality is not restricted by ads.
+
+                <div class="hr"></div>
+
+                Online Dev Tools is built for developers, IT professionals, security engineers, and technically curious users who value speed and minimal friction.
+
+                <br><br>
+                Online Dev Tools is not a social platform, subscription service, or marketplace.
+                It is a focused, evolving web studio built for practical use and lightweight interaction.
+
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+
+  </div>
+  
+  <script>
+async function loadPartials() {
+  const header = await fetch('/partials/header.html');
+  const footer = await fetch('/partials/footer.html');
+
+  document.getElementById('site-header').innerHTML = await header.text();
+  document.getElementById('site-footer').innerHTML = await footer.text();
+}
+
+loadPartials();
+</script>
+  
+</body>
+</html>

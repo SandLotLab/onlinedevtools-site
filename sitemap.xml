@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url><loc>https://onlinedevtools.app/</loc></url>
+  <url><loc>https://onlinedevtools.app/about</loc></url>
+  <url><loc>https://onlinedevtools.app/contact</loc></url>
+  <url><loc>https://onlinedevtools.app/privacy</loc></url>
+  <url><loc>https://onlinedevtools.app/terms</loc></url>
+
+  <url><loc>https://onlinedevtools.app/json-formatter</loc></url>
+  <url><loc>https://onlinedevtools.app/json-to-typescript</loc></url>
+  <url><loc>https://onlinedevtools.app/jwt-decoder</loc></url>
+  <url><loc>https://onlinedevtools.app/hash-generator</loc></url>
+  <url><loc>https://onlinedevtools.app/uuid-generator</loc></url>
+  <url><loc>https://onlinedevtools.app/csp-analyzer</loc></url>
+  <url><loc>https://onlinedevtools.app/log-explorer</loc></url>
+  <url><loc>https://onlinedevtools.app/infrastructure</loc></url>
+
+  <url><loc>https://onlinedevtools.app/roguelike</loc></url>
+  <url><loc>https://onlinedevtools.app/galactica</loc></url>
+
+</urlset>

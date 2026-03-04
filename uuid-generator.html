@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Free Online UUID Generator (v4, v5, v7) + Validator — Bulk, Search, Export | Online Dev Tools</title>
+  <meta name="description" content="Free UUID generator and validator. Generate UUID v4 (random), v5 (namespace+name), and v7 (time-ordered). Bulk generate, search, sort, copy, and export TXT/CSV. Runs locally in your browser — no uploads." />
+  <link rel="canonical" href="https://onlinedevtools.app/uuid-generator">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free Online UUID Generator + Validator (v4/v5/v7) | Online Dev Tools" />
+  <meta property="og:description" content="UUID v4/v5/v7 generator with bulk, search, sort, copy, and export. Runs locally — no uploads.">
+  <meta property="og:url" content="https://onlinedevtools.app/uuid-generator">
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "UUID Generator + Validator",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "url": "https://onlinedevtools.app/uuid-generator",
+    "description": "Free UUID generator and validator. Generate UUID v4 (random), v5 (namespace+name), and v7 (time-ordered). Bulk generate, search, sort, copy, and export TXT/CSV. Runs locally in your browser — no uploads."
+  }
+  </script>
+
+  <!-- No worker needed; keep CSP strict (no blob required) -->
+  <meta http-equiv="Content-Security-Policy" content="
+   default-src 'self' https:;
+   script-src 'self' 'unsafe-inline' https:;
+   style-src 'self' 'unsafe-inline' https:;
+   img-src 'self' data: https:;
+   font-src 'self' data: https:;
+   connect-src 'self' https:;
+   frame-src https:;
+   object-src 'none';
+   base-uri 'self';
+   frame-ancestors 'self';
+ ">
+
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+
+  <style>
+    /* --- Generated UUID table only --- */
+#rows table,
+#rows { }
+
+.card table {
+  width:100%;
+  border-collapse: collapse;
+}
+
+/* TARGET ONLY THE RIGHT CARD TABLE */
+tbody#rows tr td,
+tbody#rows tr th {
+  padding:4px 6px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  font-size:12px;
+  line-height:1.2;
+}
+
+tbody#rows tr th {
+  color: var(--muted);
+  font-weight:600;
+}
+
+/* compact version badge */
+tbody#rows .tag {
+  padding:2px 6px;
+  font-size:11px;
+}
+
+/* compact action buttons */
+tbody#rows .actions {
+  gap:6px;
+}
+
+tbody#rows .actions .pill {
+  padding:4px 8px;
+  font-size:11px;
+}
+
+  </style>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+  <div class="page">
+    <div id="site-header"></div>
+
+    <main>
+      <div class="wrap">
+        <section class="grid">
+
+          <div class="card">
+            <div class="pad">
+
+              <!-- SEO headings (same look as your existing .h1 + .muted blocks) -->
+              <h1 class="h1" style="margin:0; font-size:inherit; font-weight:inherit;">Free Online UUID Generator + Validator</h1>
+              <h2 class="muted" style="margin:10px 0 0 0; font-size:inherit; font-weight:normal;">
+                Generate UUIDs locally: v4 (random), v5 (namespace+name), v7 (time-ordered). Bulk generate, search, sort, copy, and export.
+              </h2>
+
+              <div class="hr"></div>
+
+              <div class="row">
+                <div class="col" style="flex: 2 1 320px; min-width:260px;">
+                  <div class="lbl">UUID version</div>
+                  <select id="ver" class="in mono">
+                    <option value="v4" selected>UUID v4 (random)</option>
+                    <option value="v7">UUID v7 (time-ordered)</option>
+                    <option value="v5">UUID v5 (namespace + name)</option>
+                  </select>
+                </div>
+
+                <div class="col">
+                  <div class="lbl">Count (bulk)</div>
+                  <input id="count" class="in mono" type="number" min="1" max="5000" value="10" />
+                </div>
+
+                <div class="col">
+                  <div class="lbl">Sort</div>
+                  <select id="sort" class="in mono">
+                    <option value="newest" selected>Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="version">By version</option>
+                  </select>
+                </div>
+
+                <div class="col">
+                  <div class="lbl">Search</div>
+                  <input id="search" class="in mono" placeholder="filter UUIDs…" />
+                </div>
+              </div>
+
+              <div id="v5Fields" style="display:none; margin-top:12px">
+                <div class="row">
+                  <div class="col" style="flex: 2 1 320px; min-width:260px;">
+                    <div class="lbl">Namespace UUID</div>
+                    <input id="ns" class="in mono" value="6ba7b810-9dad-11d1-80b4-00c04fd430c8" />
+                    <div class="mutedline">Default is DNS namespace. Use any valid namespace UUID.</div>
+                  </div>
+                  <div class="col" style="flex: 3 1 360px; min-width:260px;">
+                    <div class="lbl">Name</div>
+                    <input id="name" class="in mono" placeholder="e.g. example.com" />
+                    <div class="mutedline">Same namespace + same name → same UUID (deterministic).</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                <button class="pill" type="button" id="btnGen">Generate</button>
+                <button class="pill" type="button" id="btnCopyAll">Copy all</button>
+                <button class="pill" type="button" id="btnExportTxt">Export .txt</button>
+                <button class="pill" type="button" id="btnExportCsv">Export .csv</button>
+                <button class="pill" type="button" id="btnClear">Clear list</button>
+              </div>
+
+              <div class="hr"></div>
+              <div class="muted" id="status"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pad">
+              <h2 class="h1" style="margin:0; font-size:inherit; font-weight:inherit;">Generated UUIDs</h2>
+
+              <div class="row" style="margin-top:10px">
+                <div class="col">
+                  <div class="lbl">Validate UUID</div>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input id="validateIn" class="in mono" placeholder="paste UUID here…" />
+                    <button class="pill" type="button" id="btnValidate">Validate</button>
+                  </div>
+                  <div class="mutedline" id="valStatus" style="margin-top:6px"></div>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div style="overflow:auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:130px;">Created</th>
+                      <th style="width:70px;">Ver</th>
+                      <th>UUID</th>
+                      <th style="width:180px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rows"></tbody>
+                </table>
+              </div>
+
+              <div class="mutedline" style="margin-top:10px">
+                v4 = random UUID. v7 = time-ordered UUID (good for DB indexes). v5 = SHA-1 namespace+name (deterministic).
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- SEO content (full-width, outside the grid) -->
+        <section class="card">
+          <div class="pad">
+
+            <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              This free online UUID generator helps you create and validate UUIDs (v4, v5, and v7) directly in your browser. Use it to bulk-generate identifiers, verify format, and export results without sending data to a server. It’s built for developers who need fast, predictable UUIDs for databases, APIs, logs, tests, and distributed systems.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
+            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
+              <li>Generate UUID v4 values for primary keys, request IDs, and correlation IDs</li>
+              <li>Create time-ordered UUID v7 identifiers for better index locality and sorting</li>
+              <li>Produce deterministic UUID v5 values from a namespace + name</li>
+              <li>Validate UUIDs from logs, payloads, or user input before storing</li>
+              <li>Bulk-generate IDs for fixtures, test data, migrations, or seed scripts</li>
+            </ul>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              Generation happens client-side in your browser. For v4, the tool uses secure randomness (when available) to produce RFC-style UUIDs. For v5, it derives a deterministic UUID from a namespace UUID and a name string so the same input produces the same output. For v7, it creates time-ordered UUIDs that sort roughly by creation time. The validator checks structure and version/variant fields so you can quickly confirm an ID is well-formed.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Does this UUID generator upload my data?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Generation and validation run locally in your browser.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Which UUID version should I use?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">Use v4 for general random IDs, v5 for deterministic IDs based on inputs, and v7 when you want time-ordered UUIDs that sort better in databases.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Can I bulk-generate and export UUIDs?</h4>
+            <p class="muted" style="margin:0; line-height:1.6;">Yes. Generate multiple UUIDs, search/sort the list, then copy or export to TXT/CSV for use in scripts or datasets.</p>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </div>
+
+  <script>
+  async function loadPartials() {
+    const header = await fetch('/partials/header.html');
+    const footer = await fetch('/partials/footer.html');
+    const h = document.getElementById('site-header');
+    const f = document.getElementById('site-footer');
+    if (h) h.innerHTML = await header.text();
+    if (f) f.innerHTML = await footer.text();
+  }
+  loadPartials();
+  </script>
+
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+
+    const ver = $("ver");
+    const countEl = $("count");
+    const sortEl = $("sort");
+    const searchEl = $("search");
+
+    const v5Fields = $("v5Fields");
+    const nsEl = $("ns");
+    const nameEl = $("name");
+
+    const rowsEl = $("rows");
+    const statusEl = $("status");
+
+    const validateIn = $("validateIn");
+    const valStatus = $("valStatus");
+
+    const list = []; // { uuid, ver, createdMs }
+
+    function setStatus(msg){ statusEl.textContent = msg || ""; }
+    function setValStatus(msg){ valStatus.textContent = msg || ""; }
+
+    function isValidUUID(u){
+      // strict RFC4122-ish variant+version check
+      const s = String(u || "").trim().toLowerCase();
+      const re = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+      return re.test(s);
+    }
+
+    function detectVersion(u){
+      const s = String(u || "").trim().toLowerCase();
+      if (!isValidUUID(s)) return null;
+      return "v" + s[14];
+    }
+
+    function fmtTime(ms){
+      const d = new Date(ms);
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      const ss = String(d.getSeconds()).padStart(2,"0");
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    async function copyText(text, okMsg) {
+      if (!text) return setStatus("Nothing to copy.");
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus(okMsg || "Copied.");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        setStatus(okMsg || "Copied.");
+      }
+    }
+
+    function downloadText(filename, text, mime) {
+      const blob = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------- UUID v7 ----------
+    // v7 layout: 48-bit Unix ms timestamp + random, with version/variant bits
+    function uuidV7(){
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+
+      const ms = Date.now();
+      // 48-bit timestamp big-endian into bytes[0..5]
+      bytes[0] = (ms / 2**40) & 0xff;
+      bytes[1] = (ms / 2**32) & 0xff;
+      bytes[2] = (ms / 2**24) & 0xff;
+      bytes[3] = (ms / 2**16) & 0xff;
+      bytes[4] = (ms / 2**8) & 0xff;
+      bytes[5] = (ms) & 0xff;
+
+      // version 7 in high nibble of byte[6]
+      bytes[6] = (bytes[6] & 0x0f) | 0x70;
+      // variant RFC4122 in byte[8]
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+      return bytesToUuid(bytes);
+    }
+
+    // ---------- UUID v5 (namespace + name, SHA-1) ----------
+    function uuidToBytes(uuid){
+      const s = uuid.replace(/-/g,"").toLowerCase();
+      const out = new Uint8Array(16);
+      for (let i=0;i<16;i++){
+        out[i] = parseInt(s.slice(i*2, i*2+2), 16);
+      }
+      return out;
+    }
+
+    async function uuidV5(namespaceUuid, name){
+      const ns = String(namespaceUuid || "").trim();
+      if (!isValidUUID(ns)) throw new Error("Namespace must be a valid UUID.");
+      const nsBytes = uuidToBytes(ns);
+
+      const enc = new TextEncoder();
+      const nameBytes = enc.encode(String(name ?? ""));
+
+      const msg = new Uint8Array(nsBytes.length + nameBytes.length);
+      msg.set(nsBytes, 0);
+      msg.set(nameBytes, nsBytes.length);
+
+      const hash = new Uint8Array(await crypto.subtle.digest("SHA-1", msg)); // 20 bytes
+      const out = hash.slice(0,16);
+
+      out[6] = (out[6] & 0x0f) | 0x50; // version 5
+      out[8] = (out[8] & 0x3f) | 0x80; // variant RFC4122
+
+      return bytesToUuid(out);
+    }
+
+    function bytesToUuid(bytes){
+      const hex = [...bytes].map(b => b.toString(16).padStart(2,"0")).join("");
+      return (
+        hex.slice(0,8) + "-" +
+        hex.slice(8,12) + "-" +
+        hex.slice(12,16) + "-" +
+        hex.slice(16,20) + "-" +
+        hex.slice(20)
+      );
+    }
+
+    // ---------- Generate ----------
+    async function generate(){
+      const which = ver.value;
+      let n = parseInt(countEl.value, 10);
+      if (!Number.isFinite(n) || n < 1) n = 1;
+      if (n > 5000) n = 5000; // UI cap only
+
+      const createdMs = Date.now();
+      const adds = [];
+
+      if (which === "v4") {
+        for (let i=0;i<n;i++) {
+          adds.push({ uuid: crypto.randomUUID(), ver: "v4", createdMs: createdMs + i });
+        }
+      } else if (which === "v7") {
+        for (let i=0;i<n;i++) {
+          adds.push({ uuid: uuidV7(), ver: "v7", createdMs: createdMs + i });
+        }
+      } else if (which === "v5") {
+        const ns = nsEl.value;
+        const nm = nameEl.value;
+        if (!nm.trim()) { setStatus("Enter a name for v5."); return; }
+        // v5 is deterministic; generating N yields same UUID — so generate 1
+        const one = await uuidV5(ns, nm);
+        adds.push({ uuid: one, ver: "v5", createdMs });
+      }
+
+      list.push(...adds);
+      render();
+      setStatus(`Generated ${adds.length} UUID(s).`);
+    }
+
+    function currentView(){
+      const q = (searchEl.value || "").trim().toLowerCase();
+      let out = list.slice();
+
+      if (q) out = out.filter(x => x.uuid.includes(q) || x.ver.includes(q));
+
+      const s = sortEl.value;
+      if (s === "newest") out.sort((a,b)=>b.createdMs - a.createdMs);
+      else if (s === "oldest") out.sort((a,b)=>a.createdMs - b.createdMs);
+      else if (s === "version") out.sort((a,b)=>a.ver.localeCompare(b.ver) || (b.createdMs - a.createdMs));
+
+      return out;
+    }
+
+    function render(){
+      const view = currentView();
+      rowsEl.innerHTML = "";
+
+      for (const item of view) {
+        const tr = document.createElement("tr");
+
+        const tdT = document.createElement("td");
+        tdT.textContent = fmtTime(item.createdMs);
+        tr.appendChild(tdT);
+
+        const tdV = document.createElement("td");
+        tdV.innerHTML = `<span class="tag">${item.ver}</span>`;
+        tr.appendChild(tdV);
+
+        const tdU = document.createElement("td");
+        const code = document.createElement("code");
+        code.className = "mono";
+        code.textContent = item.uuid;
+        tdU.appendChild(code);
+        tr.appendChild(tdU);
+
+        const tdA = document.createElement("td");
+        tdA.className = "actions";
+
+        const b1 = document.createElement("button");
+        b1.className = "pill";
+        b1.type = "button";
+        b1.textContent = "Copy";
+        b1.addEventListener("click", () => copyText(item.uuid, "UUID copied."));
+        tdA.appendChild(b1);
+
+        const b2 = document.createElement("button");
+        b2.className = "pill";
+        b2.type = "button";
+        b2.textContent = "Delete";
+        b2.addEventListener("click", () => {
+          const idx = list.indexOf(item);
+          if (idx >= 0) list.splice(idx, 1);
+          render();
+          setStatus("Deleted.");
+        });
+        tdA.appendChild(b2);
+
+        tr.appendChild(tdA);
+        rowsEl.appendChild(tr);
+      }
+    }
+
+    function copyAll(){
+      const view = currentView();
+      const txt = view.map(x => x.uuid).join("\n");
+      copyText(txt, "All UUIDs copied.");
+    }
+
+    function exportTxt(){
+      const view = currentView();
+      const txt = view.map(x => x.uuid).join("\n");
+      downloadText("uuids.txt", txt, "text/plain;charset=utf-8");
+      setStatus("Exported uuids.txt");
+    }
+
+    function exportCsv(){
+      const view = currentView();
+      const header = "created,version,uuid\n";
+      const lines = view.map(x => `${new Date(x.createdMs).toISOString()},${x.ver},${x.uuid}`).join("\n");
+      downloadText("uuids.csv", header + lines + "\n", "text/csv;charset=utf-8");
+      setStatus("Exported uuids.csv");
+    }
+
+    function clearList(){
+      list.length = 0;
+      render();
+      setStatus("Cleared.");
+    }
+
+    function validateOne(){
+      const u = (validateIn.value || "").trim();
+      if (!u) { setValStatus(""); return; }
+      if (!isValidUUID(u)) { setValStatus("Invalid UUID."); return; }
+      const v = detectVersion(u);
+      setValStatus(`Valid UUID (${v}).`);
+    }
+
+    function updateV5UI(){
+      v5Fields.style.display = (ver.value === "v5") ? "" : "none";
+      if (ver.value === "v5") countEl.value = "1";
+    }
+
+    // Wire up
+    $("btnGen").addEventListener("click", () => generate().catch(e => setStatus("Error: " + (e?.message || String(e)))));
+    $("btnCopyAll").addEventListener("click", copyAll);
+    $("btnExportTxt").addEventListener("click", exportTxt);
+    $("btnExportCsv").addEventListener("click", exportCsv);
+    $("btnClear").addEventListener("click", clearList);
+
+    $("btnValidate").addEventListener("click", validateOne);
+    validateIn.addEventListener("input", () => { setTimeout(validateOne, 60); });
+
+    ver.addEventListener("change", updateV5UI);
+    sortEl.addEventListener("change", render);
+    searchEl.addEventListener("input", () => { setTimeout(render, 60); });
+
+    updateV5UI();
+    render();
+    setStatus("");
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Free Online JSON to TypeScript Converter | Online Dev Tools</title>
+  <meta name="description" content="Free JSON to TypeScript generator. Paste JSON and instantly generate TypeScript interfaces or type aliases. Runs locally in your browser — no uploads." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/json-to-typescript" />
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free Online JSON to TypeScript Converter | Online Dev Tools">
+  <meta property="og:description" content="Paste JSON and generate TypeScript interfaces/types instantly. Runs locally in your browser — no uploads.">
+  <meta property="og:url" content="https://onlinedevtools.app/json-to-typescript">
+  <meta property="og:site_name" content="Online Dev Tools">
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "JSON to TypeScript Interface Generator",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "url": "https://onlinedevtools.app/json-to-typescript",
+  "description": "Free JSON to TypeScript generator that runs entirely in the browser — paste JSON and generate interfaces or type aliases without uploads.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+  </script>
+
+  <meta http-equiv="Content-Security-Policy" content="
+   default-src 'self' https:;
+   script-src 'self' 'unsafe-inline' https:;
+   style-src 'self' 'unsafe-inline' https:;
+   img-src 'self' data: https:;
+   font-src 'self' data: https:;
+   connect-src 'self' https:;
+   object-src 'none';
+   base-uri 'self';
+   frame-ancestors 'self';
+">
+
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <script>
+  async function loadPartials() {
+    const header = await fetch('/partials/header.html');
+    const footer = await fetch('/partials/footer.html');
+
+    document.getElementById('site-header').innerHTML = await header.text();
+    document.getElementById('site-footer').innerHTML = await footer.text();
+  }
+  </script>
+
+</head>
+
+<body onload="loadPartials()">
+  <div class="page">
+
+    <div id="site-header"></div>
+
+    <main>
+      <div class="wrap">
+        <section class="grid">
+
+          <div class="card">
+            <div class="pad">
+
+              <!-- Proper semantic headings, styled to match your site (no layout/style change) -->
+              <h1 class="h1" style="margin:0;">JSON to TypeScript Interface Generator</h1>
+              <h2 class="muted" style="margin:2px 0 0 0;font-size:12px;font-weight:normal;">
+                Generate TypeScript interfaces or type aliases from JSON (local, no uploads)
+              </h2>
+
+              <div class="muted" style="margin-top:10px">
+                Convert raw JSON into clean TypeScript interfaces or type aliases instantly.
+                This JSON to TypeScript generator runs entirely in your browser — your data never leaves your device.
+                Perfect for frontend developers, API consumers, and TypeScript projects.
+              </div>
+
+              <div class="muted" style="margin-top:10px">
+                Paste any JSON payload, generate strongly typed TypeScript definitions,
+                and copy or download the results immediately. Supports nested objects,
+                arrays, union types, and ISO date detection.
+              </div>
+
+              <div class="muted">
+                Paste JSON on the left. Click Generate. Copy/Download TypeScript on the right.
+                <div class="hr"></div>
+
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;min-width:220px;">
+                    <div style="font-size:12px;color:var(--muted);">Root name</div>
+                    <input id="rootName" value="Root"
+                      style="width:100%;border-radius:12px;border:1px solid rgba(23,36,59,.8);background:rgba(11,21,40,.35);color:var(--text);padding:10px 12px;font-family:inherit;font-size:12.5px;line-height:1.2;outline:none;" />
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:6px;min-width:260px;">
+                    <div style="font-size:12px;color:var(--muted);">Output style</div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                      <label style="display:flex;gap:8px;align-items:center;">
+                        <input type="radio" name="outStyle" value="interface" checked>
+                        <span>Export interfaces</span>
+                      </label>
+                      <label style="display:flex;gap:8px;align-items:center;">
+                        <input type="radio" name="outStyle" value="type">
+                        <span>Export type aliases</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:6px;min-width:260px;">
+                    <div style="font-size:12px;color:var(--muted);">Options</div>
+                    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+                      <label style="display:flex;gap:8px;align-items:center;">
+                        <input id="optIPrefix" type="checkbox" checked>
+                        <span>I-prefix (IRoot)</span>
+                      </label>
+                      <label style="display:flex;gap:8px;align-items:center;">
+                        <input id="optDate" type="checkbox" checked>
+                        <span>ISO strings → Date</span>
+                      </label>
+                      <label style="display:flex;gap:8px;align-items:center;">
+                        <input id="optStrictNull" type="checkbox" checked>
+                        <span>Keep null unions</span>
+                      </label>
+                      <label style="display:flex;gap:8px;align-items:center;">
+                        <input id="optAutoCopyJson" type="checkbox" checked>
+                        <span>Auto-copy JSON on prettify/minify</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <textarea id="jsonIn"
+                  style="width:100%;min-height:260px;border-radius:12px;border:1px solid rgba(23,36,59,.8);background:rgba(11,21,40,.35);color:var(--text);padding:12px;font-family:inherit;font-size:12.5px;line-height:1.55;"
+                  spellcheck="false"></textarea>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                  <button class="pill" type="button" id="btnGenerate">Generate</button>
+                  <button class="pill" type="button" id="btnPrettify">Prettify JSON</button>
+                  <button class="pill" type="button" id="btnMinify">Minify JSON</button>
+                  <button class="pill" type="button" id="btnCopyJson">Copy JSON</button>
+                  <button class="pill" type="button" id="btnDownloadJson">Download JSON</button>
+                  <button class="pill" type="button" id="btnClear">Clear</button>
+                </div>
+
+                <div class="hr"></div>
+                <div class="muted" id="status" style="margin-top:6px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pad">
+              <div class="h1">TypeScript Output</div>
+
+              <div class="muted">
+                <textarea id="tsOut"
+                  style="width:100%;min-height:360px;border-radius:12px;border:1px solid rgba(23,36,59,.8);background:rgba(11,21,40,.35);color:var(--text);padding:12px;font-family:inherit;font-size:12.5px;line-height:1.55;"
+                  spellcheck="false"
+                  placeholder="TypeScript will appear here..."></textarea>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                  <button class="pill" type="button" id="btnCopyTs">Copy TS</button>
+                  <button class="pill" type="button" id="btnDownloadTs">Download types.ts</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+       <section class="card">
+          <div class="pad">
+
+            <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              Convert raw JSON into clean TypeScript interfaces or type aliases instantly. This free online JSON to TypeScript generator runs entirely in your browser — no uploads and no server-side processing. It’s built for frontend developers and API consumers who want fast, accurate typings for real-world responses, configs, and payloads.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
+            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
+              <li>Generate TypeScript interfaces from API responses</li>
+              <li>Create typed models for React, Angular, or Node projects</li>
+              <li>Turn backend JSON payloads into frontend-safe type definitions</li>
+              <li>Sanity-check object shape before implementation</li>
+              <li>Speed up schema modeling during prototyping</li>
+            </ul>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              The generator parses valid JSON and infers TypeScript types from values: primitives map to string/number/boolean, nested objects become nested interfaces/types, and arrays are typed based on detected structure. Because it runs locally in your browser, your JSON never leaves your device.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Does this send JSON to a server?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No — parsing and type generation run locally in your browser.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Can it handle nested or complex JSON?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">Yes. Nested objects and arrays are converted into properly typed interfaces/types.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">What if my JSON is invalid?</h4>
+            <p class="muted" style="margin:0; line-height:1.6;">The generator requires valid JSON. Fix the syntax and run Generate again.</p>
+
+          </div>
+        </section>
+      </div>
+    </section>
+
+
+
+    <div id="site-footer"></div>
+
+  </div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  const jsonIn = $("jsonIn");
+  const tsOut = $("tsOut");
+  const status = $("status");
+
+  const rootNameEl = $("rootName");
+  const optIPrefix = $("optIPrefix");
+  const optDate = $("optDate");
+  const optStrictNull = $("optStrictNull");
+  const optAutoCopyJson = $("optAutoCopyJson");
+
+  function setStatus(msg) { status.textContent = msg || ""; }
+
+  function outStyle() {
+    const r = document.querySelector('input[name="outStyle"]:checked');
+    return r ? r.value : "interface";
+  }
+
+  function pascal(s) {
+    if (!s) return "Root";
+    return String(s)
+      .replace(/[^a-zA-Z0-9_]/g, " ")
+      .split(" ")
+      .filter(Boolean)
+      .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+      .join("") || "Root";
+  }
+
+  function safeKey(k) {
+    return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(k) ? k : JSON.stringify(k);
+  }
+
+  function singular(s) {
+    if (!s) return "Item";
+    return s.endsWith("s") ? s.slice(0, -1) : s;
+  }
+
+  function isObj(v) { return v && typeof v === "object" && !Array.isArray(v); }
+
+  function looksISODate(s) {
+    if (typeof s !== "string") return false;
+    return /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+\-]\d{2}:\d{2})?)?$/.test(s);
+  }
+
+  function uniq(arr) {
+    const out = [];
+    for (const x of arr) if (!out.includes(x)) out.push(x);
+    return out;
+  }
+
+  function normalizeUnion(types) {
+    const order = (t) => {
+      if (t === "string") return 1;
+      if (t === "number") return 2;
+      if (t === "boolean") return 3;
+      if (t === "Date") return 4;
+      if (t.endsWith("[]")) return 50;
+      if (t.startsWith("I") || /^[A-Z]/.test(t)) return 60;
+      if (t === "unknown") return 98;
+      if (t === "null") return 99;
+      return 70;
+    };
+    const u = uniq(types);
+    u.sort((a,b) => order(a) - order(b) || a.localeCompare(b));
+    return u;
+  }
+
+  function unionType(types) {
+    const u = normalizeUnion(types);
+    if (u.length === 0) return "unknown";
+    if (u.length === 1) return u[0];
+    return u.join(" | ");
+  }
+
+  function maybeWrapUnion(t) {
+    return t.includes(" | ") ? `(${t})` : t;
+  }
+
+  function mergeShapes(a, b) {
+    const out = new Map();
+    const keys = new Set([...a.keys(), ...b.keys()]);
+    for (const k of keys) {
+      const inA = a.has(k);
+      const inB = b.has(k);
+      const entry = { types: new Set(), optional: false };
+
+      if (inA) {
+        const ea = a.get(k);
+        for (const t of ea.types) entry.types.add(t);
+        entry.optional = entry.optional || ea.optional;
+      }
+      if (inB) {
+        const eb = b.get(k);
+        for (const t of eb.types) entry.types.add(t);
+        entry.optional = entry.optional || eb.optional;
+      }
+
+      if (!(inA && inB)) entry.optional = true;
+      out.set(k, entry);
+    }
+    return out;
+  }
+
+  function buildGeneratorOptions() {
+    const rn = (rootNameEl.value || "Root").trim() || "Root";
+    return {
+      rootName: rn,
+      iPrefix: !!optIPrefix.checked,
+      isoAsDate: !!optDate.checked,
+      keepNull: !!optStrictNull.checked,
+      style: outStyle()
+    };
+  }
+
+  function makeName(base, opts) {
+    const p = pascal(base || "Root");
+    return opts.iPrefix ? "I" + p : p;
+  }
+
+  function createCtx(opts) {
+    const order = [];
+    const shapes = new Map();
+    const seenByRef = new WeakMap();
+    const nameCounts = new Map();
+
+    function uniqName(base) {
+      const n = nameCounts.get(base) || 0;
+      if (n === 0) { nameCounts.set(base, 1); return base; }
+      nameCounts.set(base, n + 1);
+      return base + (n + 1);
+    }
+
+    function nameFromPath(pathParts) {
+      const joined = pathParts.map(pascal).join("");
+      return uniqName(makeName(joined, opts));
+    }
+
+    function captureObject(obj, pathParts) {
+      if (!isObj(obj)) return null;
+      if (seenByRef.has(obj)) return seenByRef.get(obj);
+
+      const ifaceName = nameFromPath(pathParts);
+      seenByRef.set(obj, ifaceName);
+
+      const shape = new Map();
+      for (const [k, v] of Object.entries(obj)) {
+        shape.set(k, { types: new Set([inferType(v, pathParts.concat([k]))]), optional: false });
+      }
+
+      if (!shapes.has(ifaceName)) {
+        shapes.set(ifaceName, shape);
+        order.push(ifaceName);
+      } else {
+        shapes.set(ifaceName, mergeShapes(shapes.get(ifaceName), shape));
+      }
+
+      for (const [k, v] of Object.entries(obj)) {
+        if (isObj(v)) captureObject(v, pathParts.concat([k]));
+        else if (Array.isArray(v)) captureArrayForObjects(v, pathParts.concat([k]));
+      }
+
+      return ifaceName;
+    }
+
+    function captureArrayForObjects(arr, pathParts) {
+      if (!Array.isArray(arr) || arr.length === 0) return null;
+
+      let merged = null;
+      let anyObj = false;
+
+      for (const item of arr) {
+        if (!isObj(item)) continue;
+        anyObj = true;
+
+        const itemShape = new Map();
+        for (const [k, v] of Object.entries(item)) {
+          itemShape.set(k, { types: new Set([inferType(v, pathParts.concat([singular(pathParts[pathParts.length-1] || "Item"), k]))]), optional: false });
+        }
+
+        merged = merged ? mergeShapes(merged, itemShape) : itemShape;
+
+        for (const [k, v] of Object.entries(item)) {
+          if (isObj(v)) captureObject(v, pathParts.concat([singular(pathParts[pathParts.length-1] || "Item"), k]));
+          else if (Array.isArray(v)) captureArrayForObjects(v, pathParts.concat([singular(pathParts[pathParts.length-1] || "Item"), k]));
+        }
+      }
+
+      if (!anyObj) return null;
+
+      const ifaceName = nameFromPath(pathParts.concat([singular(pathParts[pathParts.length-1] || "Item")]));
+      if (!shapes.has(ifaceName)) {
+        shapes.set(ifaceName, merged || new Map());
+        order.push(ifaceName);
+      } else {
+        shapes.set(ifaceName, mergeShapes(shapes.get(ifaceName), merged || new Map()));
+      }
+
+      return ifaceName;
+    }
+
+    function inferType(v, pathParts) {
+      if (v === null) return opts.keepNull ? "null" : "unknown";
+
+      const t = typeof v;
+      if (t === "string") return (opts.isoAsDate && looksISODate(v)) ? "Date" : "string";
+      if (t === "number") return "number";
+      if (t === "boolean") return "boolean";
+      if (Array.isArray(v)) return inferArray(v, pathParts);
+      if (isObj(v)) return captureObject(v, pathParts);
+
+      return "unknown";
+    }
+
+    function inferArray(arr, pathParts) {
+      if (arr.length === 0) return "unknown[]";
+
+      const elTypes = [];
+      const objIface = captureArrayForObjects(arr, pathParts);
+
+      for (const item of arr) {
+        if (isObj(item)) continue;
+        elTypes.push(inferType(item, pathParts.concat([singular(pathParts[pathParts.length-1] || "Item")])));
+        if (elTypes.length > 12) break;
+      }
+
+      if (objIface) elTypes.push(objIface);
+
+      let u = normalizeUnion(elTypes);
+      if (!opts.keepNull) u = u.filter(x => x !== "null");
+
+      const el = u.length === 1 ? u[0] : maybeWrapUnion(u.join(" | "));
+      return `${el}[]`;
+    }
+
+    function render() {
+      const lines = [];
+      for (const name of order) {
+        const shape = shapes.get(name) || new Map();
+
+        if (opts.style === "interface") {
+          lines.push(`export interface ${name} {`);
+          for (const [k, meta] of shape.entries()) {
+            const prop = safeKey(k);
+            let tsT = unionType([...meta.types]);
+            if (!opts.keepNull) tsT = unionType([...meta.types].filter(x => x !== "null"));
+            const optional = meta.optional ? "?" : "";
+            lines.push(`  ${prop}${optional}: ${tsT};`);
+          }
+          lines.push("}");
+          lines.push("");
+        } else {
+          lines.push(`export type ${name} = {`);
+          for (const [k, meta] of shape.entries()) {
+            const prop = safeKey(k);
+            let tsT = unionType([...meta.types]);
+            if (!opts.keepNull) tsT = unionType([...meta.types].filter(x => x !== "null"));
+            const optional = meta.optional ? "?" : "";
+            lines.push(`  ${prop}${optional}: ${tsT};`);
+          }
+          lines.push("};");
+          lines.push("");
+        }
+      }
+      while (lines.length && lines[lines.length - 1] === "") lines.pop();
+      return lines.join("\n");
+    }
+
+    function inferRoot(rootVal) {
+      const rootTName = "Root";
+      const rootObjName = makeName(opts.rootName, opts);
+
+      if (rootVal === null) return { rootExport: `export type ${rootTName} = ${opts.keepNull ? "null" : "unknown"};` };
+      if (Array.isArray(rootVal)) return { rootExport: `export type ${rootTName} = ${inferType(rootVal, [opts.rootName || "Root"])};` };
+
+      if (isObj(rootVal)) {
+        if (!seenByRef.has(rootVal)) seenByRef.set(rootVal, rootObjName);
+
+        const shape = new Map();
+        for (const [k, v] of Object.entries(rootVal)) {
+          shape.set(k, { types: new Set([inferType(v, [opts.rootName || "Root", k])]), optional: false });
+        }
+
+        if (!shapes.has(rootObjName)) {
+          shapes.set(rootObjName, shape);
+          order.unshift(rootObjName);
+        } else {
+          shapes.set(rootObjName, mergeShapes(shapes.get(rootObjName), shape));
+        }
+
+        for (const [k, v] of Object.entries(rootVal)) {
+          if (isObj(v)) captureObject(v, [opts.rootName || "Root", k]);
+          else if (Array.isArray(v)) captureArrayForObjects(v, [opts.rootName || "Root", k]);
+        }
+
+        return { rootExport: `export type ${rootTName} = ${rootObjName};` };
+      }
+
+      if (typeof rootVal === "string") return { rootExport: `export type ${rootTName} = ${(opts.isoAsDate && looksISODate(rootVal)) ? "Date" : "string"};` };
+      if (typeof rootVal === "number") return { rootExport: `export type ${rootTName} = number;` };
+      if (typeof rootVal === "boolean") return { rootExport: `export type ${rootTName} = boolean;` };
+
+      return { rootExport: `export type ${rootTName} = unknown;` };
+    }
+
+    return { inferRoot, render };
+  }
+
+  function generate() {
+    const raw = jsonIn.value.trim();
+    if (!raw) { tsOut.value = ""; setStatus("Paste JSON first."); return; }
+
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch (e) {
+      tsOut.value = "";
+      setStatus("JSON error: " + (e && e.message ? e.message : String(e)));
+      return;
+    }
+
+    try {
+      const opts = buildGeneratorOptions();
+      const ctx = createCtx(opts);
+      const rootInfo = ctx.inferRoot(parsed);
+
+      const out = [];
+      out.push(`// Generated by onlinedevtools.app`);
+      out.push(`// Options: style=${opts.style}, iPrefix=${opts.iPrefix}, isoAsDate=${opts.isoAsDate}, keepNull=${opts.keepNull}`);
+      out.push(rootInfo.rootExport);
+      out.push("");
+
+      const body = ctx.render();
+      if (body.trim()) out.push(body);
+
+      tsOut.value = out.join("\n");
+      setStatus("Generated.");
+    } catch (e) {
+      tsOut.value = "";
+      setStatus("Generation error: " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  function prettify() {
+    const raw = jsonIn.value.trim();
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      jsonIn.value = JSON.stringify(parsed, null, 2);
+      setStatus("Prettified.");
+      if (optAutoCopyJson.checked) copyText(jsonIn.value, "JSON copied.");
+    } catch (e) {
+      setStatus("JSON error: " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  function minify() {
+    const raw = jsonIn.value.trim();
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      jsonIn.value = JSON.stringify(parsed);
+      setStatus("Minified.");
+      if (optAutoCopyJson.checked) copyText(jsonIn.value, "JSON copied.");
+    } catch (e) {
+      setStatus("JSON error: " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  async function copyText(text, okMsg) {
+    if (!text) return setStatus("Nothing to copy.");
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus(okMsg || "Copied.");
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setStatus(okMsg || "Copied.");
+    }
+  }
+
+  function downloadText(filename, text, mime) {
+    const blob = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadTS() {
+    const txt = tsOut.value;
+    if (!txt.trim()) return setStatus("Generate TypeScript first.");
+    const rn = (rootNameEl.value || "Root").trim() || "Root";
+    const name = pascal(rn) || "Types";
+    downloadText(`${name}.types.ts`, txt, "text/typescript;charset=utf-8");
+    setStatus("Downloaded TypeScript.");
+  }
+
+  function downloadJSON() {
+    const raw = jsonIn.value.trim();
+    if (!raw) return setStatus("Paste JSON first.");
+    try {
+      const parsed = JSON.parse(raw);
+      const rn = (rootNameEl.value || "Root").trim() || "Root";
+      const name = pascal(rn) || "data";
+      downloadText(`${name}.json`, JSON.stringify(parsed, null, 2), "application/json;charset=utf-8");
+      setStatus("Downloaded JSON.");
+    } catch (e) {
+      setStatus("JSON error: " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  $("btnGenerate").addEventListener("click", generate);
+  $("btnPrettify").addEventListener("click", prettify);
+  $("btnMinify").addEventListener("click", minify);
+  $("btnCopyJson").addEventListener("click", () => copyText(jsonIn.value.trim(), "JSON copied."));
+  $("btnDownloadJson").addEventListener("click", downloadJSON);
+  $("btnClear").addEventListener("click", () => { jsonIn.value=""; tsOut.value=""; setStatus(""); });
+
+  $("btnCopyTs").addEventListener("click", () => copyText(tsOut.value, "TypeScript copied."));
+  $("btnDownloadTs").addEventListener("click", downloadTS);
+
+  document.querySelectorAll('input[name="outStyle"]').forEach(el => el.addEventListener("change", () => {
+    if (jsonIn.value.trim()) generate();
+  }));
+  [rootNameEl, optIPrefix, optDate, optStrictNull].forEach(el => el.addEventListener("change", () => {
+    if (jsonIn.value.trim()) generate();
+  }));
+
+  setStatus("");
+})();
+</script>
+
+</body>
+</html>

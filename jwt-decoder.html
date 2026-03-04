@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+   
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Free Online JWT Decoder & Inspector — Decode, Verify HS256/384/512, Check exp/iat/nbf (Local)</title>
+  <meta name="description" content="Free online JWT decoder & inspector: decode header/payload, check exp/iat/nbf, copy/download, and optionally verify HS256/384/512. Runs locally in your browser — no uploads." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/jwt-decoder" />
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free Online JWT Decoder & Inspector (Local, Privacy-Forward)">
+  <meta property="og:description" content="Free online JWT decoder: decode header/payload, check exp/iat/nbf, copy/download, optional HS* verify. Runs locally in your browser — no uploads.">
+  <meta property="og:url" content="https://onlinedevtools.app/jwt-decoder">
+  <meta property="og:site_name" content="Online Dev Tools">
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"JWT Decoder & Inspector",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/jwt-decoder",
+    "description":"JWT decoder & inspector: decode header/payload, check exp/iat/nbf, copy/download, and optionally verify HS256/384/512. Runs locally — no uploads.",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <!-- Hardened but compatible with your inline JS + styling -->
+  <meta http-equiv="Content-Security-Policy" content="
+   default-src 'self' https:;
+   script-src 'self' 'unsafe-inline' https:;
+   style-src 'self' 'unsafe-inline' https:;
+   img-src 'self' data: https:;
+   font-src 'self' data: https:;
+   connect-src 'self' https:;
+   frame-src https:;
+   object-src 'none';
+   base-uri 'self';
+   frame-ancestors 'self';
+ ">
+
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+
+  <style>
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+    .col{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1 1 220px}
+    .lbl{font-size:12px;color:var(--muted)}
+    .in,.ta,.pre{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(23,36,59,.8);
+      background:rgba(11,21,40,.35);
+      color:var(--text);
+      padding:10px 12px;
+      font-family:inherit;
+      font-size:12.5px;
+      line-height:1.5;
+      outline:none;
+    }
+    .ta{min-height:140px}
+    .pre{min-height:220px;white-space:pre;overflow:auto}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .tab{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(23,36,59,.85);
+      background: linear-gradient(to bottom, rgba(11,21,40,.85), rgba(11,21,40,.55));
+      color:var(--text);font-size:13px;cursor:pointer;user-select:none;
+    }
+    .tab.active{border-color: rgba(246,195,74,.55)}
+    .pane{display:none}
+    .pane.active{display:block}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .chip{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(23,36,59,.85);
+      background:rgba(11,21,40,.55);
+      font-size:12.5px;color:var(--muted);
+    }
+    .chip b{color:var(--text)}
+    .chip.high{border-color: rgba(255,107,107,.50)}
+    .chip.med{border-color: rgba(246,195,74,.55)}
+    .chip.low{border-color: rgba(92,255,157,.35)}
+    .msg{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.5;white-space:pre-wrap}
+    .msg.ok{color:#5cff9d}
+    .msg.bad{color:#ff6b6b}
+    .muted2{color:var(--muted);font-size:12.5px;line-height:1.55}
+
+	main{
+  flex:0;
+}
+  </style>
+
+  <script>
+  async function loadPartials() {
+    const header = await fetch('/partials/header.html');
+    const footer = await fetch('/partials/footer.html');
+
+    const h = document.getElementById('site-header');
+    const f = document.getElementById('site-footer');
+
+    if (h) h.innerHTML = await header.text();
+    if (f) f.innerHTML = await footer.text();
+
+    if (window.SWY_renderToolUse) window.SWY_renderToolUse();
+  }
+  loadPartials();
+  </script>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+</head>
+
+<body>
+  <div class="page">
+    <div id="site-header"></div>
+
+    <main>
+      <div class="wrap">
+        <section class="grid">
+
+          <div class="card">
+            <div class="pad">
+
+              <!-- Proper semantic headings with NO default styling impact -->
+              <h1 class="h1" style="margin:0;">Free Online JWT Decoder &amp; Inspector</h1>
+              <h2 class="muted" style="margin:2px 0 0 0;font-size:12px;font-weight:normal;">
+                Decode • Inspect Claims • Check exp/iat/nbf • Optional HS256/384/512 Verify
+              </h2>
+
+              <div class="muted" style="margin-top:10px">
+                Decode and inspect JSON Web Tokens (JWT) locally: header/payload/signature, exp/iat/nbf timestamps, and optional HS256/384/512 verification — no uploads.
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row">
+                <div class="col" style="flex:2 1 360px; min-width:280px">
+                  <div class="lbl">JWT (paste token)</div>
+                  <textarea id="jwtIn" class="ta" spellcheck="false" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJpYXQiOjE3MD..."></textarea>
+                </div>
+
+                <div class="col">
+                  <div class="lbl">Options</div>
+                  <label style="display:flex;gap:8px;align-items:center">
+                    <input id="optPretty" type="checkbox" checked>
+                    <span>Pretty JSON</span>
+                  </label>
+                  <label style="display:flex;gap:8px;align-items:center">
+                    <input id="optAutoTrim" type="checkbox" checked>
+                    <span>Trim + collapse whitespace</span>
+                  </label>
+                  <label style="display:flex;gap:8px;align-items:center">
+                    <input id="optAutoPad" type="checkbox" checked>
+                    <span>Auto-fix Base64URL padding</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="btnrow">
+                <button class="pill" type="button" id="btnDecode">Decode</button>
+                <button class="pill" type="button" id="btnClear">Clear</button>
+                <button class="pill" type="button" id="btnCopyActive">Copy active</button>
+                <button class="pill" type="button" id="btnDownloadActive">Download active</button>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row">
+                <div class="col">
+                  <div class="lbl">HS* Verify (optional)</div>
+                  <input id="secretIn" class="in" spellcheck="false" placeholder="HMAC secret (HS256/384/512 only)" />
+                </div>
+                <div class="col" style="min-width:220px">
+                  <div class="lbl">Verify</div>
+                  <button class="pill" type="button" id="btnVerify">Verify signature</button>
+                </div>
+              </div>
+
+              <div class="chips" id="chips"></div>
+              <div class="msg" id="status"></div>
+
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pad">
+              <div class="h1">Decoded</div>
+
+              <div class="tabs" role="tablist" aria-label="JWT tabs">
+                <div class="tab active" data-tab="header">Header</div>
+                <div class="tab" data-tab="payload">Payload</div>
+                <div class="tab" data-tab="signature">Signature</div>
+                <div class="tab" data-tab="meta">Meta</div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="pane active" id="pane-header">
+                <div class="muted2">Decoded header JSON.</div>
+                <div class="hr"></div>
+                <div class="pre" id="outHeader" aria-label="Decoded header"></div>
+              </div>
+
+              <div class="pane" id="pane-payload">
+                <div class="muted2">Decoded payload JSON.</div>
+                <div class="hr"></div>
+                <div class="pre" id="outPayload" aria-label="Decoded payload"></div>
+              </div>
+
+              <div class="pane" id="pane-signature">
+                <div class="muted2">Raw token parts + signature segment.</div>
+                <div class="hr"></div>
+                <div class="pre" id="outSig" aria-label="Token signature"></div>
+              </div>
+
+              <div class="pane" id="pane-meta">
+                <div class="muted2">Time checks + quick notes.</div>
+                <div class="hr"></div>
+                <div class="pre" id="outMeta" aria-label="JWT meta"></div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+        <section class="card">
+          <div class="pad">
+
+             <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              This free online JWT decoder lets you inspect token header and payload claims instantly, including exp/iat/nbf checks and common structure validation. All decoding runs locally in your browser — no uploads and no server-side processing. Use it to debug authentication flows, verify what your app is actually receiving, and quickly export decoded sections for incident response or logging.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
+            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
+              <li>Inspect header and payload claims during OAuth/OpenID debugging</li>
+              <li>Check token expiration (exp), issued-at (iat), and not-before (nbf)</li>
+              <li>Confirm issuer (iss), audience (aud), subject (sub), and scopes/roles</li>
+              <li>Copy or download decoded sections for troubleshooting and reporting</li>
+              <li>Optionally verify HS256/384/512 signatures when you have the shared secret</li>
+            </ul>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              JWTs are three base64url-encoded parts: header, payload, and signature. This tool decodes the header and payload by base64url decoding and JSON parsing, then evaluates time-based claims (exp/iat/nbf) against your local clock. Signature verification is optional: when you provide a shared secret for HS* algorithms, the tool computes the expected HMAC and compares it to the token signature — all locally in the browser.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Does this JWT decoder upload my token?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Decoding and optional verification run locally in your browser.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Does decoding a JWT mean the signature is valid?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Decoding only reveals the contents. Signature validity requires verification (HS* verify is available when you provide the secret).</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Why do exp/iat/nbf checks show as invalid?</h4>
+            <p class="muted" style="margin:0; line-height:1.6;">Most issues come from clock skew, tokens being used too early (nbf), or expired tokens (exp). Confirm your system time and token issuance settings.</p>
+        
+     		</div>
+        </section>
+
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+
+  const jwtIn = $("jwtIn");
+  const secretIn = $("secretIn");
+
+  const optPretty = $("optPretty");
+  const optAutoTrim = $("optAutoTrim");
+  const optAutoPad = $("optAutoPad");
+
+  const btnDecode = $("btnDecode");
+  const btnVerify = $("btnVerify");
+  const btnClear = $("btnClear");
+  const btnCopyActive = $("btnCopyActive");
+  const btnDownloadActive = $("btnDownloadActive");
+
+  const chips = $("chips");
+  const status = $("status");
+
+  const outHeader = $("outHeader");
+  const outPayload = $("outPayload");
+  const outSig = $("outSig");
+  const outMeta = $("outMeta");
+
+  let activeTab = "header";
+
+  function setStatus(msg, cls){
+    status.textContent = msg || "";
+    status.className = "msg " + (cls || "");
+  }
+
+  function b64urlToBytes(seg, autoPad){
+    let s = String(seg || "").replace(/-/g, "+").replace(/_/g, "/");
+    if (autoPad) {
+      const mod = s.length % 4;
+      if (mod === 2) s += "==";
+      else if (mod === 3) s += "=";
+      else if (mod === 1) throw new Error("Invalid base64url length");
+    }
+    const bin = atob(s);
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function bytesToB64url(bytes){
+    let bin = "";
+    for (let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+    const b64 = btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+    return b64;
+  }
+
+  function utf8BytesToString(bytes){
+    return new TextDecoder("utf-8", { fatal:false }).decode(bytes);
+  }
+
+  function safeJsonParse(s){
+    try { return { ok:true, val: JSON.parse(s) }; }
+    catch(e){ return { ok:false, err: (e && e.message) ? e.message : String(e) }; }
+  }
+
+  function pretty(v){
+    return optPretty.checked ? JSON.stringify(v, null, 2) : JSON.stringify(v);
+  }
+
+  function setActiveTab(tab){
+    activeTab = tab;
+
+    document.querySelectorAll(".tab").forEach(t => {
+      t.classList.toggle("active", t.dataset.tab === tab);
+    });
+    $("pane-header").classList.toggle("active", tab === "header");
+    $("pane-payload").classList.toggle("active", tab === "payload");
+    $("pane-signature").classList.toggle("active", tab === "signature");
+    $("pane-meta").classList.toggle("active", tab === "meta");
+  }
+
+  document.querySelectorAll(".tab").forEach(t => {
+    t.addEventListener("click", () => setActiveTab(t.dataset.tab));
+  });
+
+  function mkChip(label, value, sev){
+    const s = document.createElement("span");
+    s.className = "chip " + (sev || "");
+    s.innerHTML = `<b>${label}</b><span>${value}</span>`;
+    return s;
+  }
+
+  function epochToHuman(sec){
+    if (!Number.isFinite(sec)) return null;
+    const ms = sec * 1000;
+    const d = new Date(ms);
+    if (isNaN(d.getTime())) return null;
+    return d.toISOString();
+  }
+
+  function clearOutputs(){
+    outHeader.textContent = "";
+    outPayload.textContent = "";
+    outSig.textContent = "";
+    outMeta.textContent = "";
+    chips.innerHTML = "";
+    setStatus("", "");
+  }
+
+  async function copyText(text){
+    if(!text) return setStatus("Nothing to copy.");
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus("Copied.", "ok");
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setStatus("Copied.", "ok");
+    }
+  }
+
+  function downloadText(filename, text, mime){
+    const blob = new Blob([text || ""], { type: mime || "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function getActiveText(){
+    if(activeTab === "header") return outHeader.textContent;
+    if(activeTab === "payload") return outPayload.textContent;
+    if(activeTab === "signature") return outSig.textContent;
+    return outMeta.textContent;
+  }
+
+  function setToolUse(){
+    if (window.SWY_toolUse) window.SWY_toolUse();
+  }
+
+  function normalizeToken(raw){
+    let t = String(raw || "");
+    if (optAutoTrim.checked) t = t.trim().replace(/\s+/g,"");
+    return t;
+  }
+
+  function decode(){
+    clearOutputs();
+    const token = normalizeToken(jwtIn.value);
+    if(!token) return setStatus("Paste a JWT first.");
+
+    const parts = token.split(".");
+    if(parts.length !== 3) return setStatus("JWT must have 3 dot-separated parts.", "bad");
+
+    let headerJson, payloadJson;
+    try {
+      const hStr = utf8BytesToString(b64urlToBytes(parts[0], optAutoPad.checked));
+      const pStr = utf8BytesToString(b64urlToBytes(parts[1], optAutoPad.checked));
+
+      const hj = safeJsonParse(hStr);
+      const pj = safeJsonParse(pStr);
+
+      if(!hj.ok) return setStatus("Header JSON parse error: " + hj.err, "bad");
+      if(!pj.ok) return setStatus("Payload JSON parse error: " + pj.err, "bad");
+
+      headerJson = hj.val;
+      payloadJson = pj.val;
+
+      outHeader.textContent = pretty(headerJson);
+      outPayload.textContent = pretty(payloadJson);
+
+      outSig.textContent =
+`header_b64url: ${parts[0]}
+payload_b64url: ${parts[1]}
+signature_b64url: ${parts[2]}
+signed_data: ${parts[0]}.${parts[1]}`;
+
+      // chips
+      chips.innerHTML = "";
+      const alg = headerJson && headerJson.alg ? String(headerJson.alg) : "(missing)";
+      const typ = headerJson && headerJson.typ ? String(headerJson.typ) : "(missing)";
+      chips.appendChild(mkChip("alg", alg, alg === "none" ? "high" : "low"));
+      chips.appendChild(mkChip("typ", typ, "low"));
+
+      // time checks
+      const now = Math.floor(Date.now()/1000);
+      const exp = Number(payloadJson && payloadJson.exp);
+      const iat = Number(payloadJson && payloadJson.iat);
+      const nbf = Number(payloadJson && payloadJson.nbf);
+
+      const lines = [];
+      lines.push(`now_epoch: ${now}`);
+      lines.push(`now_iso:   ${new Date(now*1000).toISOString()}`);
+
+      if(Number.isFinite(iat)){
+        lines.push(`iat_epoch: ${iat}`);
+        lines.push(`iat_iso:   ${epochToHuman(iat) || "(invalid)"}`);
+      }
+      if(Number.isFinite(nbf)){
+        lines.push(`nbf_epoch: ${nbf}`);
+        lines.push(`nbf_iso:   ${epochToHuman(nbf) || "(invalid)"}`);
+        if(now < nbf) chips.appendChild(mkChip("nbf", "NOT YET VALID", "med"));
+        else chips.appendChild(mkChip("nbf", "valid now", "low"));
+      }
+      if(Number.isFinite(exp)){
+        lines.push(`exp_epoch: ${exp}`);
+        lines.push(`exp_iso:   ${epochToHuman(exp) || "(invalid)"}`);
+        if(now >= exp) chips.appendChild(mkChip("exp", "EXPIRED", "high"));
+        else chips.appendChild(mkChip("exp", "valid", "low"));
+      }
+
+      // guidance
+      if(alg === "none") lines.push("\nnote: alg=none means no signature protection.");
+      if(!Number.isFinite(exp)) lines.push("\nnote: no exp claim found (common in internal tokens, risky on public APIs).");
+
+      outMeta.textContent = lines.join("\n");
+
+      setStatus("Decoded.", "ok");
+      setToolUse();
+    } catch(e){
+      setStatus("Decode error: " + ((e && e.message) ? e.message : String(e)), "bad");
+    }
+  }
+
+  async function verify(){
+    const token = normalizeToken(jwtIn.value);
+    if(!token) return setStatus("Paste a JWT first.");
+    const parts = token.split(".");
+    if(parts.length !== 3) return setStatus("JWT must have 3 parts.", "bad");
+
+    // decode header to find alg
+    let headerJson;
+    try{
+      const hStr = utf8BytesToString(b64urlToBytes(parts[0], optAutoPad.checked));
+      const hj = safeJsonParse(hStr);
+      if(!hj.ok) return setStatus("Header JSON parse error: " + hj.err, "bad");
+      headerJson = hj.val;
+    }catch(e){
+      return setStatus("Header decode error: " + ((e && e.message) ? e.message : String(e)), "bad");
+    }
+
+    const alg = headerJson && headerJson.alg ? String(headerJson.alg) : "";
+    if(!alg) return setStatus("Missing alg in header.", "bad");
+    if(!/^HS(256|384|512)$/.test(alg)){
+      return setStatus("Verify supports HS256/384/512 only (HMAC).", "bad");
+    }
+
+    const secret = String(secretIn.value || "");
+    if(!secret) return setStatus("Enter HMAC secret to verify.", "bad");
+
+    const signed = parts[0] + "." + parts[1];
+    const sigProvided = parts[2];
+
+    const hashMap = { HS256:"SHA-256", HS384:"SHA-384", HS512:"SHA-512" };
+    const hashName = hashMap[alg];
+
+    try{
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(secret),
+        { name:"HMAC", hash:{ name: hashName } },
+        false,
+        ["sign"]
+      );
+
+      const sig = await crypto.subtle.sign(
+        "HMAC",
+        key,
+        new TextEncoder().encode(signed)
+      );
+
+      const computed = bytesToB64url(new Uint8Array(sig));
+
+      if(computed === sigProvided){
+        setStatus("Signature: VALID (HMAC " + alg + ")", "ok");
+        setToolUse();
+      }else{
+        setStatus("Signature: INVALID (HMAC " + alg + ")\ncomputed: " + computed + "\nprovided: " + sigProvided, "bad");
+      }
+    }catch(e){
+      setStatus("Verify error: " + ((e && e.message) ? e.message : String(e)), "bad");
+    }
+  }
+
+  btnDecode.addEventListener("click", decode);
+  btnVerify.addEventListener("click", verify);
+
+  btnClear.addEventListener("click", () => {
+    jwtIn.value = "";
+    secretIn.value = "";
+    clearOutputs();
+  });
+
+  btnCopyActive.addEventListener("click", () => copyText(getActiveText()));
+  btnDownloadActive.addEventListener("click", () => {
+    const base = (activeTab === "header") ? "jwt-header" :
+                 (activeTab === "payload") ? "jwt-payload" :
+                 (activeTab === "signature") ? "jwt-signature" : "jwt-meta";
+    downloadText(base + ".txt", getActiveText(), "text/plain;charset=utf-8");
+  });
+
+})();
+</script>
+
+</body>
+</html>

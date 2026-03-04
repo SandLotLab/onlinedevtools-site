@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Roguelike | onlinedevtools.app</title>
+
+  <meta name="description" content="Top-down browser roguelike with 25 guaranteed-beatable levels (0–24). Procedural maps, enemy scaling, and local best-score tracking." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/roguelike" />
+  <meta property="og:title" content="Roguelike | onlinedevtools.app" />
+  <meta property="og:description" content="25 beatable procedural levels (0–24). Enemy scaling. Touch swipe controls. Best moves and time saved locally." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://onlinedevtools.app/roguelike" />
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:#050814;
+      --panel:#0a1224;
+      --panel2:#0d1a31;
+      --ink:#e8f2ff;
+      --muted:#8ea3c6;
+      --accent:#4dd7ff;
+      --danger:#ff5e7a;
+      --goal:#7eff9a;
+      --wall:#1b2a44;
+      --floor:#0f1f38;
+      --corr:#173157;
+      --grid:rgba(255,255,255,.05);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center; background:radial-gradient(circle at 10% 0%, #10203a 0%, #050814 55%);
+      color:var(--ink); font-family:"JetBrains Mono", ui-monospace, monospace;
+    }
+    .wrap{ width:min(1100px,96vw); padding:14px 0 24px; }
+    .card{
+      border:1px solid #20314e; border-radius:16px; padding:14px; background:linear-gradient(180deg, #0a1428 0%, #060d1d 100%);
+      box-shadow:0 18px 46px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    h1{margin:0;font:700 14px/1 "Press Start 2P", monospace; color:var(--accent); letter-spacing:.04em}
+    .sub{font-size:12px;color:var(--muted);margin:6px 0 0}
+    .hud{
+      display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; margin:12px 0;
+    }
+    .hud-item{background:var(--panel2); border:1px solid #294266; border-radius:10px; padding:8px 10px; min-height:62px}
+    .k{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
+    .v{font-size:16px; font-weight:700; margin-top:5px}
+    .goal-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;border:1px solid #2a5b3d;background:rgba(43,96,66,.45);font-size:11px}
+
+    .play-area{position:relative}
+    canvas{width:100%;max-width:100%;display:block;border:1px solid #253750;border-radius:12px;background:#03060f}
+    .crt canvas{filter:contrast(1.05) saturate(1.05)}
+
+    .overlay{
+      position:absolute; inset:0; display:none; place-items:center; border-radius:12px; background:rgba(3,6,15,.68);
+      backdrop-filter: blur(3px);
+    }
+    .overlay.show{display:grid; animation:fade .2s ease}
+    .panel{width:min(560px,94%); background:#091529; border:1px solid #2a4368; border-radius:14px; padding:16px}
+    .panel h2{font-family:"Press Start 2P", monospace; font-size:13px; color:var(--accent); margin:0 0 14px}
+    .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+    button,select,input{
+      background:#0d1f3a; color:var(--ink); border:1px solid #28456c; border-radius:10px; padding:8px 10px; font:inherit; font-size:12px;
+    }
+    button{cursor:pointer}
+    button:hover{border-color:#3d6699}
+
+    .lower{margin-top:12px; display:grid; grid-template-columns:1fr 220px; gap:12px}
+    .tabs{display:flex;gap:4px;border-bottom:1px solid #233955;padding-bottom:8px}
+    .tab{padding:6px 10px;border-radius:8px;border:1px solid transparent;color:var(--muted);font-size:12px}
+    .tab.active{background:#112744;color:var(--ink);border-color:#2d4d75}
+    .panel-scroll{height:170px; overflow:auto; margin-top:8px; padding-right:8px; line-height:1.5; font-size:12px; scroll-behavior:smooth}
+    .panel-scroll p{margin:.3em 0}
+    .panel-scroll .event{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.03)}
+    .side-card{border:1px solid #253c5d; border-radius:12px; padding:10px; background:var(--panel)}
+    .mini{width:100%; image-rendering:pixelated; border-radius:8px; border:1px solid #203651; background:#030a16}
+    .hint-row{margin-top:10px; font-size:11px; color:var(--muted); display:flex; flex-wrap:wrap; gap:14px; justify-content:center}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .floaters{position:absolute; inset:0; pointer-events:none}
+    .floater{position:absolute; font-weight:700; animation:floatUp .6s ease forwards}
+
+    .shake{animation:shake .2s linear}
+    @keyframes floatUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-18px)}}
+    @keyframes shake{0%{transform:translate(0)}25%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0)}}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    @media (max-width:980px){ .hud{grid-template-columns:repeat(3,minmax(0,1fr))}.lower{grid-template-columns:1fr} }
+  </style>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="frame">
+    <h1>Derelict Station: Breachline</h1>
+    <p class="sub">WASD / Arrows / Swipe • Reach the green extraction beacon before hostiles overrun you.</p>
+
+    <div class="hud">
+      <div class="hud-item"><div class="k">Sector</div><div class="v" id="lvlLabel">0</div></div>
+      <div class="hud-item"><div class="k">Moves</div><div class="v" id="movesRun">0</div></div>
+      <div class="hud-item"><div class="k">HP</div><div class="v" id="hpLabel">1</div></div>
+      <div class="hud-item"><div class="k">Hostiles</div><div class="v" id="enemyLabel">0</div></div>
+      <div class="hud-item"><div class="k">Objective</div><div class="v"><span class="goal-chip">🟢 Reach Beacon</span></div></div>
+      <div class="hud-item"><div class="k">Run Time</div><div class="v" id="timeRun">0.0s</div></div>
+      <div class="hud-item"><div class="k">Best</div><div class="v" id="bestLabel">—</div></div>
+    </div>
+
+    <div class="play-area" id="playArea">
+      <canvas id="game" width="768" height="512"></canvas>
+      <div class="floaters" id="floaters"></div>
+      <div id="overlay" class="overlay">
+        <div class="panel">
+          <h2 id="overlayTitle">Start Run</h2>
+          <div id="overlayBody" class="sub" style="line-height:1.7"></div>
+          <div class="btnrow" id="overlayButtons"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lower">
+      <div class="side-card">
+        <div class="tabs">
+          <button class="tab active" data-tab="log">LOG</button>
+          <button class="tab" data-tab="inventory">INVENTORY</button>
+          <button class="tab" data-tab="character">CHARACTER</button>
+          <button class="tab" data-tab="help">HELP</button>
+        </div>
+        <div id="tabContent" class="panel-scroll"></div>
+      </div>
+      <div class="side-card">
+        <div class="k">Tactical Map</div>
+        <canvas id="minimap" class="mini" width="176" height="120"></canvas>
+        <div class="sub" id="status" style="font-size:11px;margin-top:8px">Awaiting deployment</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <label>Sector <input id="levelInput" type="number" min="0" max="24" step="1" value="0" style="width:76px"></label>
+      <button id="goBtn">Deploy</button>
+      <button id="retryBtn">Retry (R)</button>
+      <button id="resetBestBtn">Reset Best</button>
+      <label><input type="checkbox" id="confirmMove"> Confirm touch move</label>
+      <label><input type="checkbox" id="gridHint"> Grid hint</label>
+      <label><input type="checkbox" id="fogToggle" checked> Fog</label>
+      <label><input type="checkbox" id="soundToggle" checked> Sound</label>
+      <label><input type="checkbox" id="motionToggle" checked> Motion FX</label>
+    </div>
+    <div class="hint-row">
+      <span>Move: WASD / Arrows / Swipe</span><span>Pause: Esc</span><span>Next Sector: N</span><span>Previous: P</span>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const canvas = document.getElementById("game"), ctx = canvas.getContext("2d", {alpha:false});
+const minimap = document.getElementById("minimap"), mctx = minimap.getContext("2d", {alpha:false});
+const ui = {
+  lvlLabel: document.getElementById("lvlLabel"), enemyLabel: document.getElementById("enemyLabel"), movesRun: document.getElementById("movesRun"),
+  timeRun: document.getElementById("timeRun"), best: document.getElementById("bestLabel"), status: document.getElementById("status"), hp: document.getElementById("hpLabel"),
+  levelInput: document.getElementById("levelInput"), tabContent: document.getElementById("tabContent"), overlay: document.getElementById("overlay"),
+  overlayTitle: document.getElementById("overlayTitle"), overlayBody: document.getElementById("overlayBody"), overlayButtons: document.getElementById("overlayButtons"),
+  floaters: document.getElementById("floaters"), playArea: document.getElementById("playArea")
+};
+const settings = { crt:false, gridHint:false, fog:true, sound:true, reducedMotion:false, confirmMove:false };
+const TILE=16,W=Math.floor(canvas.width/TILE),H=Math.floor(canvas.height/TILE),WALL=0,FLOOR=1;
+
+const game = {level:0,map:[],player:{x:0,y:0,facing:{x:1,y:0}},exit:{x:0,y:0},enemies:[],alive:true,won:false,moves:0,running:false,startMs:0,seed:"",rng:null,explored:new Set(),log:[],hover:null,pendingMove:null};
+
+const AudioFx = {
+  ctx:null, ensure(){ if(!this.ctx) this.ctx = new (window.AudioContext||window.webkitAudioContext)(); },
+  beep(freq=440,dur=.06,type="square",gain=.03){ if(!settings.sound) return; this.ensure(); const o=this.ctx.createOscillator(),g=this.ctx.createGain(); o.type=type;o.frequency.value=freq;g.gain.value=gain;o.connect(g);g.connect(this.ctx.destination);o.start(); o.stop(this.ctx.currentTime+dur); },
+  tick(){this.beep(560,.04,"square",.02)}, hit(){this.beep(180,.08,"sawtooth",.04)}, clear(){this.beep(780,.12,"triangle",.03); setTimeout(()=>this.beep(980,.1,"triangle",.03),80)}, goal(){this.beep(660,.1,"sine",.03);setTimeout(()=>this.beep(920,.15,"sine",.03),100)}
+};
+
+function makeSeed(){ return "run-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16);}function hash32(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)}return h>>>0}
+function mulberry32(a){return function(){let t=(a+=0x6d2b79f5);t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}};
+const randi=(min,max)=>Math.floor(game.rng()*(max-min+1))+min, clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+const isFloor=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&game.map[y][x]===FLOOR;
+const same=(a,b)=>a.x===b.x&&a.y===b.y;
+
+function paramsForLevel(lv){const cat=lv<=4?0:lv<=9?1:lv<=14?2:lv<=19?3:4;const sub=lv%5;return{enemySteps:cat<=2?1:2,enemyCount:clamp([1,2,3,4,6][cat]+sub+Math.floor(lv/12),1,12),minPath:clamp(10+lv,10,42),safetyMargin:[6,5,4,3,2][cat],roomAttempts:28+lv,maxRooms:clamp(12+Math.floor(lv*.35),12,26)}}
+function makeMap(w,h,roomAttempts,maxRooms){const g=Array.from({length:h},()=>Array.from({length:w},()=>WALL)),rooms=[];for(let i=0;i<roomAttempts&&rooms.length<maxRooms;i++){const rw=randi(4,12),rh=randi(4,10),rx=randi(1,w-rw-2),ry=randi(1,h-rh-2),room={x:rx,y:ry,w:rw,h:rh,cx:rx+(rw>>1),cy:ry+(rh>>1)};let ok=true;for(const r of rooms){if(room.x<r.x+r.w+1&&room.x+room.w+1>r.x&&room.y<r.y+r.h+1&&room.y+room.h+1>r.y){ok=false;break}}if(!ok) continue;for(let y=room.y;y<room.y+room.h;y++)for(let x=room.x;x<room.x+room.w;x++)g[y][x]=FLOOR;if(rooms.length)connect(g,rooms[rooms.length-1],room);rooms.push(room)}if(!rooms.length)for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++)g[y][x]=FLOOR;return g}
+function connect(g,a,b){let x=a.cx,y=a.cy;const tx=b.cx,ty=b.cy;if(game.rng()<.5){while(x!==tx){x+=x<tx?1:-1;g[y][x]=FLOOR}while(y!==ty){y+=y<ty?1:-1;g[y][x]=FLOOR}}else{while(y!==ty){y+=y<ty?1:-1;g[y][x]=FLOOR}while(x!==tx){x+=x<tx?1:-1;g[y][x]=FLOOR}}}
+function bfs(start){const dist=new Int16Array(W*H);dist.fill(-1);const parent=new Int32Array(W*H);parent.fill(-1);const q=[];dist[start.y*W+start.x]=0;q.push(start);for(let i=0;i<q.length;i++){const{x,y}=q[i],d=dist[y*W+x];for(const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]){if(!isFloor(nx,ny))continue;const idx=ny*W+nx;if(dist[idx]!==-1)continue;dist[idx]=d+1;parent[idx]=y*W+x;q.push({x:nx,y:ny})}}return{dist,parent}}
+function reconstruct(parent,start,goal){const path=[],startIdx=start.y*W+start.x;let cur=goal.y*W+goal.x;if(parent[cur]===-1&&cur!==startIdx)return null;while(cur!==-1){path.push({x:cur%W,y:(cur/W)|0});if(cur===startIdx)break;cur=parent[cur]}path.reverse();return path}
+function placeOnFloor(){for(let i=0;i<20000;i++){const x=randi(1,W-2),y=randi(1,H-2);if(isFloor(x,y))return{x,y}}return{x:2,y:2}}
+function spawnEnemies(path,pl,ex,p){const ens=[];let tries=0;while(ens.length<p.enemyCount&&tries<2e4){tries++;const e=placeOnFloor();if(same(e,pl)||same(e,ex)||Math.abs(e.x-pl.x)+Math.abs(e.y-pl.y)<8)continue;if(path.some(t=>same(t,e)))continue;if(ens.some(t=>same(t,e)))continue;ens.push(e)}return ens}
+
+function setLevel(lv){game.level=clamp(lv|0,0,24);ui.levelInput.value=String(game.level);game.seed=makeSeed();game.rng=mulberry32(hash32(game.seed));game.alive=true;game.won=false;game.moves=0;game.running=false;game.startMs=0;game.log=[];game.explored.clear();
+const p=paramsForLevel(game.level);game.map=makeMap(W,H,p.roomAttempts,p.maxRooms);game.player=placeOnFloor();const b=bfs(game.player);let pick=null;for(let i=0;i<2e4;i++){const ex=placeOnFloor();const d=b.dist[ex.y*W+ex.x];if(d>=p.minPath){pick={ex,path:reconstruct(b.parent,game.player,ex)};break}}if(!pick){pick={ex:{x:W-3,y:H-3},path:[{x:2,y:2}]};game.player={x:2,y:2,facing:{x:1,y:0}}}
+game.exit=pick.ex;game.enemies=spawnEnemies(pick.path,game.player,game.exit,p);game.player.facing={x:1,y:0};updateHud();addLog(`Entered sector ${game.level}. ${game.enemies.length} hostiles detected.`);ui.status.textContent="Infiltration active";showStartOverlay();draw()}
+
+function nowMs(){return performance.now()} const elapsedMs=()=>game.running?Math.max(0,nowMs()-game.startMs):0; const startTimer=()=>{if(!game.running){game.running=true;game.startMs=nowMs();}}
+function addLog(text){game.log.unshift({text,time:new Date().toLocaleTimeString()});game.log=game.log.slice(0,120);renderTab()}
+function updateHud(){ui.lvlLabel.textContent=String(game.level);ui.enemyLabel.textContent=String(game.enemies.length);ui.movesRun.textContent=String(game.moves);ui.timeRun.textContent=(elapsedMs()/1000).toFixed(1)+"s";ui.best.textContent=formatBest(loadBest(game.level));ui.hp.textContent=game.alive?"1":"0"}
+
+function bestKey(lv){return "swyn_roguelike_best_v4_"+lv} function loadBest(lv){try{return JSON.parse(localStorage.getItem(bestKey(lv))||"null")}catch{return null}} function saveBest(lv,ms,moves){const cur=loadBest(lv);const better=!cur||ms<cur.ms||(ms===cur.ms&&moves<cur.moves);if(better)localStorage.setItem(bestKey(lv),JSON.stringify({ms,moves}));return better}
+const formatBest=obj=>obj?`${obj.moves}m ${(obj.ms/1000).toFixed(1)}s`:"—";
+
+function move(dx,dy,source="kbd"){
+  if(!game.alive||game.won) return; if(settings.confirmMove&&source==="touch"){game.pendingMove={dx,dy}; ui.status.textContent="Tap again to confirm"; settings.confirmMove=false; setTimeout(()=>settings.confirmMove=document.getElementById("confirmMove").checked,180); return;}
+  const nx=clamp(game.player.x+dx,0,W-1),ny=clamp(game.player.y+dy,0,H-1); if(!isFloor(nx,ny)) return;
+  startTimer(); game.player.facing={x:dx,y:dy}; game.player.x=nx;game.player.y=ny; game.moves++; addLog(`Moved to (${nx},${ny}).`); AudioFx.tick();
+  if(nx===game.exit.x&&ny===game.exit.y){game.won=true; const ms=elapsedMs(); saveBest(game.level,ms,game.moves); addLog("Extraction beacon reached."); ui.status.textContent="Sector cleared"; AudioFx.goal(); AudioFx.clear(); showEndOverlay(true); updateHud(); draw(); return;}
+  enemyTurn(); if(checkLose()) return; updateHud(); draw();
+}
+function enemyTurn(){const {enemySteps}=paramsForLevel(game.level);for(let step=0;step<enemySteps;step++){const dist=bfs(game.player).dist;for(const e of game.enemies){const opts=[[e.x+1,e.y],[e.x-1,e.y],[e.x,e.y+1],[e.x,e.y-1]].filter(([x,y])=>isFloor(x,y));let best=null,bestD=1e9;for(const [x,y] of opts){const d=dist[y*W+x];if(d!==-1&&d<bestD){bestD=d;best={x,y}}}if(best){e.x=best.x;e.y=best.y}}
+if(game.enemies.some(e=>same(e,game.player)))return;}}
+function checkLose(){if(!game.enemies.some(e=>same(e,game.player))) return false; game.alive=false; ui.status.textContent="Operative lost"; addLog("Hostile contact. Run terminated."); AudioFx.hit(); if(!settings.reducedMotion) ui.playArea.classList.add("shake"); setTimeout(()=>ui.playArea.classList.remove("shake"),220); spawnFloater("-1",game.player.x,game.player.y,"#ff768a"); showEndOverlay(false); updateHud(); draw(); return true}
+
+function spawnFloater(text,tx,ty,color){const el=document.createElement("div");el.className="floater";el.textContent=text;el.style.color=color;el.style.left=(tx*TILE+8)+"px";el.style.top=(ty*TILE+2)+"px";ui.floaters.appendChild(el);setTimeout(()=>el.remove(),650)}
+
+const tabs={active:"log"};
+function renderTab(){const h=game.hover; if(tabs.active==="log"){ui.tabContent.innerHTML=game.log.map(x=>`<p class="event">[${x.time}] ${x.text}</p>`).join("")||"<p class='sub'>No events yet.</p>";}
+else if(tabs.active==="inventory"){ui.tabContent.innerHTML="<p>• Medkit: none</p><p>• Battery Cells: 0</p><p>• Artifact Slots: empty</p><p class='sub'>Inventory is placeholder-only to preserve current mechanics.</p>";}
+else if(tabs.active==="character"){ui.tabContent.innerHTML=`<p>Operative: White Ghost</p><p>Hull Integrity: ${game.alive?"100%":"0%"}</p><p>Moves: ${game.moves}</p><p>Hostiles nearby: ${game.enemies.length}</p>${h?`<p>Scan (${h.x},${h.y}): ${describeTile(h.x,h.y)}</p>`:"<p>Hover a tile for scan details.</p>"}`;}
+else {ui.tabContent.innerHTML="<p>Controls: WASD / Arrows / Swipe</p><p>Goal: reach beacon tile 🟢</p><p>Toggles: Grid hint, fog, sound, reduced motion, confirm touch move.</p><p>Pause: ESC</p><p>Retry: R • Next: N • Previous: P</p>";}}
+function describeTile(x,y){if(x===game.player.x&&y===game.player.y)return"You are here.";if(x===game.exit.x&&y===game.exit.y)return"Extraction beacon (goal).";const e=game.enemies.find(z=>z.x===x&&z.y===y);if(e)return"Hostile drone. Contact lethal.";return isFloor(x,y)?"Walkable deck tile.":"Bulkhead wall."}
+
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{tabs.active=btn.dataset.tab;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===btn));renderTab();}));
+
+function draw(){
+  ctx.fillStyle="#02060f";ctx.fillRect(0,0,canvas.width,canvas.height);
+  const t=performance.now()/1000;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const px=x*TILE,py=y*TILE;const wall=game.map[y][x]===WALL;
+    ctx.fillStyle=wall?"#162841":"#0f203a";ctx.fillRect(px,py,TILE,TILE);
+    if(!wall){ctx.fillStyle=(x+y)%2?"rgba(120,180,255,.08)":"rgba(120,180,255,.04)";ctx.fillRect(px+2,py+2,TILE-4,TILE-4)}
+    if(wall&&!isFloor(x+1,y)) {ctx.fillStyle="rgba(255,255,255,.05)";ctx.fillRect(px+TILE-2,py,2,TILE)}
+    if(settings.gridHint){ctx.strokeStyle="rgba(255,255,255,.04)";ctx.strokeRect(px,py,TILE,TILE)}
+    if(settings.fog&&!game.explored.has(`${x},${y}`)){ctx.fillStyle="rgba(2,6,12,.45)";ctx.fillRect(px,py,TILE,TILE)}
+  }
+  game.explored.add(`${game.player.x},${game.player.y}`);
+
+  const glow=4+Math.sin(t*3)*2; ctx.fillStyle="rgba(126,255,154,.15)";ctx.beginPath();ctx.arc(game.exit.x*TILE+8,game.exit.y*TILE+8,glow+6,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#7eff9a";ctx.fillText("⬢",game.exit.x*TILE+3,game.exit.y*TILE+13);
+
+  for(const e of game.enemies){const pulse=Math.sin(t*4+e.x)*.5+.5;ctx.fillStyle=`rgba(255,94,122,${.65+.3*pulse})`;ctx.beginPath();ctx.arc(e.x*TILE+8,e.y*TILE+8,5+pulse,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ffd7df";ctx.fillText("✶",e.x*TILE+4,e.y*TILE+12)}
+
+  ctx.fillStyle="#ffffff";ctx.font="13px 'JetBrains Mono'";ctx.fillText("◉",game.player.x*TILE+2,game.player.y*TILE+12);
+  ctx.strokeStyle="#a8d4ff";ctx.beginPath();ctx.moveTo(game.player.x*TILE+8,game.player.y*TILE+8);ctx.lineTo(game.player.x*TILE+8+game.player.facing.x*6,game.player.y*TILE+8+game.player.facing.y*6);ctx.stroke();
+
+  if(game.hover){ctx.strokeStyle="#4dd7ff";ctx.lineWidth=1.5;ctx.strokeRect(game.hover.x*TILE+1,game.hover.y*TILE+1,TILE-2,TILE-2);ctx.lineWidth=1}
+  drawMini();
+}
+
+function drawMini(){mctx.fillStyle="#02070f";mctx.fillRect(0,0,minimap.width,minimap.height);const sx=minimap.width/W,sy=minimap.height/H;for(let y=0;y<H;y++)for(let x=0;x<W;x++){mctx.fillStyle=game.map[y][x]===WALL?"#172641":"#32517d";if(settings.fog&&!game.explored.has(`${x},${y}`))mctx.fillStyle="#0a1120";mctx.fillRect(x*sx,y*sy,sx,sy);}mctx.fillStyle="#7eff9a";mctx.fillRect(game.exit.x*sx,game.exit.y*sy,sx,sy);mctx.fillStyle="#ff5e7a";for(const e of game.enemies)mctx.fillRect(e.x*sx,e.y*sy,sx,sy);mctx.fillStyle="#fff";mctx.fillRect(game.player.x*sx,game.player.y*sy,sx,sy)}
+
+function showOverlay(title,body,buttons){ui.overlayTitle.textContent=title;ui.overlayBody.innerHTML=body;ui.overlayButtons.innerHTML="";buttons.forEach(({label,cb})=>{const b=document.createElement("button");b.textContent=label;b.onclick=cb;ui.overlayButtons.appendChild(b)});ui.overlay.classList.add("show")}
+function hideOverlay(){ui.overlay.classList.remove("show")}
+function showStartOverlay(){showOverlay("Start Run",`Sector <b>${game.level}</b><br>Controls: WASD / Arrows / Swipe<br>Objective: reach the extraction beacon.`,[{label:"Start Run",cb:hideOverlay}])}
+function showPauseOverlay(){showOverlay("Paused","Movement halted. Resume when ready.",[{label:"Resume",cb:hideOverlay},{label:"Retry",cb:()=>setLevel(game.level)}])}
+function showEndOverlay(win){const t=(elapsedMs()/1000).toFixed(1);showOverlay(win?"Goal Reached":"Run End",`${win?"Extraction successful":"Operative down"}.<br>Sector: <b>${game.level}</b><br>Moves: <b>${game.moves}</b><br>Time: <b>${t}s</b><br>Best: <b>${formatBest(loadBest(game.level))}</b>`,[{label:"Retry",cb:()=>setLevel(game.level)},{label:"Next Sector",cb:()=>setLevel(Math.min(24,game.level+1))}])}
+
+document.getElementById("goBtn").addEventListener("click",()=>setLevel(Number(ui.levelInput.value)||0));
+document.getElementById("retryBtn").addEventListener("click",()=>setLevel(game.level));
+document.getElementById("resetBestBtn").addEventListener("click",()=>{localStorage.removeItem(bestKey(game.level));updateHud();addLog("Best stats reset.")});
+["confirmMove","gridHint","fogToggle","soundToggle","motionToggle"].forEach(id=>document.getElementById(id).addEventListener("change",e=>{const c=e.target.checked;if(id==="confirmMove")settings.confirmMove=c; if(id==="gridHint")settings.gridHint=c; if(id==="fogToggle")settings.fog=c; if(id==="soundToggle")settings.sound=c; if(id==="motionToggle")settings.reducedMotion=!c; draw(); renderTab();}));
+
+addEventListener("keydown",e=>{const k=e.key.toLowerCase(); if(k==="escape"){showPauseOverlay();return} if(k==="r"){setLevel(game.level);return} if(k==="n"){setLevel(Math.min(24,game.level+1));return} if(k==="p"){setLevel(Math.max(0,game.level-1));return} if(document.activeElement?.tagName==="INPUT") return; if(k==="arrowup"||k==="w")move(0,-1); if(k==="arrowdown"||k==="s")move(0,1); if(k==="arrowleft"||k==="a")move(-1,0); if(k==="arrowright"||k==="d")move(1,0);});
+
+canvas.addEventListener("mousemove",e=>{const r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/(r.width/canvas.width)/TILE),y=Math.floor((e.clientY-r.top)/(r.height/canvas.height)/TILE);game.hover={x:clamp(x,0,W-1),y:clamp(y,0,H-1)};if(tabs.active!=="log")renderTab();draw()});
+
+(() => {canvas.style.touchAction="none";let sx=0,sy=0,active=false;const TH=18,DOM=1.1;function start(x,y){sx=x;sy=y;active=true}function end(x,y){if(!active)return;active=false;const dx=x-sx,dy=y-sy,adx=Math.abs(dx),ady=Math.abs(dy);if(adx<TH&&ady<TH) return; if(adx>ady*DOM)move(dx>0?1:-1,0,"touch"); else if(ady>adx*DOM)move(0,dy>0?1:-1,"touch");}
+canvas.addEventListener("touchstart",e=>{const t=e.changedTouches[0];start(t.clientX,t.clientY)},{passive:true});canvas.addEventListener("touchend",e=>{const t=e.changedTouches[0];end(t.clientX,t.clientY)},{passive:true});canvas.addEventListener("mousedown",e=>start(e.clientX,e.clientY));addEventListener("mouseup",e=>end(e.clientX,e.clientY));})();
+
+setInterval(()=>{if(game.running&&game.alive&&!game.won){ui.timeRun.textContent=(elapsedMs()/1000).toFixed(1)+"s"}},100);
+setLevel(0); renderTab();
+</script>
+</body>
+</html>

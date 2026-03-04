@@ -1,0 +1,41 @@
+<footer>
+  <div class="footerwrap">
+    <div>© 2026 onlinedevtools.app</div>
+
+    <div class="footerlinks">
+      <a href="/about">About</a>
+      <span>•</span>
+      <a href="/privacy">Privacy</a>
+      <span>•</span>
+      <a href="/contact">Contact</a>
+      <span>•</span>
+      <a href="/terms">Terms</a>
+    </div>
+
+    <div style="width:100%; text-align:center; margin-top:14px; font-size:11px; letter-spacing:1.5px; opacity:.4;">
+      // Beware of The Old Soldier
+    </div>
+  </div>
+</footer>
+
+<script>
+if (location.hostname === "onlinedevtools.app") {
+  fetch("/ga", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      event: "page_view",
+      path: location.pathname + location.search
+    }),
+    keepalive: true
+  });
+}
+</script>
+
+<!-- CookieYes Banner -->
+<script
+  id="cookieyes"
+  async
+  type="text/javascript"
+  src="https://cdn-cookieyes.com/client_data/b0872fcf9e2c426859698b10be285be4/script.js">
+</script>

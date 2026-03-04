@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Free Online Hash Generator & Encoders (MD5, SHA-256, HMAC, Base64) | Online Dev Tools</title>
+  <meta name="description" content="Free online hash generator and encoders. Generate MD5, SHA-1, SHA-256, SHA-384, SHA-512, and HMAC-SHA256 plus Base64/URL/Hex/HTML/ROT13 locally in your browser." />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <link rel="canonical" href="https://onlinedevtools.app/hash-generator">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Online Dev Tools">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Free Online Hash Generator & Encoders | Online Dev Tools">
+  <meta property="og:description" content="Free online hash generator for MD5/SHA hashes and HMAC plus Base64/URL/Hex/HTML encoders — runs locally in your browser.">
+  <meta property="og:url" content="https://onlinedevtools.app/hash-generator">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Free Online Hash Generator & Encoders | Online Dev Tools">
+  <meta name="twitter:description" content="Free online hash generator for MD5/SHA hashes and HMAC plus Base64/URL/Hex/HTML encoders — runs locally in your browser.">
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Hash Generator & Encoders",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "url": "https://onlinedevtools.app/hash-generator",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free hash generator and encoder/decoder tools: MD5, SHA-1, SHA-256, SHA-384, SHA-512, HMAC-SHA256, Base64, URL, Hex, HTML entities, ROT13, JWT decode. Runs locally in the browser."
+  }
+  </script>
+
+  <!-- Single-file worker uses blob: -->
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self' https:;
+  script-src 'self' 'unsafe-inline' blob: https:;
+  worker-src 'self' blob:;
+  style-src 'self' 'unsafe-inline' https:;
+  img-src 'self' data: https:;
+  font-src 'self' data: https:;
+  connect-src 'self' https:;
+  object-src 'none';
+  base-uri 'self';
+  frame-ancestors 'self';
+">
+
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+
+  <style>
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+    .col { display:flex; flex-direction:column; gap:6px; min-width:220px; flex: 1 1 220px; }
+    .lbl { font-size:12px; color:var(--muted); }
+    .in {
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(23,36,59,.8);
+      background:rgba(11,21,40,.35);
+      color:var(--text);
+      padding:10px 12px;
+      font-family:inherit;
+      font-size:12.5px;
+      line-height:1.2;
+      outline:none;
+    }
+    .ta {
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(23,36,59,.8);
+      background:rgba(11,21,40,.35);
+      color:var(--text);
+      padding:12px;
+      font-family:inherit;
+      font-size:12.5px;
+      line-height:1.55;
+    }
+    select.in { cursor:pointer; }
+    .hint { font-size:12px; color:var(--muted); line-height:1.5; }
+  </style>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+</head>
+
+<body>
+  <div class="page">
+    <div id="site-header"></div>
+
+    <main>
+      <div class="wrap">
+        <section class="grid">
+
+          <div class="card">
+            <div class="pad">
+              <div class="h1">Free Online Hash Generator &amp; Encoders</div>
+
+              <div class="muted" style="margin-top:10px">
+                Generate hashes and run common encoders/decoders locally. No uploads.
+              </div>
+
+              <div class="muted" style="margin-top:10px">
+                MD5, SHA-1, SHA-256, SHA-384, SHA-512, HMAC-SHA256 · Base64 · URL · Hex · HTML entities · ROT13 · JWT decode.
+              </div>
+
+              <div class="muted" style="margin-top:10px">
+                Paste input, pick a mode, and get results instantly — everything runs in your browser.
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row" style="margin-bottom:10px">
+                <div class="col" style="flex: 2 1 320px; min-width:260px;">
+                  <div class="lbl">Mode</div>
+                  <select id="mode" class="in mono">
+                    <optgroup label="Hashes">
+                      <option value="md5">MD5 (hex)</option>
+                      <option value="sha1">SHA-1 (hex)</option>
+                      <option value="sha256" selected>SHA-256 (hex)</option>
+                      <option value="sha384">SHA-384 (hex)</option>
+                      <option value="sha512">SHA-512 (hex)</option>
+                      <option value="hmac-sha256">HMAC-SHA256 (hex)</option>
+                    </optgroup>
+                    <optgroup label="Encoders / Decoders">
+                      <option value="base64-enc">Base64 encode (UTF-8)</option>
+                      <option value="base64-dec">Base64 decode (UTF-8)</option>
+                      <option value="url-enc">URL encode</option>
+                      <option value="url-dec">URL decode</option>
+                      <option value="hex-enc">Hex encode (UTF-8 → hex)</option>
+                      <option value="hex-dec">Hex decode (hex → UTF-8)</option>
+                      <option value="html-enc">HTML entity encode</option>
+                      <option value="html-dec">HTML entity decode</option>
+                      <option value="rot13">ROT13</option>
+                    </optgroup>
+                    <optgroup label="Token Utilities">
+                      <option value="jwt-decode">JWT decode (header.payload)</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div class="col" id="keyCol" style="display:none;">
+                  <div class="lbl">HMAC key</div>
+                  <input id="hmacKey" class="in mono" placeholder="key text (kept local)" />
+                </div>
+
+                <div class="col">
+                  <div class="lbl">Options</div>
+                  <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+                    <label style="display:flex; gap:8px; align-items:center;">
+                      <input id="optAutoRun" type="checkbox" checked>
+                      <span>Auto-run on input</span>
+                    </label>
+                    <label style="display:flex; gap:8px; align-items:center;">
+                      <input id="optUpper" type="checkbox">
+                      <span>Uppercase hex</span>
+                    </label>
+                    <label style="display:flex; gap:8px; align-items:center;">
+                      <input id="optTrim" type="checkbox" checked>
+                      <span>Trim input</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <textarea id="inBox" class="ta mono" style="min-height:260px;" spellcheck="false"
+                placeholder="Paste text / JSON / token here…"></textarea>
+
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                <button class="pill" type="button" id="btnRun">Run</button>
+                <button class="pill" type="button" id="btnSwap">Swap</button>
+                <button class="pill" type="button" id="btnCopyOut">Copy output</button>
+                <button class="pill" type="button" id="btnDownload">Download output.txt</button>
+                <button class="pill" type="button" id="btnClear">Clear</button>
+              </div>
+
+              <div class="hr"></div>
+              <div class="muted" id="status"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pad">
+              <div class="h1">Output</div>
+
+              <textarea id="outBox" class="ta mono" style="min-height:260px;" spellcheck="false"
+                placeholder="Result appears here…"></textarea>
+
+              <div class="hr"></div>
+
+              <div class="hint">
+                Notes:
+                <br>• SHA/HMAC use Web Crypto in a background thread.
+                <br>• MD5 is implemented locally in JS (hex output).
+                <br>• JWT decode does not verify signatures; it only decodes base64url parts.
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <section class="card">
+          <div class="pad">
+		  
+                 <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              This free online hash generator produces common digests and encodings directly in your browser. Use it to generate MD5, SHA-1, SHA-256, SHA-384, SHA-512, and HMAC-SHA256, plus Base64 and URL/Hex/HTML/ROT13 transforms. Everything runs client-side — no uploads and no server-side processing.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
+            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
+              <li>Create checksums to compare two payloads or verify a download</li>
+              <li>Generate SHA-256 digests for API signing workflows and integrity checks</li>
+              <li>Produce HMAC-SHA256 signatures for request authentication (shared-secret schemes)</li>
+              <li>Base64 encode/decode tokens, headers, or binary blobs represented as text</li>
+              <li>URL encode/decode query strings and safely inspect encoded values</li>
+            </ul>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
+              Input text is converted to bytes in your browser, then hashed using standard digest algorithms. Where supported, modern browsers use the Web Crypto APIs for consistent results. Encoders/decoders perform deterministic transforms (Base64, URL, Hex, HTML entities, ROT13) so you can round-trip values and confirm outputs without sending data anywhere.
+            </p>
+
+            <div class="hr"></div>
+
+            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Does this tool upload my input or store it?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Hashing and encoding run locally in your browser and are not persisted by the tool.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Why do my hashes differ from another site?</h4>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">Differences usually come from hidden whitespace, newline style (LF vs CRLF), or text encoding. Try trimming or normalizing input before comparing.</p>
+
+            <h4 class="h4" style="margin:10px 0 6px 0;">Can I hash files instead of text?</h4>
+            <p class="muted" style="margin:0; line-height:1.6;">This page is optimized for text and clipboard workflows. If you need file hashing, add a file picker and stream the file bytes through the same digest functions.</p>
+
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </div>
+
+  <script>
+  async function loadPartials() {
+    const header = await fetch('/partials/header.html');
+    const footer = await fetch('/partials/footer.html');
+    const h = document.getElementById('site-header');
+    const f = document.getElementById('site-footer');
+    if (h) h.innerHTML = await header.text();
+    if (f) f.innerHTML = await footer.text();
+  }
+  loadPartials();
+  </script>
+
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+
+    const mode = $("mode");
+    const keyCol = $("keyCol");
+    const hmacKey = $("hmacKey");
+    const optAutoRun = $("optAutoRun");
+    const optUpper = $("optUpper");
+    const optTrim = $("optTrim");
+
+    const inBox = $("inBox");
+    const outBox = $("outBox");
+    const status = $("status");
+
+    function setStatus(msg){ status.textContent = msg || ""; }
+
+    async function copyText(text, okMsg) {
+      if (!text) return setStatus("Nothing to copy.");
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus(okMsg || "Copied.");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        setStatus(okMsg || "Copied.");
+      }
+    }
+
+    function downloadText(filename, text, mime) {
+      const blob = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------- Worker (Web Crypto + transforms) ----------
+    const workerCode = `
+      const te = new TextEncoder();
+      const td = new TextDecoder();
+
+      function toHex(buf, upper){
+        const u8 = new Uint8Array(buf);
+        let s = "";
+        for (let i=0;i<u8.length;i++){
+          const h = u8[i].toString(16).padStart(2,"0");
+          s += upper ? h.toUpperCase() : h;
+        }
+        return s;
+      }
+
+      function base64EncodeUtf8(str){
+        const bytes = te.encode(str);
+        let bin = "";
+        const chunk = 0x8000;
+        for (let i=0;i<bytes.length;i+=chunk){
+          bin += String.fromCharCode(...bytes.subarray(i,i+chunk));
+        }
+        return btoa(bin);
+      }
+
+      function base64DecodeUtf8(b64){
+        const bin = atob(b64.replace(/\\s+/g,""));
+        const bytes = new Uint8Array(bin.length);
+        for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+        return td.decode(bytes);
+      }
+
+      function base64UrlDecodeUtf8(b64u){
+        let s = (b64u || "").replace(/-/g, "+").replace(/_/g, "/");
+        while (s.length % 4) s += "=";
+        return base64DecodeUtf8(s);
+      }
+
+      function hexEncodeUtf8(str, upper){
+        const bytes = te.encode(str);
+        let out = "";
+        for (const b of bytes){
+          const h = b.toString(16).padStart(2,"0");
+          out += upper ? h.toUpperCase() : h;
+        }
+        return out;
+      }
+
+      function hexDecodeUtf8(hex){
+        const clean = (hex || "").replace(/\\s+/g,"").toLowerCase();
+        if (clean.length % 2 !== 0) throw new Error("Hex length must be even.");
+        const bytes = new Uint8Array(clean.length/2);
+        for (let i=0;i<bytes.length;i++){
+          const byte = parseInt(clean.slice(i*2, i*2+2), 16);
+          if (!Number.isFinite(byte)) throw new Error("Invalid hex.");
+          bytes[i] = byte;
+        }
+        return td.decode(bytes);
+      }
+
+      function rot13(str){
+        return (str || "").replace(/[a-zA-Z]/g, (c) => {
+          const base = c <= "Z" ? 65 : 97;
+          return String.fromCharCode(((c.charCodeAt(0) - base + 13) % 26) + base);
+        });
+      }
+
+      function htmlEncode(str){
+        const s = String(str ?? "");
+        return s
+          .replace(/&/g,"&amp;")
+          .replace(/</g,"&lt;")
+          .replace(/>/g,"&gt;")
+          .replace(/"/g,"&quot;")
+          .replace(/'/g,"&#39;");
+      }
+
+      function htmlDecode(str){
+        const s = String(str ?? "");
+        // Minimal decoder for common entities
+        return s
+          .replace(/&lt;/g,"<")
+          .replace(/&gt;/g,">")
+          .replace(/&quot;/g,'"')
+          .replace(/&#39;/g,"'")
+          .replace(/&amp;/g,"&");
+      }
+
+      async function digest(algo, text, upper){
+        const data = te.encode(text);
+        const buf = await crypto.subtle.digest(algo, data);
+        return toHex(buf, upper);
+      }
+
+      async function hmacSha256(keyText, msgText, upper){
+        const keyData = te.encode(keyText);
+        const key = await crypto.subtle.importKey(
+          "raw",
+          keyData,
+          { name:"HMAC", hash:"SHA-256" },
+          false,
+          ["sign"]
+        );
+        const sig = await crypto.subtle.sign("HMAC", key, te.encode(msgText));
+        return toHex(sig, upper);
+      }
+
+      // MD5 (JS implementation, local) — outputs hex
+      function md5(str, upper){
+        function cmn(q,a,b,x,s,t){a=add32(add32(a,q),add32(x,t));return add32((a<<s)|(a>>> (32-s)),b)}
+        function ff(a,b,c,d,x,s,t){return cmn((b & c) | ((~b) & d),a,b,x,s,t)}
+        function gg(a,b,c,d,x,s,t){return cmn((b & d) | (c & (~d)),a,b,x,s,t)}
+        function hh(a,b,c,d,x,s,t){return cmn(b ^ c ^ d,a,b,x,s,t)}
+        function ii(a,b,c,d,x,s,t){return cmn(c ^ (b | (~d)),a,b,x,s,t)}
+        function md51(s){
+          const txt = te.encode(s);
+          let n = txt.length;
+          const state = [1732584193,-271733879,-1732584194,271733878];
+          let i;
+          for (i=64;i<=n;i+=64) md5cycle(state, md5blk(txt.subarray(i-64,i)));
+          const tail = new Uint8Array(64);
+          tail.set(txt.subarray(i-64, n));
+          tail[n%64] = 0x80;
+          if (n%64 > 55){
+            md5cycle(state, md5blk(tail));
+            tail.fill(0);
+          }
+          const bitLen = n * 8;
+          tail[56] = bitLen & 255;
+          tail[57] = (bitLen >>> 8) & 255;
+          tail[58] = (bitLen >>> 16) & 255;
+          tail[59] = (bitLen >>> 24) & 255;
+          // high bits (not needed for typical text sizes; keep 0)
+          md5cycle(state, md5blk(tail));
+          return state;
+        }
+        function md5cycle(x,k){
+          let [a,b,c,d] = x;
+
+          a = ff(a,b,c,d,k[0],7,-680876936);
+          d = ff(d,a,b,c,k[1],12,-389564586);
+          c = ff(c,d,a,b,k[2],17, 606105819);
+          b = ff(b,c,d,a,k[3],22,-1044525330);
+          a = ff(a,b,c,d,k[4],7,-176418897);
+          d = ff(d,a,b,c,k[5],12, 1200080426);
+          c = ff(c,d,a,b,k[6],17,-1473231341);
+          b = ff(b,c,d,a,k[7],22,-45705983);
+          a = ff(a,b,c,d,k[8],7, 1770035416);
+          d = ff(d,a,b,c,k[9],12,-1958414417);
+          c = ff(c,d,a,b,k[10],17,-42063);
+          b = ff(b,c,d,a,k[11],22,-1990404162);
+          a = ff(a,b,c,d,k[12],7, 1804603682);
+          d = ff(d,a,b,c,k[13],12,-40341101);
+          c = ff(c,d,a,b,k[14],17,-1502002290);
+          b = ff(b,c,d,a,k[15],22, 1236535329);
+
+          a = gg(a,b,c,d,k[1],5,-165796510);
+          d = gg(d,a,b,c,k[6],9,-1069501632);
+          c = gg(c,d,a,b,k[11],14, 643717713);
+          b = gg(b,c,d,a,k[0],20,-373897302);
+          a = gg(a,b,c,d,k[5],5,-701558691);
+          d = gg(d,a,b,c,k[10],9, 38016083);
+          c = gg(c,d,a,b,k[15],14,-660478335);
+          b = gg(b,c,d,a,k[4],20,-405537848);
+          a = gg(a,b,c,d,k[9],5, 568446438);
+          d = gg(d,a,b,c,k[14],9,-1019803690);
+          c = gg(c,d,a,b,k[3],14,-187363961);
+          b = gg(b,c,d,a,k[8],20, 1163531501);
+          a = gg(a,b,c,d,k[13],5,-1444681467);
+          d = gg(d,a,b,c,k[2],9,-51403784);
+          c = gg(c,d,a,b,k[7],14, 1735328473);
+          b = gg(b,c,d,a,k[12],20,-1926607734);
+
+          a = hh(a,b,c,d,k[5],4,-378558);
+          d = hh(d,a,b,c,k[8],11,-2022574463);
+          c = hh(c,d,a,b,k[11],16, 1839030562);
+          b = hh(b,c,d,a,k[14],23,-35309556);
+          a = hh(a,b,c,d,k[1],4,-1530992060);
+          d = hh(d,a,b,c,k[4],11, 1272893353);
+          c = hh(c,d,a,b,k[7],16,-155497632);
+          b = hh(b,c,d,a,k[10],23,-1094730640);
+          a = hh(a,b,c,d,k[13],4, 681279174);
+          d = hh(d,a,b,c,k[0],11,-358537222);
+          c = hh(c,d,a,b,k[3],16,-722521979);
+          b = hh(b,c,d,a,k[6],23, 76029189);
+          a = hh(a,b,c,d,k[9],4,-640364487);
+          d = hh(d,a,b,c,k[12],11,-421815835);
+          c = hh(c,d,a,b,k[15],16, 530742520);
+          b = hh(b,c,d,a,k[2],23,-995338651);
+
+          a = ii(a,b,c,d,k[0],6,-198630844);
+          d = ii(d,a,b,c,k[7],10, 1126891415);
+          c = ii(c,d,a,b,k[14],15,-1416354905);
+          b = ii(b,c,d,a,k[5],21,-57434055);
+          a = ii(a,b,c,d,k[12],6, 1700485571);
+          d = ii(d,a,b,c,k[3],10,-1894986606);
+          c = ii(c,d,a,b,k[10],15,-1051523);
+          b = ii(b,c,d,a,k[1],21,-2054922799);
+          a = ii(a,b,c,d,k[8],6, 1873313359);
+          d = ii(d,a,b,c,k[15],10,-30611744);
+          c = ii(c,d,a,b,k[6],15,-1560198380);
+          b = ii(b,c,d,a,k[13],21, 1309151649);
+          a = ii(a,b,c,d,k[4],6,-145523070);
+          d = ii(d,a,b,c,k[11],10,-1120210379);
+          c = ii(c,d,a,b,k[2],15, 718787259);
+          b = ii(b,c,d,a,k[9],21,-343485551);
+
+          x[0] = add32(a, x[0]);
+          x[1] = add32(b, x[1]);
+          x[2] = add32(c, x[2]);
+          x[3] = add32(d, x[3]);
+        }
+
+        function md5blk(u8){
+          const blks = new Int32Array(16);
+          for (let i=0;i<64;i+=4){
+            blks[i>>2] = u8[i] | (u8[i+1]<<8) | (u8[i+2]<<16) | (u8[i+3]<<24);
+          }
+          return blks;
+        }
+
+        function rhex(n){
+          let s = "";
+          for (let j=0;j<4;j++){
+            const b = (n >> (j*8)) & 0xFF;
+            s += b.toString(16).padStart(2,"0");
+          }
+          return upper ? s.toUpperCase() : s;
+        }
+
+        function hex(x){ return rhex(x[0]) + rhex(x[1]) + rhex(x[2]) + rhex(x[3]); }
+        function add32(a,b){ return (a + b) | 0; }
+
+        return hex(md51(str));
+      }
+
+      self.onmessage = async (e) => {
+        const { op, text, key, upper } = e.data;
+        try{
+          let out = "";
+          const t = String(text ?? "");
+
+          if (op === "md5") out = md5(t, upper);
+          else if (op === "sha1") out = await digest("SHA-1", t, upper);
+          else if (op === "sha256") out = await digest("SHA-256", t, upper);
+          else if (op === "sha384") out = await digest("SHA-384", t, upper);
+          else if (op === "sha512") out = await digest("SHA-512", t, upper);
+          else if (op === "hmac-sha256") out = await hmacSha256(String(key ?? ""), t, upper);
+
+          else if (op === "base64-enc") out = base64EncodeUtf8(t);
+          else if (op === "base64-dec") out = base64DecodeUtf8(t);
+          else if (op === "url-enc") out = encodeURIComponent(t);
+          else if (op === "url-dec") out = decodeURIComponent(t.replace(/\\+/g,"%20"));
+          else if (op === "hex-enc") out = hexEncodeUtf8(t, upper);
+          else if (op === "hex-dec") out = hexDecodeUtf8(t);
+          else if (op === "html-enc") out = htmlEncode(t);
+          else if (op === "html-dec") out = htmlDecode(t);
+          else if (op === "rot13") out = rot13(t);
+
+          else if (op === "jwt-decode") {
+            const parts = t.trim().split(".");
+            if (parts.length < 2) throw new Error("JWT must have at least header.payload");
+            const header = base64UrlDecodeUtf8(parts[0]);
+            const payload = base64UrlDecodeUtf8(parts[1]);
+            out = header + "\\n\\n" + payload;
+          }
+          else throw new Error("Unknown mode.");
+
+          self.postMessage({ ok:true, out });
+        } catch(err){
+          const msg = (err && err.message) ? err.message : String(err);
+          self.postMessage({ ok:false, error: msg });
+        }
+      };
+    `;
+
+    const workerBlob = new Blob([workerCode], { type: "application/javascript" });
+    const worker = new Worker(URL.createObjectURL(workerBlob));
+
+    function withWorker(payload){
+      return new Promise((resolve) => {
+        const onMsg = (e) => { worker.removeEventListener("message", onMsg); resolve(e.data); };
+        worker.addEventListener("message", onMsg);
+        worker.postMessage(payload);
+      });
+    }
+
+    function normalizeInput(s){
+      let t = String(s ?? "");
+      if (optTrim.checked) t = t.trim();
+      return t;
+    }
+
+    function updateKeyVisibility(){
+      const v = mode.value;
+      keyCol.style.display = (v === "hmac-sha256") ? "" : "none";
+    }
+
+    async function run(){
+      updateKeyVisibility();
+
+      const op = mode.value;
+      const upper = !!optUpper.checked;
+      const text = normalizeInput(inBox.value);
+      const key = normalizeInput(hmacKey.value);
+
+      if (!text && op !== "url-dec") { // allow empty decode edge
+        outBox.value = "";
+        setStatus("Paste input first.");
+        return;
+      }
+
+      const res = await withWorker({ op, text, key, upper });
+      if (!res.ok){
+        setStatus("Error: " + res.error);
+        return;
+      }
+
+      outBox.value = res.out;
+      setStatus("Done.");
+    }
+
+    // UI actions
+    $("btnRun").addEventListener("click", run);
+
+    $("btnSwap").addEventListener("click", () => {
+      const a = inBox.value;
+      inBox.value = outBox.value;
+      outBox.value = a;
+      setStatus("Swapped.");
+      if (optAutoRun.checked) run();
+    });
+
+    $("btnCopyOut").addEventListener("click", () => copyText(outBox.value, "Output copied."));
+    $("btnDownload").addEventListener("click", () => downloadText("output.txt", outBox.value, "text/plain;charset=utf-8"));
+    $("btnClear").addEventListener("click", () => { inBox.value=""; outBox.value=""; setStatus(""); });
+
+    // mode + options
+    mode.addEventListener("change", () => { updateKeyVisibility(); if (optAutoRun.checked) run(); });
+    [optUpper, optTrim].forEach(el => el.addEventListener("change", () => { if (optAutoRun.checked) run(); }));
+    hmacKey.addEventListener("input", () => { if (optAutoRun.checked && mode.value === "hmac-sha256") run(); });
+
+    // input
+    let tmr = null;
+    inBox.addEventListener("input", () => {
+      if (!optAutoRun.checked) return;
+      clearTimeout(tmr);
+      tmr = setTimeout(run, 120);
+    });
+
+    updateKeyVisibility();
+    setStatus("");
+  })();
+  </script>
+</body>
+</html>

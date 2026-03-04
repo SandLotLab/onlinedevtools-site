@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Fuel the Infrastructure — onlinedevtools.app</title>
+  <meta name="description" content="Support onlinedevtools.app infrastructure." />
+  <link rel="canonical" href="https://onlinedevtools.app/infrastructure" />
+  <meta name="robots" content="index,follow" />
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+    crossorigin="anonymous"></script>
+
+  <script>
+    async function loadPartials() {
+      const header = await fetch('/partials/header.html');
+      const footer = await fetch('/partials/footer.html');
+
+      document.getElementById('site-header').innerHTML = await header.text();
+      document.getElementById('site-footer').innerHTML = await footer.text();
+    }
+  </script>
+
+  <style>
+    .wrapCenter{
+      max-width:980px;
+      margin:auto;
+      display:flex;
+      justify-content:center;
+    }
+
+    .cardCentered{
+      width:100%;
+      max-width:820px;
+      margin-top:16px;
+    }
+
+    .iconRow{
+      margin-top:20px;
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    .iconLink{
+      display:inline-block;
+      transition:transform .15s ease, opacity .15s ease;
+    }
+
+    .iconLink:hover{
+      transform:scale(1.08);
+      opacity:.9;
+    }
+
+    .iconLink img{
+      width:50px;
+      height:50px;
+      display:block;
+    }
+
+    .copyWrap{
+      margin-top:20px;
+      display:grid;
+      gap:12px;
+      max-width:820px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .copyRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .copyLabel{
+      min-width:90px;
+    }
+  </style>
+  
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Fuel The Infrastructure",
+  "url": "https://onlinedevtools.app/infrastructure",
+  "description": "Support and infrastructure information for Online Dev Tools Dev Studio."
+}
+</script>
+
+</head>
+
+<body onload="loadPartials()">
+  <div class="page">
+
+    <div id="site-header"></div>
+
+    <main>
+      <div class="wrap wrapCenter">
+        <div class="card cardCentered">
+          <div class="pad" style="text-align:center">
+
+            <h1 class="h1">Support the Infrastructure Behind Online Dev Tools</h1>
+
+            <h2 class="muted" style="margin-top:8px; line-height:1.6; font-weight:normal;">
+              This developer lab runs on time, bandwidth, and caffeine.<br>
+              If these free browser-based security and IT tools are useful to you,<br>
+              consider helping keep the infrastructure online.
+            </h2>
+
+            <div class="hr"></div>
+
+            <p class="muted" style="font-size:12px; opacity:.7; margin-top:10px;">
+              Your support helps maintain hosting, bandwidth, development time, and ongoing improvements to Online Dev Tools
+              JSON, JWT, CSP, hashing, and other browser-based utilities.
+            </p>
+
+            <div style="height:10px"></div>
+
+            <div class="muted" style="margin-bottom:10px; font-size:13px; letter-spacing:.5px;">
+              Links
+            </div>
+
+            <div class="iconRow">
+
+              <a class="iconLink"
+                 href="https://cash.app/$onlinedevtoolsDOTapp"
+                 target="_blank"
+                 rel="noopener">
+                <img src="/assets/cashapp-square.png" alt="Cash App">
+              </a>
+
+              <a class="iconLink"
+                 href="https://www.blockchain.com/btc/address/3DzuLkEVazmA3MUSaXsqx5gaZCbqnHUL78"
+                 target="_blank"
+                 rel="noopener">
+                <img src="/assets/bitcoin-circle.png" alt="Bitcoin">
+              </a>
+
+              <a class="iconLink"
+                 href="https://solscan.io/account/DR995pn5BbrGgm8dLNJRQSp1P12ANKm2xdyaax4pSDjb"
+                 target="_blank"
+                 rel="noopener">
+                <img src="/assets/solana-circle.png" alt="Solana">
+              </a>
+
+              <a class="iconLink"
+                 href="https://algoexplorer.io/address/GU4AQMWVLOBJXODQS6S62RZW5C6LES4W4YGSFM5RGHF6AQAAVJAF5GYXXM"
+                 target="_blank"
+                 rel="noopener">
+                <img src="/assets/algorand-logo.png" alt="Algorand">
+              </a>
+
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="copyWrap">
+
+              <div class="copyRow">
+                <div class="muted copyLabel">Cash App</div>
+                <code class="kbd">$onlinedevtoolsDOTapp</code>
+                <button class="btn" type="button" data-copy="$onlinedevtoolsDOTapp">Copy</button>
+              </div>
+
+              <div class="copyRow">
+                <div class="muted copyLabel">Bitcoin</div>
+                <code class="kbd">3DzuLkEVazmA3MUSaXsqx5gaZCbqnHUL78</code>
+                <button class="btn" type="button" data-copy="3DzuLkEVazmA3MUSaXsqx5gaZCbqnHUL78">Copy</button>
+              </div>
+
+              <div class="copyRow">
+                <div class="muted copyLabel">Solana</div>
+                <code class="kbd">DR995pn5BbrGgm8dLNJRQSp1P12ANKm2xdyaax4pSDjb</code>
+                <button class="btn" type="button" data-copy="DR995pn5BbrGgm8dLNJRQSp1P12ANKm2xdyaax4pSDjb">Copy</button>
+              </div>
+
+              <div class="copyRow">
+                <div class="muted copyLabel">Algorand</div>
+                <code class="kbd">GU4AQMWVLOBJXODQS6S62RZW5C6LES4W4YGSFM5RGHF6AQAAVJAF5GYXXM</code>
+                <button class="btn" type="button" data-copy="GU4AQMWVLOBJXODQS6S62RZW5C6LES4W4YGSFM5RGHF6AQAAVJAF5GYXXM">Copy</button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+
+  </div>
+
+  <script>
+  (function () {
+    function flash(btn, text, ms) {
+      const prev = btn.textContent;
+      btn.textContent = text;
+      setTimeout(() => (btn.textContent = prev), ms);
+    }
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text)
+        .then(() => flash(btn, "Copied", 900))
+        .catch(() => flash(btn, "Failed", 1200));
+    }
+
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest("button[data-copy]");
+      if (!btn) return;
+      copyText(btn.getAttribute("data-copy"), btn);
+    });
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — Online Dev Tools</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Contact Online Dev Tools. Send bug reports, technical issues, improvement suggestions, tool requests, general questions, or privacy inquiries to the right inbox." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/contact" />
+
+  <meta property="og:title" content="Contact — Online Dev Tools" />
+  <meta property="og:description" content="Send bug reports, technical issues, suggestions, tool requests, general questions, or privacy inquiries." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://onlinedevtools.app/contact" />
+
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
+     crossorigin="anonymous"></script>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+   
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Online Dev Tools Dev Studio",
+  "url": "https://onlinedevtools.app/contact",
+  "description": "Contact Online Dev Tools via email routing for bugs, technical issues, suggestions, tool requests, and privacy inquiries."
+}
+</script>
+
+</head>
+
+<body>
+<div class="page">
+<div id="site-header"></div>
+
+<main>
+<div class="wrap">
+<section class="grid" style="grid-template-columns:1fr;">
+<div class="card">
+<div class="pad">
+
+<h1 class="h1" style="margin:0;">Contact</h1>
+<h2 class="muted" style="margin:2px 0 0 0;font-size:12px;font-weight:normal;">
+Send bug reports, requests, or privacy questions to the right inbox.
+</h2>
+
+<div class="muted" style="margin-bottom:12px;">
+Use the form below to send a message to the right inbox.
+</div>
+
+<div class="hr"></div>
+
+<form id="contactForm" novalidate>
+
+<div class="muted" style="margin: 10px 0 6px;">Send to</div>
+<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+<label class="kbd" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+<input type="radio" name="to" value="hello@onlinedevtools.app" checked>
+Contact (hello@onlinedevtools.app)
+</label>
+<label class="kbd" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+<input type="radio" name="to" value="privacy@onlinedevtools.app">
+Privacy (privacy@onlinedevtools.app)
+</label>
+</div>
+
+<div class="muted" style="margin: 10px 0 6px;">Request type</div>
+<select id="type" class="kbd" style="width:100%; padding:10px; border-radius:10px; margin-bottom:12px;">
+<option>Bug report</option>
+<option>Technical issue</option>
+<option>Improvement suggestion</option>
+<option>Tool / generator request</option>
+<option>General question</option>
+<option>Privacy inquiry</option>
+</select>
+
+<div class="muted" style="margin: 10px 0 6px;">Your email</div>
+<input id="from" class="kbd" type="email" autocomplete="email"
+style="width:100%; padding:10px; border-radius:10px; margin-bottom:12px;" required>
+
+<div class="muted" style="margin: 10px 0 6px;">Subject</div>
+<input id="subject" class="kbd" type="text"
+style="width:100%; padding:10px; border-radius:10px; margin-bottom:12px;" required>
+
+<div class="muted" style="margin: 10px 0 6px;">Message</div>
+<textarea id="message" class="kbd" rows="7"
+style="width:100%; padding:10px; border-radius:10px; margin-bottom:12px;" required></textarea>
+
+<div class="muted" style="margin: 10px 0 6px;">Helpful details (optional)</div>
+<div style="display:grid; gap:10px; margin-bottom:12px;">
+<input id="pageUrl" class="kbd" type="url"
+style="width:100%; padding:10px; border-radius:10px;">
+<input id="browser" class="kbd" type="text"
+style="width:100%; padding:10px; border-radius:10px;">
+<input id="device" class="kbd" type="text"
+style="width:100%; padding:10px; border-radius:10px;">
+<textarea id="steps" class="kbd" rows="4"
+style="width:100%; padding:10px; border-radius:10px;"></textarea>
+</div>
+
+<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+<button class="kbd" type="submit" style="padding:10px 14px; border-radius:12px; cursor:pointer;">
+Send
+</button>
+<span id="status" class="muted"></span>
+</div>
+
+</form>
+
+</div>
+</div>
+</section>
+</div>
+</main>
+
+<div id="site-footer"></div>
+</div>
+
+<script>
+async function loadPartials() {
+const header = await fetch('/partials/header.html');
+const footer = await fetch('/partials/footer.html');
+document.getElementById('site-header').innerHTML = await header.text();
+document.getElementById('site-footer').innerHTML = await footer.text();
+}
+loadPartials();
+
+(function(){
+const $ = (id)=>document.getElementById(id);
+
+try{$('pageUrl').value=location.href;}catch(e){}
+try{$('browser').value=navigator.userAgent;}catch(e){}
+try{
+$('device').value=(navigator.platform||'')+' — '+(navigator.userAgent.includes('Mobile')?'Mobile':'Desktop');
+}catch(e){}
+
+function enc(s){return encodeURIComponent(String(s||''));}
+function encBody(s){
+return enc(String(s||'').replace(/\r?\n/g,"\r\n")).replace(/%0A/g,"%0D%0A");
+}
+
+$('contactForm').addEventListener('submit',function(e){
+e.preventDefault();
+
+const from=$('from').value.trim();
+const type=$('type').value.trim();
+const subject=$('subject').value.trim();
+const message=$('message').value.trim();
+
+if(!from||!subject||!message){
+$('status').textContent='Missing required fields.';
+return;
+}
+
+const to=document.querySelector('input[name="to"]:checked').value;
+
+const body=[
+`Type: ${type}`,
+`From: ${from}`,
+``,
+`Message:`,
+`${message}`,
+``,
+`--- Details ---`,
+`Page URL: ${$('pageUrl').value.trim()}`,
+`Browser: ${$('browser').value.trim()}`,
+`Device: ${$('device').value.trim()}`,
+`Steps:`,
+`${$('steps').value.trim()}`
+].join("\n");
+
+const mailto=`mailto:${to}?subject=${enc(`[Online Dev Tools] ${type} — ${subject}`)}&body=${encBody(body)}`;
+
+navigator.clipboard?.writeText(body).catch(()=>{});
+$('status').textContent='Opening your email app…';
+window.location.href=mailto;
+});
+})();
+</script>
+
+</body>
+</html>
