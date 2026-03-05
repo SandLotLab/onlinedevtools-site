@@ -31,8 +31,6 @@
 
   <link rel="stylesheet" href="/assets/site.css">
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614"
-    crossorigin="anonymous"></script>
 <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
   <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
@@ -50,17 +48,54 @@
   }
     </script>
     <!-- End Cloudflare Web Analytics ***WRAP BEACON***-->
-  <!-- Start cookieyes banner -->
-  <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/4a9c5d9ed4d03582f5093e5fbd01fa34/script.js"></script>
-  <!-- End cookieyes banner -->
-  
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENRW2HEKZS"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-ENRW2HEKZS');
+    if (location.hostname === "onlinedevtools.app") {
+      const loadScript = (src, attrs = {}) => {
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        Object.entries(attrs).forEach(([key, value]) => {
+          if (value !== null) script.setAttribute(key, value);
+        });
+        document.head.appendChild(script);
+      };
+
+      const loadThirdPartyScripts = () => {
+        if (window.__odtThirdPartyLoaded) return;
+        window.__odtThirdPartyLoaded = true;
+
+        loadScript(
+          "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614",
+          { crossorigin: "anonymous" }
+        );
+        loadScript(
+          "https://cdn-cookieyes.com/client_data/4a9c5d9ed4d03582f5093e5fbd01fa34/script.js",
+          { id: "cookieyes", type: "text/javascript" }
+        );
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag("js", new Date());
+        gtag("config", "G-ENRW2HEKZS");
+        loadScript("https://www.googletagmanager.com/gtag/js?id=G-ENRW2HEKZS");
+      };
+
+      const triggerLoad = () => {
+        window.removeEventListener("pointerdown", triggerLoad);
+        window.removeEventListener("keydown", triggerLoad);
+        loadThirdPartyScripts();
+      };
+
+      window.addEventListener("pointerdown", triggerLoad, { once: true, passive: true });
+      window.addEventListener("keydown", triggerLoad, { once: true });
+      window.addEventListener("load", () => {
+        if ("requestIdleCallback" in window) {
+          requestIdleCallback(loadThirdPartyScripts, { timeout: 1800 });
+        } else {
+          setTimeout(loadThirdPartyScripts, 1200);
+        }
+      }, { once: true });
+    }
   </script>
 
 </head>
