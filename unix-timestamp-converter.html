@@ -1,8 +1,89 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UNIX Timestamp Converter (Epoch) | Online Dev Tools</title>
-<meta name="description" content="Convert UNIX timestamps to readable UTC/local dates and convert datetime back to epoch seconds or milliseconds."/>
-<link rel="canonical" href="https://onlinedevtools.app/unix-timestamp-converter"/><link rel="stylesheet" href="/assets/site.css">
-<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById("siteHeader").innerHTML=await h.text();document.getElementById("siteFooter").innerHTML=await f.text();}
-function toDate(){const raw=Number(document.getElementById("ts").value.trim());if(Number.isNaN(raw)) return document.getElementById("out").value='Invalid timestamp';const ms=raw>1e12?raw:raw*1000;const d=new Date(ms);document.getElementById("out").value=`UTC: ${d.toUTCString()}\nISO: ${d.toISOString()}\nLocal: ${d.toString()}`;}
-function toTs(){const d=new Date(document.getElementById("dt").value);if(isNaN(d)) return document.getElementById("out").value='Invalid datetime';document.getElementById("out").value=`Seconds: ${Math.floor(d.getTime()/1000)}\nMilliseconds: ${d.getTime()}`;}</script></head>
-<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / UNIX Timestamp Converter</nav><h1 class="h1">UNIX Timestamp Converter</h1><div class="small">Epoch timestamp</div><input id="ts" class="in" value="1700000000"/><div style="margin-top:10px"><button class="pill" onclick="toDate()">Convert to Date</button></div><div class="small" style="margin-top:10px">Date/time</div><input id="dt" class="in" type="datetime-local"/><div style="margin-top:10px"><button class="pill" onclick="toTs()">Convert to Timestamp</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:360px"></textarea></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UNIX Timestamp Converter (Epoch) | Online Dev Tools</title>
+  <meta name="description" content="Convert UNIX timestamps to UTC/local date and convert datetimes back to epoch seconds or milliseconds for logs and incident timelines." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/unix-timestamp-converter" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="UNIX Timestamp Converter | Online Dev Tools" />
+  <meta property="og:description" content="Convert epoch values to date/time and back instantly." />
+  <meta property="og:url" content="https://onlinedevtools.app/unix-timestamp-converter" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"UNIX Timestamp Converter",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/unix-timestamp-converter",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function toDate() {
+      const raw = Number(document.getElementById('ts').value.trim());
+      const out = document.getElementById('out');
+      if (Number.isNaN(raw)) return (out.value = 'Invalid timestamp');
+      const ms = raw > 1e12 ? raw : raw * 1000;
+      const d = new Date(ms);
+      out.value = `UTC: ${d.toUTCString()}\nISO: ${d.toISOString()}\nLocal: ${d.toString()}`;
+    }
+
+    function toTs() {
+      const d = new Date(document.getElementById('dt').value);
+      const out = document.getElementById('out');
+      if (isNaN(d)) return (out.value = 'Invalid datetime');
+      out.value = `Seconds: ${Math.floor(d.getTime() / 1000)}\nMilliseconds: ${d.getTime()}`;
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / UNIX Timestamp Converter</nav>
+          <h1 class="h1">UNIX Timestamp Converter</h1>
+          <p class="muted">Convert between epoch timestamp and readable date/time values.</p>
+          <div class="small">Epoch timestamp</div>
+          <input id="ts" class="in" value="1700000000" />
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="toDate()">Convert to Date</button></div>
+          <div class="small" style="margin-top:12px;">Date/time</div>
+          <input id="dt" class="in" type="datetime-local" />
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="toTs()">Convert to Timestamp</button></div>
+        </div></div>
+        <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:360px;"></textarea></div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">This epoch converter is useful for logs, JWT claim inspection, and incident investigations. It quickly translates raw UNIX times into readable UTC/local timestamps and back.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Translate auth token times (exp/iat/nbf).</li><li>Debug SIEM and application log timestamps.</li><li>Convert human dates for scripts and API calls.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Enter epoch or datetime.</li><li>Run the desired conversion.</li><li>Copy UTC/local/seconds/ms output.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Seconds vs milliseconds?</strong><br>Both are supported. Large values are treated as milliseconds.</p>
+        <p class="muted"><strong>Does this use my timezone?</strong><br>Yes, local output uses your browser timezone.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

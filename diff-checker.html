@@ -1,11 +1,91 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Diff Checker (Line-by-Line) | Online Dev Tools</title>
-<meta name="description" content="Compare two text blocks side-by-side and identify added, removed, and changed lines. Useful for config, policy, and payload diffs."/>
-<link rel="canonical" href="https://onlinedevtools.app/diff-checker"/><link rel="stylesheet" href="/assets/site.css">
-<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById('siteHeader').innerHTML=await h.text();document.getElementById('siteFooter').innerHTML=await f.text();}
-function runDiff(){const a=document.getElementById("left").value.split('\n'),b=document.getElementById("right").value.split('\n');const len=Math.max(a.length,b.length);const out=[];for(let i=0;i<len;i++){if(a[i]===b[i])continue;if(a[i]!==undefined)out.push(`- ${i+1}: ${a[i]}`);if(b[i]!==undefined)out.push(`+ ${i+1}: ${b[i]}`);}document.getElementById("result").value=out.join('\n')||'No line differences.';}</script></head>
-<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Diff Checker</nav><h1 class="h1">Diff Checker</h1><div class="row"><div class="col"><div class="small">Original</div><textarea id="left" class="in" style="min-height:280px">line1
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diff Checker (Line-by-Line Text Compare) | Online Dev Tools</title>
+  <meta name="description" content="Compare two text blocks line by line and detect additions/removals quickly. Useful for config changes, policy diffs, and payload reviews." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/diff-checker" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Diff Checker | Online Dev Tools" />
+  <meta property="og:description" content="Line-by-line text diff for quick comparison." />
+  <meta property="og:url" content="https://onlinedevtools.app/diff-checker" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"Diff Checker",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/diff-checker",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function runDiff() {
+      const left = document.getElementById('left').value.split('\n');
+      const right = document.getElementById('right').value.split('\n');
+      const output = [];
+      const len = Math.max(left.length, right.length);
+
+      for (let i = 0; i < len; i++) {
+        if (left[i] === right[i]) continue;
+        if (left[i] !== undefined) output.push(`- ${i + 1}: ${left[i]}`);
+        if (right[i] !== undefined) output.push(`+ ${i + 1}: ${right[i]}`);
+      }
+
+      document.getElementById('result').value = output.join('\n') || 'No line differences.';
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Diff Checker</nav>
+          <h1 class="h1">Diff Checker</h1>
+          <p class="muted">Compare two texts line by line and spot changes instantly.</p>
+          <div class="row">
+            <div class="col"><div class="small">Original</div><textarea id="left" class="in" style="min-height:280px;">line1
 line2
-line3</textarea></div><div class="col"><div class="small">Updated</div><textarea id="right" class="in" style="min-height:280px">line1
+line3</textarea></div>
+            <div class="col"><div class="small">Updated</div><textarea id="right" class="in" style="min-height:280px;">line1
 line2 changed
-line4</textarea></div></div><div style="margin-top:10px"><button class="pill" onclick="runDiff()">Compare</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Line changes</h2><textarea id="result" class="in" style="min-height:380px"></textarea></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
+line4</textarea></div>
+          </div>
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="runDiff()">Compare</button></div>
+        </div></div>
+        <div class="card"><div class="pad"><h2 class="h2">Line changes</h2><textarea id="result" class="in" style="min-height:380px;"></textarea></div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">Use this diff checker to compare configuration files, policy documents, or API payload versions. It highlights changed lines in a compact, readable output.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Compare security policy revisions.</li><li>Review config changes between environments.</li><li>Inspect payload updates during debugging.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Paste original text on the left.</li><li>Paste updated text on the right.</li><li>Run compare to get line-level additions/removals.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Does it ignore whitespace?</strong><br>No, this simple mode compares lines exactly.</p>
+        <p class="muted"><strong>Do files upload?</strong><br>No. All comparison logic runs locally in-browser.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

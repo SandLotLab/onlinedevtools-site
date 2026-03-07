@@ -1,10 +1,104 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>URL Parser & Query String Splitter | Online Dev Tools</title>
-<meta name="description" content="Parse URLs into protocol, host, path, hash, and query params. Decode and inspect query strings for API callbacks and redirects."/>
-<link rel="canonical" href="https://onlinedevtools.app/url-parser"/><link rel="stylesheet" href="/assets/site.css">
-<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById('siteHeader').innerHTML=await h.text();document.getElementById('siteFooter').innerHTML=await f.text();}
-function parseUrl(){try{const u=new URL(document.getElementById('urlIn').value.trim());const p=[];u.searchParams.forEach((v,k)=>p.push(`${k} = ${v}`));document.getElementById('parts').value=`href: ${u.href}\nprotocol: ${u.protocol}\nhost: ${u.host}\npathname: ${u.pathname}\nsearch: ${u.search}\nhash: ${u.hash}`;document.getElementById('query').value=p.join('\n')||'No query params';}catch(e){document.getElementById('parts').value='Invalid URL';document.getElementById('query').value=e.message;}}</script>
-</head><body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="grid"><div class="card"><div class="pad">
-<nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / URL Parser</nav><h1 class="h1">URL Parser / Query String Splitter</h1>
-<textarea id="urlIn" class="in" style="min-height:130px">https://example.com/callback?code=abc123&state=signed-in#done</textarea><div style="margin-top:10px"><button class="pill" onclick="parseUrl()">Parse URL</button></div></div></div>
-<div class="card"><div class="pad"><h2 class="h2">Parsed URL</h2><textarea id="parts" class="in" style="min-height:150px"></textarea><h2 class="h2" style="margin-top:10px">Query Params</h2><textarea id="query" class="in" style="min-height:150px"></textarea></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>URL Parser & Query String Splitter | Online Dev Tools</title>
+  <meta name="description" content="Parse URL components and split query strings instantly. Inspect protocol, host, path, hash, and parameters for redirects and callbacks." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/url-parser" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="URL Parser & Query String Splitter | Online Dev Tools" />
+  <meta property="og:description" content="Break URLs into readable parts and inspect query parameters." />
+  <meta property="og:url" content="https://onlinedevtools.app/url-parser" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"URL Parser / Query String Splitter",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/url-parser",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function parseUrl() {
+      const src = document.getElementById('urlIn').value.trim();
+      const partsOut = document.getElementById('parts');
+      const queryOut = document.getElementById('query');
+      try {
+        const u = new URL(src);
+        const lines = [];
+        u.searchParams.forEach((v, k) => lines.push(`${k} = ${v}`));
+        partsOut.value = `href: ${u.href}\nprotocol: ${u.protocol}\nhost: ${u.host}\npathname: ${u.pathname}\nsearch: ${u.search}\nhash: ${u.hash}`;
+        queryOut.value = lines.join('\n') || 'No query parameters found.';
+      } catch (err) {
+        partsOut.value = 'Invalid URL';
+        queryOut.value = err.message;
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main>
+      <div class="wrap">
+        <section class="grid">
+          <div class="card">
+            <div class="pad">
+              <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / URL Parser</nav>
+              <h1 class="h1">URL Parser / Query String Splitter</h1>
+              <p class="muted">Break any URL into readable components and decoded query parameters.</p>
+              <textarea id="urlIn" class="in" style="min-height:130px;">https://example.com/callback?code=abc123&state=signed-in#done</textarea>
+              <div style="margin-top:10px;"><button class="pill" type="button" onclick="parseUrl()">Parse URL</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="pad">
+              <h2 class="h2">Parsed URL</h2>
+              <textarea id="parts" class="in" style="min-height:150px;"></textarea>
+              <h2 class="h2" style="margin-top:12px;">Query Params</h2>
+              <textarea id="query" class="in" style="min-height:170px;"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="card"><div class="pad">
+          <h2 class="h2">About this tool</h2>
+          <p class="muted">This URL parser is built for debugging auth callbacks, redirects, API links, and tracking parameters. It helps you quickly inspect each URL segment without manual splitting.</p>
+          <div class="hr"></div>
+          <h3 class="h2">Common use cases</h3>
+          <ul class="muted">
+            <li>Inspect OAuth callback query strings.</li>
+            <li>Debug malformed links and redirect paths.</li>
+            <li>Review UTM parameter values for analytics QA.</li>
+          </ul>
+          <div class="hr"></div>
+          <h3 class="h2">How it works</h3>
+          <ol class="muted">
+            <li>Paste a full URL.</li>
+            <li>Click Parse URL.</li>
+            <li>Review parsed structure and query key/value pairs.</li>
+          </ol>
+          <div class="hr"></div>
+          <h3 class="h2">FAQ</h3>
+          <p class="muted"><strong>Does this decode query parameters?</strong><br>Yes, URLSearchParams output is decoded for readability.</p>
+          <p class="muted"><strong>Can I parse relative URLs?</strong><br>This tool expects absolute URLs including protocol.</p>
+        </div></section>
+      </div>
+    </main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

@@ -3,50 +3,100 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>All Developer & Security Tools | Online Dev Tools</title>
-  <meta name="description" content="Browse every free browser-based developer and security utility on Online Dev Tools: JSON, JWT, regex, URL, Base64, YAML, diff, IP, WHOIS, and more." />
+  <title>All Developer & Security Tools (Free, Browser-Based) | Online Dev Tools</title>
+  <meta name="description" content="Browse all Online Dev Tools utilities: JSON, JWT, regex, URL, Base64, YAML, timestamps, diff, CIDR/IP, WHOIS, and more. Free, browser-based tools." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://onlinedevtools.app/tools" />
+
   <meta property="og:type" content="website" />
   <meta property="og:title" content="All Developer & Security Tools | Online Dev Tools" />
-  <meta property="og:description" content="Complete index of local-first dev and security tools. No uploads required." />
+  <meta property="og:description" content="Complete index of local-first developer and security tools." />
   <meta property="og:url" content="https://onlinedevtools.app/tools" />
-  <link rel="stylesheet" href="/assets/site.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"All Tools","url":"https://onlinedevtools.app/tools"}</script>
-  <script>
-  async function loadPartials(){
-    const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);
-    document.getElementById('site-header').innerHTML=await h.text();
-    document.getElementById('site-footer').innerHTML=await f.text();
+  <meta property="og:site_name" content="Online Dev Tools" />
+
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"CollectionPage",
+    "name":"All Tools",
+    "url":"https://onlinedevtools.app/tools",
+    "description":"Index of browser-based developer and security tools on Online Dev Tools."
   }
   </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('site-header').innerHTML = await h.text();
+      document.getElementById('site-footer').innerHTML = await f.text();
+    }
+  </script>
 </head>
-<body onload="loadPartials()"><div class="page">
-<div id="site-header"></div>
-<main><div class="wrap">
-<section class="card" style="margin-top:22px"><div class="pad">
-  <nav class="breadcrumbs"><a href="/">Home</a> / Tools</nav>
-  <h1 class="h1">All Tools</h1>
-  <p class="muted">Free browser-based tools for developers, platform engineers, and security teams. Data stays local when possible.</p>
-  <div class="tool-grid" style="margin-top:14px">
-    <a class="pill" href="/json-formatter">JSON Formatter</a>
-    <a class="pill" href="/json-editor">JSON Editor</a>
-    <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
-    <a class="pill" href="/jwt-decoder">JWT Decoder</a>
-    <a class="pill" href="/csp-analyzer">CSP Analyzer</a>
-    <a class="pill" href="/hash-generator">Hash Generator</a>
-    <a class="pill" href="/uuid-generator">UUID Generator</a>
-    <a class="pill" href="/log-explorer">Log Explorer</a>
-    <a class="pill" href="/regex-tester">Regex Tester</a>
-    <a class="pill" href="/url-parser">URL Parser</a>
-    <a class="pill" href="/base64-encoder-decoder">Base64 Encoder/Decoder</a>
-    <a class="pill" href="/yaml-validator">YAML Validator</a>
-    <a class="pill" href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
-    <a class="pill" href="/diff-checker">Diff Checker</a>
-    <a class="pill" href="/cidr-ip-converter">CIDR/IP Converter</a>
-    <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
-    <a class="pill" href="/ip-lookup">IP Lookup / My IP</a>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="site-header"></div>
+    <main>
+      <div class="wrap">
+        <section class="card" style="margin-top:22px">
+          <div class="pad">
+            <nav class="breadcrumbs"><a href="/">Home</a> / Tools</nav>
+            <h1 class="h1">All Tools</h1>
+            <p class="muted">Free browser-based tools for developers, platform teams, and security engineers. Open a tool, run your task, and move fast.</p>
+            <div class="tool-grid" style="margin-top:14px">
+              <a class="pill" href="/json-formatter">JSON Formatter</a>
+              <a class="pill" href="/json-editor">JSON Editor</a>
+              <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
+              <a class="pill" href="/jwt-decoder">JWT Decoder</a>
+              <a class="pill" href="/csp-analyzer">CSP Analyzer</a>
+              <a class="pill" href="/hash-generator">Hash Generator</a>
+              <a class="pill" href="/uuid-generator">UUID Generator</a>
+              <a class="pill" href="/log-explorer">Log Explorer</a>
+              <a class="pill" href="/regex-tester">Regex Tester</a>
+              <a class="pill" href="/url-parser">URL Parser</a>
+              <a class="pill" href="/base64-encoder-decoder">Base64 Encoder/Decoder</a>
+              <a class="pill" href="/yaml-validator">YAML Validator</a>
+              <a class="pill" href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
+              <a class="pill" href="/diff-checker">Diff Checker</a>
+              <a class="pill" href="/cidr-ip-converter">CIDR/IP Converter</a>
+              <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
+              <a class="pill" href="/ip-lookup">IP Lookup / My IP</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="pad">
+            <h2 class="h2">About this page</h2>
+            <p class="muted">This page is the complete tool directory for Online Dev Tools. It is designed to help users discover the right utility quickly by intent: data transformation, security analysis, networking, and troubleshooting.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Common use cases</h3>
+            <ul class="muted">
+              <li>Find the exact tool needed during incident response.</li>
+              <li>Move between related utilities without searching repeatedly.</li>
+              <li>Access browser-based workflows for quick local processing.</li>
+            </ul>
+            <div class="hr"></div>
+
+            <h3 class="h2">How it works</h3>
+            <ol class="muted">
+              <li>Pick a tool based on your task type.</li>
+              <li>Run your analysis or conversion directly in browser.</li>
+              <li>Jump to related tools for the next step in your workflow.</li>
+            </ol>
+            <div class="hr"></div>
+
+            <h3 class="h2">FAQ</h3>
+            <p class="muted"><strong>Are these tools free?</strong><br>Yes, all listed utilities are free to use.</p>
+            <p class="muted"><strong>Do I need an account?</strong><br>No account is required to use the tools.</p>
+            <p class="muted"><strong>Do tools process data locally?</strong><br>Most utilities run locally in-browser; network lookup tools call external services by design.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+    <div id="site-footer"></div>
   </div>
-</div></section>
-</div></main>
-<div id="site-footer"></div></div></body></html>
+</body>
+</html>

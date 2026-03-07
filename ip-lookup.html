@@ -1,8 +1,103 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>IP Lookup / My IP Address | Online Dev Tools</title>
-<meta name="description" content="Find your public IP and lookup geolocation/network details for IPv4 addresses. Useful for debugging networking and access controls."/>
-<link rel="canonical" href="https://onlinedevtools.app/ip-lookup"/><link rel="stylesheet" href="/assets/site.css">
-<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById('siteHeader').innerHTML=await h.text();document.getElementById('siteFooter').innerHTML=await f.text();}
-async function myip(){const r=await fetch('https://api.ipify.org?format=json');const d=await r.json();document.getElementById("ip").value=d.ip;lookup();}
-async function lookup(){const q=document.getElementById("ip").value.trim();if(!q)return;document.getElementById("status").textContent='Looking up...';try{const r=await fetch(`https://ipapi.co/${encodeURIComponent(q)}/json/`);const d=await r.json();document.getElementById("out").value=JSON.stringify(d,null,2);document.getElementById("status").textContent='Done.';}catch(e){document.getElementById("status").textContent=e.message;}}</script></head>
-<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP Lookup</nav><h1 class="h1">IP Lookup / My IP</h1><input id="ip" class="in" placeholder="8.8.8.8"/><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="pill" onclick="myip()">Find My IP</button><button class="pill" onclick="lookup()">Lookup IP</button></div><div id="status" class="muted" style="margin-top:8px"></div></div></div><div class="card"><div class="pad"><h2 class="h2">Lookup Result</h2><textarea id="out" class="in" style="min-height:360px"></textarea></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IP Lookup / My IP Address Tool | Online Dev Tools</title>
+  <meta name="description" content="Find your public IP and lookup network/geolocation metadata for IPv4 addresses. Useful for troubleshooting access, firewall, and routing issues." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/ip-lookup" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="IP Lookup / My IP | Online Dev Tools" />
+  <meta property="og:description" content="Get your public IP and inspect IP metadata quickly." />
+  <meta property="og:url" content="https://onlinedevtools.app/ip-lookup" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"IP Lookup / My IP",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/ip-lookup",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    async function findMyIp() {
+      const status = document.getElementById('status');
+      try {
+        status.textContent = 'Detecting public IP...';
+        const resp = await fetch('https://api.ipify.org?format=json');
+        const data = await resp.json();
+        document.getElementById('ip').value = data.ip;
+        await lookupIp();
+      } catch (err) {
+        status.textContent = err.message;
+      }
+    }
+
+    async function lookupIp() {
+      const ip = document.getElementById('ip').value.trim();
+      const out = document.getElementById('out');
+      const status = document.getElementById('status');
+      if (!ip) return;
+      status.textContent = 'Looking up IP metadata...';
+      try {
+        const resp = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
+        const data = await resp.json();
+        out.value = JSON.stringify(data, null, 2);
+        status.textContent = 'Lookup complete.';
+      } catch (err) {
+        out.value = '';
+        status.textContent = err.message;
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP Lookup</nav>
+          <h1 class="h1">IP Lookup / My IP</h1>
+          <p class="muted">Find your public IP and inspect IP metadata quickly.</p>
+          <input id="ip" class="in" placeholder="8.8.8.8" />
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+            <button class="pill" type="button" onclick="findMyIp()">Find My IP</button>
+            <button class="pill" type="button" onclick="lookupIp()">Lookup IP</button>
+          </div>
+          <div id="status" class="muted" style="margin-top:8px;"></div>
+        </div></div>
+        <div class="card"><div class="pad"><h2 class="h2">Lookup Result</h2><textarea id="out" class="in" style="min-height:360px;"></textarea></div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">This tool helps quickly identify your current public IP and retrieve metadata for a target IPv4 address, which is useful for network troubleshooting and access verification.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Confirm public egress IP for firewall allowlists.</li><li>Investigate geolocation mismatch reports.</li><li>Validate ASN/network ownership at a glance.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Find your IP automatically or enter an IPv4 manually.</li><li>Run lookup request.</li><li>Review returned metadata JSON.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Will geolocation always be exact?</strong><br>No, IP geolocation is approximate.</p>
+        <p class="muted"><strong>Is this private data collection?</strong><br>No, this utility only shows lookup output and does not store your input.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

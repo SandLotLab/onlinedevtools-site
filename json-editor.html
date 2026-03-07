@@ -1,8 +1,99 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>JSON Editor & Validator | Online Dev Tools</title>
-<meta name="description" content="Edit, validate, prettify, minify, and sort JSON keys in your browser. Fast JSON editor for API payloads and config files."/>
-<link rel="canonical" href="https://onlinedevtools.app/json-editor"/><link rel="stylesheet" href="/assets/site.css">
-<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById('siteHeader').innerHTML=await h.text();document.getElementById('siteFooter').innerHTML=await f.text();}
-function parse(){return JSON.parse(document.getElementById('jsonIn').value);}function update(fn){try{const obj=fn(parse());document.getElementById('jsonIn').value=typeof obj==='string'?obj:JSON.stringify(obj,null,2);document.getElementById("status").textContent='Success';}catch(e){document.getElementById("status").textContent=e.message;}}
-const sortKeys=o=>Array.isArray(o)?o.map(sortKeys):o&&typeof o==='object'?Object.fromEntries(Object.keys(o).sort().map(k=>[k,sortKeys(o[k])])):o;
-</script></head><body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="card" style="margin-top:22px"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / JSON Editor</nav><h1 class="h1">JSON Editor</h1><p class="muted">Edit, lint, and normalize JSON quickly.</p><textarea id="jsonIn" class="in" style="min-height:420px">{"service":"odt","env":"prod"}</textarea><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="pill" onclick="update(o=>o)">Validate</button><button class="pill" onclick="update(o=>o)">Prettify</button><button class="pill" onclick="update(o=>JSON.stringify(o))">Minify</button><button class="pill" onclick="update(sortKeys)">Sort keys</button></div><div id="status" class="muted" style="margin-top:8px"></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSON Editor & Validator (Prettify, Minify, Sort Keys) | Online Dev Tools</title>
+  <meta name="description" content="Edit, validate, prettify, minify, and sort JSON keys instantly. Fast JSON editor for API payloads, logs, and config files." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/json-editor" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="JSON Editor & Validator | Online Dev Tools" />
+  <meta property="og:description" content="All-in-one JSON editing, formatting, and key sorting." />
+  <meta property="og:url" content="https://onlinedevtools.app/json-editor" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"JSON Editor",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/json-editor",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function parseJson() {
+      return JSON.parse(document.getElementById('jsonIn').value);
+    }
+
+    function sortKeys(obj) {
+      if (Array.isArray(obj)) return obj.map(sortKeys);
+      if (!obj || typeof obj !== 'object') return obj;
+      return Object.fromEntries(Object.keys(obj).sort().map(k => [k, sortKeys(obj[k])]));
+    }
+
+    function update(action) {
+      const status = document.getElementById('status');
+      try {
+        const obj = parseJson();
+        if (action === 'validate') {
+          status.textContent = 'Valid JSON.';
+          return;
+        }
+        if (action === 'prettify') document.getElementById('jsonIn').value = JSON.stringify(obj, null, 2);
+        if (action === 'minify') document.getElementById('jsonIn').value = JSON.stringify(obj);
+        if (action === 'sort') document.getElementById('jsonIn').value = JSON.stringify(sortKeys(obj), null, 2);
+        status.textContent = 'Success.';
+      } catch (err) {
+        status.textContent = `JSON error: ${err.message}`;
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="card" style="margin-top:22px;"><div class="pad">
+        <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / JSON Editor</nav>
+        <h1 class="h1">JSON Editor</h1>
+        <p class="muted">Edit and normalize JSON quickly for engineering and security workflows.</p>
+        <textarea id="jsonIn" class="in" style="min-height:420px;">{"service":"odt","env":"prod","settings":{"debug":false}}</textarea>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+          <button class="pill" type="button" onclick="update('validate')">Validate</button>
+          <button class="pill" type="button" onclick="update('prettify')">Prettify</button>
+          <button class="pill" type="button" onclick="update('minify')">Minify</button>
+          <button class="pill" type="button" onclick="update('sort')">Sort Keys</button>
+        </div>
+        <div id="status" class="muted" style="margin-top:8px;"></div>
+      </div></section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">This JSON editor combines validation and formatting tools in one place. It helps you clean payloads, standardize object structure, and troubleshoot malformed JSON rapidly.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Fix malformed API request/response JSON.</li><li>Normalize config files before commit.</li><li>Sort keys for easier diffs and reviews.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Paste or edit JSON.</li><li>Run validate/prettify/minify/sort.</li><li>Copy final output into your project workflow.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Can this sort nested keys?</strong><br>Yes, nested objects are sorted recursively.</p>
+        <p class="muted"><strong>Does this replace JSON Formatter?</strong><br>It complements it with richer edit workflow controls.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

@@ -1,13 +1,94 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>YAML Validator & JSON Converter | Online Dev Tools</title>
-<meta name="description" content="Validate YAML for CI/CD, Kubernetes, and GitHub Actions. Convert valid YAML to formatted JSON instantly in your browser."/>
-<link rel="canonical" href="https://onlinedevtools.app/yaml-validator"/><link rel="stylesheet" href="/assets/site.css">
-<script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
-<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById('siteHeader').innerHTML=await h.text();document.getElementById('siteFooter').innerHTML=await f.text();}
-function validateYaml(){try{const obj=jsyaml.load(document.getElementById('yamlIn').value);document.getElementById('jsonOut').value=JSON.stringify(obj,null,2);document.getElementById('status').textContent='Valid YAML.';}catch(e){document.getElementById('jsonOut').value='';document.getElementById('status').textContent='Invalid YAML: '+e.message;}}</script></head>
-<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / YAML Validator</nav><h1 class="h1">YAML Validator</h1><textarea id="yamlIn" class="in" style="min-height:320px">apiVersion: v1
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YAML Validator & YAML to JSON Converter | Online Dev Tools</title>
+  <meta name="description" content="Validate YAML for CI/CD, Kubernetes, and GitHub Actions. Convert valid YAML to formatted JSON instantly in your browser." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/yaml-validator" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YAML Validator & Converter | Online Dev Tools" />
+  <meta property="og:description" content="Validate YAML and convert to JSON quickly." />
+  <meta property="og:url" content="https://onlinedevtools.app/yaml-validator" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"YAML Validator",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/yaml-validator",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function validateYaml() {
+      try {
+        const obj = jsyaml.load(document.getElementById('yamlIn').value);
+        document.getElementById('jsonOut').value = JSON.stringify(obj, null, 2);
+        document.getElementById('status').textContent = 'Valid YAML.';
+      } catch (err) {
+        document.getElementById('jsonOut').value = '';
+        document.getElementById('status').textContent = `Invalid YAML: ${err.message}`;
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / YAML Validator</nav>
+          <h1 class="h1">YAML Validator</h1>
+          <p class="muted">Validate YAML syntax and convert YAML to JSON for automation workflows.</p>
+          <textarea id="yamlIn" class="in" style="min-height:320px;">apiVersion: v1
 kind: ConfigMap
 metadata:
   name: demo
 data:
-  env: prod</textarea><div style="margin-top:10px"><button class="pill" onclick="validateYaml()">Validate YAML</button></div><div id="status" class="muted" style="margin-top:8px"></div></div></div><div class="card"><div class="pad"><h2 class="h2">JSON Output</h2><textarea id="jsonOut" class="in" style="min-height:380px"></textarea></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
+  env: prod</textarea>
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="validateYaml()">Validate YAML</button></div>
+          <div id="status" class="muted" style="margin-top:8px;"></div>
+        </div></div>
+        <div class="card"><div class="pad">
+          <h2 class="h2">JSON Output</h2>
+          <textarea id="jsonOut" class="in" style="min-height:380px;"></textarea>
+        </div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">This YAML validator is designed for infrastructure and CI/CD work. It catches parsing errors quickly and converts valid YAML into JSON so you can verify structure and values.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted">
+          <li>Validate Kubernetes manifests before deployment.</li>
+          <li>Check GitHub Actions workflow files.</li>
+          <li>Review security/policy YAML in pipelines.</li>
+        </ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Paste YAML input.</li><li>Click Validate YAML.</li><li>Review parser result and JSON conversion.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Does this support multi-line YAML?</strong><br>Yes, standard YAML structures are supported.</p>
+        <p class="muted"><strong>Is validation server-side?</strong><br>No, parsing is done in your browser.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>
