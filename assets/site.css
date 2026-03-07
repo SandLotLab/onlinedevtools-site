@@ -291,3 +291,16 @@ footer{
   }
 }
 /*1*/
+.breadcrumbs{
+  margin: 0 0 12px;
+  font-size:12px;
+  color:var(--muted);
+}
+.breadcrumbs a{color:var(--muted);text-decoration:none}
+.breadcrumbs a:hover{color:var(--text);text-decoration:underline}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+textarea,input,select{font-family:inherit}
+.in{width:100%;border-radius:12px;border:1px solid rgba(23,36,59,.8);background:rgba(11,21,40,.35);color:var(--text);padding:10px 12px;font-size:12.5px;line-height:1.35;outline:none;}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.col{flex:1 1 220px}
+.small{font-size:11px;color:var(--muted)}

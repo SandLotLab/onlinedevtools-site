@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WHOIS Lookup (RDAP) for Domains & IPs | Online Dev Tools</title>
+  <meta name="description" content="Run WHOIS-style lookups using RDAP for domains and IP addresses. Useful for security investigations, ownership checks, and incident response." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/whois-lookup" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="WHOIS Lookup (RDAP) | Online Dev Tools" />
+  <meta property="og:description" content="Domain and IP registration lookup for security workflows." />
+  <meta property="og:url" content="https://onlinedevtools.app/whois-lookup" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"WHOIS Lookup (RDAP)",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/whois-lookup",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    async function lookupWhois() {
+      const input = document.getElementById('query').value.trim();
+      const out = document.getElementById('out');
+      const status = document.getElementById('status');
+      if (!input) return;
+
+      status.textContent = 'Looking up RDAP...';
+      try {
+        const isIp = /^\d+\.\d+\.\d+\.\d+$/.test(input);
+        const url = isIp ? `https://rdap.arin.net/registry/ip/${input}` : `https://rdap.org/domain/${encodeURIComponent(input)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        out.value = JSON.stringify(data, null, 2);
+        status.textContent = 'Lookup complete.';
+      } catch (err) {
+        out.value = '';
+        status.textContent = `Lookup failed (often CORS/provider policy): ${err.message}`;
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / WHOIS Lookup</nav>
+          <h1 class="h1">WHOIS Lookup (RDAP)</h1>
+          <p class="muted">Lookup registration data for domains and IPs using RDAP endpoints.</p>
+          <input id="query" class="in" placeholder="example.com or 8.8.8.8" />
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="lookupWhois()">Lookup</button></div>
+          <div id="status" class="muted" style="margin-top:8px;"></div>
+        </div></div>
+        <div class="card"><div class="pad"><h2 class="h2">Result JSON</h2><textarea id="out" class="in" style="min-height:380px;"></textarea></div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">This WHOIS lookup tool uses RDAP to retrieve domain/IP registration metadata helpful for threat analysis and infrastructure attribution.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Investigate suspicious domains during incidents.</li><li>Validate ownership context for infrastructure assets.</li><li>Check network records for abuse investigations.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Enter a domain or IPv4 address.</li><li>Run lookup.</li><li>Review RDAP output JSON.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Why can lookup fail in browser?</strong><br>Some RDAP providers block cross-origin browser requests.</p>
+        <p class="muted"><strong>Is this classic WHOIS protocol?</strong><br>No, this tool uses modern RDAP endpoints.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Regex Tester (Real-Time) | Match Groups & Flags | Online Dev Tools</title>
+  <meta name="description" content="Free online regex tester with real-time matches, capture groups, and flags. Test regular expressions instantly in your browser with no uploads." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/regex-tester" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Regex Tester (Real-Time) | Online Dev Tools" />
+  <meta property="og:description" content="Test regex patterns, flags, and capture groups in real time." />
+  <meta property="og:url" content="https://onlinedevtools.app/regex-tester" />
+  <meta property="og:site_name" content="Online Dev Tools" />
+
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Regex Tester",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "url": "https://onlinedevtools.app/regex-tester",
+    "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function runRegex() {
+      const pattern = document.getElementById('pattern').value;
+      const flags = document.getElementById('flags').value;
+      const input = document.getElementById('input').value;
+      const output = document.getElementById('result');
+      const status = document.getElementById('status');
+
+      try {
+        const re = new RegExp(pattern, flags);
+        const rows = [];
+        let match;
+        let guard = 0;
+
+        while ((match = re.exec(input)) !== null && guard++ < 5000) {
+          rows.push(`Match ${rows.length + 1}: "${match[0]}" @ ${match.index}`);
+          match.slice(1).forEach((group, idx) => rows.push(`  Group ${idx + 1}: ${group ?? 'null'}`));
+          if (!re.global) break;
+          if (match[0] === '') re.lastIndex++;
+        }
+
+        output.value = rows.length ? rows.join('\n') : 'No matches found.';
+        status.textContent = 'Regex compiled successfully.';
+      } catch (err) {
+        output.value = '';
+        status.textContent = `Regex error: ${err.message}`;
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main>
+      <div class="wrap">
+        <section class="grid">
+          <div class="card">
+            <div class="pad">
+              <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Regex Tester</nav>
+              <h1 class="h1">Regular Expression Tester</h1>
+              <p class="muted">Test regex patterns, flags, and capture groups in real time.</p>
+
+              <div class="row" style="margin-top:10px;">
+                <div class="col">
+                  <div class="small">Pattern</div>
+                  <input id="pattern" class="in" value="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}" />
+                </div>
+                <div class="col">
+                  <div class="small">Flags</div>
+                  <input id="flags" class="in" value="gm" />
+                </div>
+              </div>
+
+              <div class="small" style="margin-top:10px;">Input text</div>
+              <textarea id="input" class="in" style="min-height:220px;">Contact security@onlinedevtools.app and hello@example.org</textarea>
+
+              <div style="margin-top:10px;"><button class="pill" type="button" onclick="runRegex()">Run Regex</button></div>
+              <div id="status" class="muted" style="margin-top:8px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pad">
+              <h2 class="h2">Matches</h2>
+              <textarea id="result" class="in" style="min-height:360px;"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="pad">
+            <h2 class="h2">About this tool</h2>
+            <p class="muted">This regex tester helps developers and security teams validate regular expressions quickly. It runs fully in-browser and displays capture groups and match positions for fast debugging.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Common use cases</h3>
+            <ul class="muted">
+              <li>Validate email, URL, token, or log parsing patterns.</li>
+              <li>Debug capture groups for parser and ETL pipelines.</li>
+              <li>Prototype validation rules before app integration.</li>
+            </ul>
+            <div class="hr"></div>
+
+            <h3 class="h2">How it works</h3>
+            <ol class="muted">
+              <li>Enter your regex pattern and flags.</li>
+              <li>Paste test text.</li>
+              <li>Run to see all matches and groups instantly.</li>
+            </ol>
+            <div class="hr"></div>
+
+            <h3 class="h2">FAQ</h3>
+            <p class="muted"><strong>Does this support global matching?</strong><br>Yes. Add the <code>g</code> flag to iterate over all matches.</p>
+            <p class="muted"><strong>Is my text uploaded?</strong><br>No. Pattern processing is done locally in your browser.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

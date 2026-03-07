@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIDR / IP Converter & Range Calculator | Online Dev Tools</title>
+  <meta name="description" content="Convert CIDR blocks to network details and host ranges. Calculate subnet mask, first/last IP, broadcast, and usable hosts quickly." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/cidr-ip-converter" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="CIDR / IP Converter | Online Dev Tools" />
+  <meta property="og:description" content="Subnet range and host calculation for IPv4 CIDR blocks." />
+  <meta property="og:url" content="https://onlinedevtools.app/cidr-ip-converter" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"CIDR / IP Converter",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/cidr-ip-converter",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    const ipToInt = ip => ip.split('.').reduce((acc, octet) => (acc << 8) + (+octet), 0) >>> 0;
+    const intToIp = n => [24, 16, 8, 0].map(shift => (n >>> shift) & 255).join('.');
+
+    function calcRange() {
+      const out = document.getElementById('out');
+      try {
+        const [ip, pfxS] = document.getElementById('cidr').value.trim().split('/');
+        const pfx = +pfxS;
+        const mask = pfx === 0 ? 0 : ((0xffffffff << (32 - pfx)) >>> 0);
+        const base = ipToInt(ip) & mask;
+        const broadcast = (base | (~mask >>> 0)) >>> 0;
+        const hosts = Math.max((2 ** (32 - pfx)) - 2, 0);
+        out.value = `Network: ${intToIp(base)}/${pfx}\nMask: ${intToIp(mask)}\nFirst: ${intToIp(base + 1)}\nLast: ${intToIp(broadcast - 1)}\nBroadcast: ${intToIp(broadcast)}\nUsable hosts: ${hosts}`;
+      } catch {
+        out.value = 'Invalid CIDR input.';
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / CIDR/IP Converter</nav>
+          <h1 class="h1">CIDR / IP Converter</h1>
+          <p class="muted">Calculate subnet ranges and host capacity from IPv4 CIDR notation.</p>
+          <input id="cidr" class="in" value="10.0.0.0/24" />
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="calcRange()">Calculate Range</button></div>
+        </div></div>
+        <div class="card"><div class="pad"><h2 class="h2">Range details</h2><textarea id="out" class="in" style="min-height:320px;"></textarea></div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">This CIDR calculator helps network and security teams quickly translate subnet notation into actionable range data, including first/last host addresses and usable host count.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Validate network segmentation plans.</li><li>Check firewall and ACL range assumptions.</li><li>Troubleshoot cloud/VPN subnet mismatches.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Enter an IPv4 CIDR block.</li><li>Click Calculate Range.</li><li>Review network, mask, host span, and broadcast.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Does this support IPv6?</strong><br>No, this version focuses on IPv4 CIDR.</p>
+        <p class="muted"><strong>How are hosts calculated?</strong><br>Usable hosts are derived from CIDR size minus network/broadcast where applicable.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>
