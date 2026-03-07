@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>All Developer & Security Tools | Online Dev Tools</title>
+  <meta name="description" content="Browse every free browser-based developer and security utility on Online Dev Tools: JSON, JWT, regex, URL, Base64, YAML, diff, IP, WHOIS, and more." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/tools" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="All Developer & Security Tools | Online Dev Tools" />
+  <meta property="og:description" content="Complete index of local-first dev and security tools. No uploads required." />
+  <meta property="og:url" content="https://onlinedevtools.app/tools" />
+  <link rel="stylesheet" href="/assets/site.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"All Tools","url":"https://onlinedevtools.app/tools"}</script>
+  <script>
+  async function loadPartials(){
+    const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);
+    document.getElementById('site-header').innerHTML=await h.text();
+    document.getElementById('site-footer').innerHTML=await f.text();
+  }
+  </script>
+</head>
+<body onload="loadPartials()"><div class="page">
+<div id="site-header"></div>
+<main><div class="wrap">
+<section class="card" style="margin-top:22px"><div class="pad">
+  <nav class="breadcrumbs"><a href="/">Home</a> / Tools</nav>
+  <h1 class="h1">All Tools</h1>
+  <p class="muted">Free browser-based tools for developers, platform engineers, and security teams. Data stays local when possible.</p>
+  <div class="tool-grid" style="margin-top:14px">
+    <a class="pill" href="/json-formatter">JSON Formatter</a>
+    <a class="pill" href="/json-editor">JSON Editor</a>
+    <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
+    <a class="pill" href="/jwt-decoder">JWT Decoder</a>
+    <a class="pill" href="/csp-analyzer">CSP Analyzer</a>
+    <a class="pill" href="/hash-generator">Hash Generator</a>
+    <a class="pill" href="/uuid-generator">UUID Generator</a>
+    <a class="pill" href="/log-explorer">Log Explorer</a>
+    <a class="pill" href="/regex-tester">Regex Tester</a>
+    <a class="pill" href="/url-parser">URL Parser</a>
+    <a class="pill" href="/base64-encoder-decoder">Base64 Encoder/Decoder</a>
+    <a class="pill" href="/yaml-validator">YAML Validator</a>
+    <a class="pill" href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
+    <a class="pill" href="/diff-checker">Diff Checker</a>
+    <a class="pill" href="/cidr-ip-converter">CIDR/IP Converter</a>
+    <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
+    <a class="pill" href="/ip-lookup">IP Lookup / My IP</a>
+  </div>
+</div></section>
+</div></main>
+<div id="site-footer"></div></div></body></html>

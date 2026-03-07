@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Regex Tester & Match Highlighter | Online Dev Tools</title>
+<meta name="description" content="Test regular expressions instantly with match highlighting, flags, and capture groups. Free online regex tester that runs in your browser."/>
+<link rel="canonical" href="https://onlinedevtools.app/regex-tester"/>
+<meta property="og:title" content="Regex Tester & Match Highlighter | Online Dev Tools"/><meta property="og:description" content="Test regex with flags and capture groups in real time."/><meta property="og:url" content="https://onlinedevtools.app/regex-tester"/>
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Regex Tester","url":"https://onlinedevtools.app/regex-tester","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script>async function loadPartials(){const [h,f]=await Promise.all([fetch('/partials/header.html'),fetch('/partials/footer.html')]);document.getElementById("siteHeader").innerHTML=await h.text();document.getElementById("siteFooter").innerHTML=await f.text();}
+function run(){try{const re=new RegExp(document.getElementById("pattern").value,document.getElementById("flags").value);const txt=document.getElementById("input").value;const out=[];let m;let guard=0;while((m=re.exec(txt))!==null&&guard++<5000){out.push(`Match ${out.length+1}: "${m[0]}" @${m.index}`);if(m.length>1)m.slice(1).forEach((g,i)=>out.push(`  Group ${i+1}: ${g??'null'}`));if(!re.global)break;if(m[0]==='')re.lastIndex++;}document.getElementById("result").value=out.length?out.join('\n'):'No matches.';document.getElementById("status").textContent='Regex compiled successfully.';}catch(e){document.getElementById("status").textContent=e.message;document.getElementById("result").value='';}}</script>
+</head><body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap"><section class="grid"><div class="card"><div class="pad">
+<nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Regex Tester</nav>
+<h1 class="h1">Regular Expression Tester</h1><p class="muted">Test regex, inspect capture groups, and debug pattern flags quickly.</p>
+<div class="row"><div class="col"><div class="small">Pattern</div><input id="pattern" class="in" value="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"/></div><div class="col"><div class="small">Flags</div><input id="flags" class="in" value="gm"/></div></div>
+<div class="small" style="margin-top:8px">Input text</div><textarea id="input" class="in" style="min-height:220px">Contact us at ops@onlinedevtools.app and hello@example.org</textarea>
+<div style="margin-top:10px"><button class="pill" onclick="run()">Run Regex</button></div><div id="status" class="muted" style="margin-top:10px"></div>
+</div></div><div class="card"><div class="pad"><h2 class="h2">Matches</h2><textarea id="result" class="in" style="min-height:360px"></textarea><div class="hr"></div><p class="muted">Related: <a href="/jwt-decoder">JWT Decoder</a> · <a href="/log-explorer">Log Explorer</a> · <a href="/json-formatter">JSON Formatter</a></p></div></div></section></div></main><div id="siteFooter"></div></div></body></html>
