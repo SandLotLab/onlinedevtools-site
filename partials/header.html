@@ -1,182 +1,121 @@
 <header>
   <div class="wrap">
     <div class="topbar">
-      <div class="odt-brand-wrap">
-        <a class="odt-brand-link" href="/" aria-label="Online Dev Tools home">
-          <h1 class="brand">
-            <span class="dot"></span>
-            Online Dev Tools
-          </h1>
-        </a>
-        <h2 class="subtitle">Developer &amp; Security Tools for IT Professionals</h2>
-      </div>
 
-      <div class="odt-header-actions">
-        <nav class="odt-header-nav" aria-label="Primary">
-          <div class="odt-nav-item odt-tools-menu">
-            <button
-              class="pill odt-nav-pill odt-tools-toggle"
-              type="button"
-              aria-expanded="false"
-              aria-controls="odt-tools-dropdown"
-            >
-              <span>Tools</span>
-              <span class="odt-caret" aria-hidden="true">▾</span>
-            </button>
+      <!-- Brand / Title -->
+      <h1 class="brand">
+        <span class="dot"></span>
+        Online Dev Tools
+      </h1>
 
-            <div
-              id="odt-tools-dropdown"
-              class="odt-tools-dropdown"
-              role="menu"
-              aria-label="Tools"
-            >
-              <div class="odt-tools-grid">
-                <section class="odt-tools-group" aria-labelledby="group-json">
-                  <h3 id="group-json" class="odt-tools-group-title">JSON Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/json-formatter" role="menuitem">JSON Formatter</a>
-                    <a href="/json-editor" role="menuitem">JSON Editor</a>
-                    <a href="/json-to-typescript" role="menuitem">JSON to TypeScript</a>
-                    <a href="/jwt-decoder" role="menuitem">JWT Decoder</a>
-                  </div>
-                </section>
+      <!-- Subtitle -->
+      <h2 class="subtitle">
+        Developer &amp; Security Tools for IT Professionals
+      </h2>
 
-                <section class="odt-tools-group" aria-labelledby="group-network">
-                  <h3 id="group-network" class="odt-tools-group-title">Network Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/cidr-ip-converter" role="menuitem">CIDR / IP Converter</a>
-                    <a href="/whois-lookup" role="menuitem">WHOIS Lookup</a>
-                    <a href="/ip-lookup" role="menuitem">IP Lookup</a>
-                  </div>
-                </section>
+      <!-- Infrastructure Link -->
+      <a class="infra-link" href="/infrastructure">
+        Fuel The Infrastructure
+      </a>
 
-                <section class="odt-tools-group" aria-labelledby="group-debugging">
-                  <h3 id="group-debugging" class="odt-tools-group-title">Debugging Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/log-explorer" role="menuitem">Log Explorer</a>
-                    <a href="/regex-tester" role="menuitem">Regex Tester</a>
-                  </div>
-                </section>
-
-                <section class="odt-tools-group" aria-labelledby="group-url">
-                  <h3 id="group-url" class="odt-tools-group-title">URL Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/url-parser" role="menuitem">URL Parser</a>
-                    <a href="/base64-encoder-decoder" role="menuitem">Base64 Encoder / Decoder</a>
-                  </div>
-                </section>
-
-                <section class="odt-tools-group" aria-labelledby="group-yaml">
-                  <h3 id="group-yaml" class="odt-tools-group-title">YAML Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/yaml-validator" role="menuitem">YAML Validator</a>
-                  </div>
-                </section>
-
-                <section class="odt-tools-group" aria-labelledby="group-time">
-                  <h3 id="group-time" class="odt-tools-group-title">Time Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/unix-timestamp-converter" role="menuitem">UNIX Timestamp Converter</a>
-                  </div>
-                </section>
-
-                <section class="odt-tools-group" aria-labelledby="group-security">
-                  <h3 id="group-security" class="odt-tools-group-title">Security Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/csp-analyzer" role="menuitem">CSP Analyzer</a>
-                    <a href="/hash-generator" role="menuitem">Hash Generator</a>
-                  </div>
-                </section>
-
-                <section class="odt-tools-group" aria-labelledby="group-text">
-                  <h3 id="group-text" class="odt-tools-group-title">Text Tools</h3>
-                  <div class="odt-tools-links">
-                    <a href="/diff-checker" role="menuitem">Diff Checker</a>
-                  </div>
-                </section>
-
-                <section class="odt-tools-group" aria-labelledby="group-platform">
-                  <h3 id="group-platform" class="odt-tools-group-title">Platform</h3>
-                  <div class="odt-tools-links">
-                    <a href="/tools" role="menuitem">All Tools</a>
-                    <a href="/infrastructure" role="menuitem">Infrastructure</a>
-                  </div>
-                </section>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        <a class="infra-link" href="/infrastructure">Fuel The Infrastructure</a>
-      </div>
     </div>
+
+        <nav class="category-nav" aria-label="Tool categories">
+      <div class="category-nav-track">
+        <a class="pill" href="/">Home</a>
+        <a class="pill" href="/tools">All Tools</a>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">JSON Tools</summary>
+          <div class="mega-panel">
+            <a href="/json-formatter">JSON Formatter</a>
+            <a href="/json-editor">JSON Editor</a>
+            <a href="/json-to-typescript">JSON to TypeScript</a>
+            <a href="/jwt-decoder">JWT Decoder</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">Network Tools</summary>
+          <div class="mega-panel">
+            <a href="/cidr-ip-converter">CIDR / IP Converter</a>
+            <a href="/whois-lookup">WHOIS Lookup</a>
+            <a href="/ip-lookup">IP Lookup</a>
+            <span class="mega-item disabled">Binary to IP Converter (coming soon)</span>
+            <span class="mega-item disabled">Decimal to IP Converter (coming soon)</span>
+            <span class="mega-item disabled">Hex to IP Converter (coming soon)</span>
+            <span class="mega-item disabled">Hostname to IP (coming soon)</span>
+            <span class="mega-item disabled">IP to Binary Converter (coming soon)</span>
+            <span class="mega-item disabled">IP to Decimal Converter (coming soon)</span>
+            <span class="mega-item disabled">IP to Hex Converter (coming soon)</span>
+            <span class="mega-item disabled">IP to Octal Converter (coming soon)</span>
+            <span class="mega-item disabled">IPv6 to Binary Converter (coming soon)</span>
+            <span class="mega-item disabled">Octal to IP Converter (coming soon)</span>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">YAML Tools</summary>
+          <div class="mega-panel">
+            <a href="/yaml-validator">YAML Validator</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">Text Tools</summary>
+          <div class="mega-panel">
+            <a href="/diff-checker">Diff Checker</a>
+            <span class="mega-item disabled">Word Counter (coming soon)</span>
+            <span class="mega-item disabled">Case Converter (coming soon)</span>
+            <span class="mega-item disabled">Line Sorter (coming soon)</span>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">Debugging Tools</summary>
+          <div class="mega-panel">
+            <a href="/log-explorer">Log Explorer</a>
+            <a href="/regex-tester">Regex Tester</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">Time Tools</summary>
+          <div class="mega-panel">
+            <a href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">HASH Generators</summary>
+          <div class="mega-panel">
+            <a href="/hash-generator">MD5 Hash Generator</a>
+            <a href="/hash-generator">SHA-1 Hash Generator</a>
+            <a href="/hash-generator">SHA-3 Hash Generator</a>
+            <a href="/hash-generator">SHA-224 Hash Generator</a>
+            <a href="/hash-generator">SHA-256 Hash Generator</a>
+            <a href="/hash-generator">SHA-384 Hash Generator</a>
+            <a href="/hash-generator">SHA-512 Hash Generator</a>
+            <a href="/hash-generator">RIPEMD-160 Hash Generator</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">URL Tools</summary>
+          <div class="mega-panel">
+            <a href="/url-parser">URL Parser</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="pill category-tab">Security Tools</summary>
+          <div class="mega-panel">
+            <a href="/csp-analyzer">CSP Analyzer</a>
+            <span class="mega-item disabled">Secure Paste (coming soon)</span>
+          </div>
+        </details>
+      </div>
+    </nav>
+
   </div>
 </header>
-
-<script>
-(function () {
-  const header = document.currentScript.closest("header");
-  if (!header || header.dataset.headerInit === "true") return;
-  header.dataset.headerInit = "true";
-
-  const menu = header.querySelector(".odt-tools-menu");
-  const toggle = header.querySelector(".odt-tools-toggle");
-  const dropdown = header.querySelector(".odt-tools-dropdown");
-  if (!menu || !toggle || !dropdown) return;
-
-  const mobileMq = window.matchMedia("(max-width: 760px)");
-  let closeTimer = null;
-
-  function isMobile() {
-    return mobileMq.matches;
-  }
-
-  function openMenu() {
-    clearTimeout(closeTimer);
-    menu.classList.add("is-open");
-    toggle.setAttribute("aria-expanded", "true");
-  }
-
-  function closeMenu() {
-    clearTimeout(closeTimer);
-    menu.classList.remove("is-open");
-    toggle.setAttribute("aria-expanded", "false");
-  }
-
-  function delayedClose() {
-    clearTimeout(closeTimer);
-    closeTimer = setTimeout(closeMenu, 100);
-  }
-
-  if (!isMobile()) {
-    menu.addEventListener("mouseenter", openMenu);
-    menu.addEventListener("mouseleave", delayedClose);
-    dropdown.addEventListener("mouseenter", openMenu);
-    dropdown.addEventListener("mouseleave", delayedClose);
-  }
-
-  toggle.addEventListener("click", function (e) {
-    if (!isMobile()) return;
-    e.preventDefault();
-    if (menu.classList.contains("is-open")) {
-      closeMenu();
-    } else {
-      openMenu();
-    }
-  });
-
-  document.addEventListener("click", function (e) {
-    if (!menu.contains(e.target)) closeMenu();
-  });
-
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeMenu();
-  });
-
-  if (mobileMq.addEventListener) {
-    mobileMq.addEventListener("change", closeMenu);
-  } else if (mobileMq.addListener) {
-    mobileMq.addListener(closeMenu);
-  }
-})();
-</script>
