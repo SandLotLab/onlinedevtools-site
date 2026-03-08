@@ -41,57 +41,82 @@
       <div class="wrap">
         <section class="card" style="margin-top:22px">
           <div class="pad">
-            <nav class="breadcrumbs"><a href="/">Home</a> / Tools</nav>
             <h1 class="h1">All Tools</h1>
-            <p class="muted">Free browser-based tools for developers, platform teams, and security engineers. Open a tool, run your task, and move fast.</p>
-            <div class="tool-grid" style="margin-top:14px">
+            <p class="muted">All tools are client-side and run directly in your browser. Choose a category to jump into the right workflow quickly.</p>
+
+            <h2 class="h2" id="json-tools">JSON Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
               <a class="pill" href="/json-formatter">JSON Formatter</a>
               <a class="pill" href="/json-editor">JSON Editor</a>
               <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
               <a class="pill" href="/jwt-decoder">JWT Decoder</a>
-              <a class="pill" href="/csp-analyzer">CSP Analyzer</a>
-              <a class="pill" href="/hash-generator">Hash Generator</a>
-              <a class="pill" href="/uuid-generator">UUID Generator</a>
+            </div>
+
+            <div class="hr"></div>
+            <h2 class="h2" id="network-tools">Network Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/cidr-ip-converter">CIDR / IP Converter</a>
+              <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
+              <a class="pill" href="/ip-lookup">IP Lookup</a>
+              <a class="pill" id="binary-to-ip-converter" href="#">Binary to IP Converter</a>
+              <a class="pill" id="decimal-to-ip-converter" href="#">Decimal to IP Converter</a>
+              <a class="pill" id="hex-to-ip-converter" href="#">Hex to IP Converter</a>
+              <a class="pill" id="hostname-to-ip" href="#">Hostname to IP</a>
+              <a class="pill" id="ip-to-binary-converter" href="#">IP to Binary Converter</a>
+              <a class="pill" id="ip-to-decimal-converter" href="#">IP to Decimal Converter</a>
+              <a class="pill" id="ip-to-hex-converter" href="#">IP to Hex Converter</a>
+              <a class="pill" id="ip-to-octal-converter" href="#">IP to Octal Converter</a>
+              <a class="pill" id="ipv6-to-binary-converter" href="#">IPv6 to Binary Converter</a>
+              <a class="pill" id="octal-to-ip-converter" href="#">Octal to IP Converter</a>
+            </div>
+
+            <div class="hr"></div>
+            <h2 class="h2" id="yaml-tools">YAML Tools</h2>
+            <div class="tool-grid" style="margin-top:10px"><a class="pill" href="/yaml-validator">YAML Validator</a></div>
+
+            <div class="hr"></div>
+            <h2 class="h2" id="text-tools">Text Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/diff-checker">Diff Checker</a>
+              <a class="pill" id="word-counter" href="#">Word Counter</a>
+              <a class="pill" id="case-converter" href="#">Case Converter</a>
+              <a class="pill" id="line-sorter" href="#">Line Sorter</a>
+            </div>
+
+            <div class="hr"></div>
+            <h2 class="h2" id="debugging-tools">Debugging Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
               <a class="pill" href="/log-explorer">Log Explorer</a>
               <a class="pill" href="/regex-tester">Regex Tester</a>
-              <a class="pill" href="/url-parser">URL Parser</a>
-              <a class="pill" href="/base64-encoder-decoder">Base64 Encoder/Decoder</a>
-              <a class="pill" href="/yaml-validator">YAML Validator</a>
-              <a class="pill" href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
-              <a class="pill" href="/diff-checker">Diff Checker</a>
-              <a class="pill" href="/cidr-ip-converter">CIDR/IP Converter</a>
-              <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
-              <a class="pill" href="/ip-lookup">IP Lookup / My IP</a>
             </div>
-          </div>
-        </section>
 
-        <section class="card">
-          <div class="pad">
-            <h2 class="h2">About this page</h2>
-            <p class="muted">This page is the complete tool directory for Online Dev Tools. It is designed to help users discover the right utility quickly by intent: data transformation, security analysis, networking, and troubleshooting.</p>
             <div class="hr"></div>
+            <h2 class="h2" id="time-tools">Time Tools</h2>
+            <div class="tool-grid" style="margin-top:10px"><a class="pill" href="/unix-timestamp-converter">UNIX Timestamp Converter</a></div>
 
-            <h3 class="h2">Common use cases</h3>
-            <ul class="muted">
-              <li>Find the exact tool needed during incident response.</li>
-              <li>Move between related utilities without searching repeatedly.</li>
-              <li>Access browser-based workflows for quick local processing.</li>
-            </ul>
             <div class="hr"></div>
+            <h2 class="h2" id="hash-tools">HASH Generators</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/hash-generator#md5">Md5 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha1">SHA-1 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha3">SHA-3 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha224">SHA-224 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha256">SHA-256 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha384">SHA-384 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha512">SHA-512 Hash Generator</a>
+              <a class="pill" href="/hash-generator#ripemd160">RIPEMD-160 Hash Generator</a>
+            </div>
 
-            <h3 class="h2">How it works</h3>
-            <ol class="muted">
-              <li>Pick a tool based on your task type.</li>
-              <li>Run your analysis or conversion directly in browser.</li>
-              <li>Jump to related tools for the next step in your workflow.</li>
-            </ol>
             <div class="hr"></div>
+            <h2 class="h2" id="url-tools">URL Tools</h2>
+            <div class="tool-grid" style="margin-top:10px"><a class="pill" href="/url-parser">URL Parser</a></div>
 
-            <h3 class="h2">FAQ</h3>
-            <p class="muted"><strong>Are these tools free?</strong><br>Yes, all listed utilities are free to use.</p>
-            <p class="muted"><strong>Do I need an account?</strong><br>No account is required to use the tools.</p>
-            <p class="muted"><strong>Do tools process data locally?</strong><br>Most utilities run locally in-browser; network lookup tools call external services by design.</p>
+            <div class="hr"></div>
+            <h2 class="h2" id="security-tools">Security Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" id="secure-paste" href="#">Secure Paste (client-side, self-destructing)</a>
+              <a class="pill" href="/csp-analyzer">CSP Analyzer</a>
+            </div>
           </div>
         </section>
       </div>
