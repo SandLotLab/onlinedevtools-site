@@ -20,16 +20,51 @@
 
     </div>
 
-    <!-- Navigation -->
-    <nav class="navcenter">
-      <a class="pill" href="/">Home</a>
-      <a class="pill" href="/tools">All Tools</a>
-      <a class="pill" href="/json-formatter">JSON Formatter</a>
-      <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
-      <a class="pill" href="/jwt-decoder">JWT Decoder</a>
-      <a class="pill" href="/regex-tester">Regex Tester</a>
-      <a class="pill" href="/uuid-generator">UUID Generator</a>
-      <a class="pill" href="/log-explorer">Log Explorer</a>
+    <nav class="category-nav" aria-label="Tool categories">
+      <div class="category-nav-track">
+        <a class="category-tab" href="/">Home</a>
+        <a class="category-tab" href="/tools">All Tools</a>
+
+        <details class="mega-tab">
+          <summary class="category-tab">JSON Tools</summary>
+          <div class="mega-panel">
+            <a href="/json-formatter">JSON Formatter</a>
+            <a href="/json-editor">JSON Editor</a>
+            <a href="/json-to-typescript">JSON to TypeScript</a>
+            <a href="/jwt-decoder">JWT Decoder</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="category-tab">Network Tools</summary>
+          <div class="mega-panel">
+            <a href="/cidr-ip-converter">CIDR / IP Converter</a>
+            <a href="/whois-lookup">WHOIS Lookup</a>
+            <a href="/ip-lookup">IP Lookup</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="category-tab">Text &amp; Debugging</summary>
+          <div class="mega-panel">
+            <a href="/diff-checker">Diff Checker</a>
+            <a href="/log-explorer">Log Explorer</a>
+            <a href="/regex-tester">Regex Tester</a>
+          </div>
+        </details>
+
+        <details class="mega-tab">
+          <summary class="category-tab">Security &amp; Utilities</summary>
+          <div class="mega-panel">
+            <a href="/csp-analyzer">CSP Analyzer</a>
+            <a href="/hash-generator">Hash Generator</a>
+            <a href="/uuid-generator">UUID Generator</a>
+            <a href="/yaml-validator">YAML Validator</a>
+            <a href="/url-parser">URL Parser</a>
+            <a href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
+          </div>
+        </details>
+      </div>
     </nav>
 
   </div>
