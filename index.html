@@ -98,53 +98,25 @@
     }
   </script>
 
+
+  <script>
+    async function loadHeaderPartial() {
+      const h = await fetch('/partials/header.html');
+      document.getElementById('site-header').innerHTML = await h.text();
+    }
+  </script>
+
 </head>
 
-<body>
+<body onload="loadHeaderPartial()">
 
   <div class="page">
 
-    <header>
-      <div class="wrap">
-        <div class="topbar">
-
-          <!-- Brand / Title -->
-          <h1 class="brand">
-            <span class="dot"></span>
-            Online Developer and Security Tools
-          </h1>
-
-          <!-- Subtitle -->
-          <h2 class="subtitle">
-            Developer &amp; Security Tools for IT Professionals
-          </h2>
-
-          <!-- Infrastructure Link -->
-          <a class="infra-link" href="/infrastructure">
-            Fuel The Infrastructure
-          </a>
-
-        </div>
-
-        <!-- Navigation -->
-        <nav class="navcenter">
-          <a class="pill" href="/">Home</a>
-          <a class="pill" href="/tools">All Tools</a>
-          <a class="pill" href="/json-formatter">JSON Formatter</a>
-          <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
-          <a class="pill" href="/jwt-decoder">JWT Decoder</a>
-          <a class="pill" href="/regex-tester">Regex Tester</a>
-          <a class="pill" href="/uuid-generator">UUID Generator</a>
-          <a class="pill" href="/log-explorer">Log Explorer</a>
-        </nav>
-
-      </div>
-    </header>
+    <div id="site-header"></div>
 
     <main>
       <div class="wrap">
 
-        <nav class="breadcrumbs" style="margin-top:16px;"><a href="/">Home</a> / Tools</nav>
 
         <section class="grid">
 
@@ -155,7 +127,7 @@
               <h2 class="h2">Welcome</h2>
 
               <p class="muted" style="margin-top:6px">
-                Online Dev Tools is a browser-based developer toolkit built for practical engineering work, fast troubleshooting, and technical exploration. Every utility runs locally in your browser, so you can inspect data quickly without creating an account or uploading files to a third-party server.
+                Online Dev Tools is a browser-based developer toolkit built for practical engineering work, fast troubleshooting, and technical exploration. Every utility runs locally in your browser, so you can inspect data quickly without creating an account or uploading files to a third-party server. All tool logic is client-side browser execution.
               </p>
 
               <p class="muted" style="margin-top:10px">
