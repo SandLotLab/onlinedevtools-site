@@ -304,3 +304,13 @@ textarea,input,select{font-family:inherit}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .col{flex:1 1 220px}
 .small{font-size:11px;color:var(--muted)}
+
+.tools-layout-fix{position:relative; z-index:2}
+.tools-search-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.tools-search-row .in{flex:1 1 300px}
+.tool-action{cursor:pointer}
+.category-jump-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;position:relative;z-index:3}
+.tool-category{margin-top:14px;position:relative;z-index:2}
+.tool-chip.disabled{opacity:.62;cursor:not-allowed;pointer-events:none}
+.hidden-tool{display:none !important}
+header{z-index:40}
