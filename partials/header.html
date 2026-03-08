@@ -1,36 +1,127 @@
 <header>
   <div class="wrap">
     <div class="topbar">
-
-      <!-- Brand / Title -->
       <h1 class="brand">
         <span class="dot"></span>
         Online Dev Tools
       </h1>
 
-      <!-- Subtitle -->
       <h2 class="subtitle">
         Developer &amp; Security Tools for IT Professionals
       </h2>
 
-      <!-- Infrastructure Link -->
       <a class="infra-link" href="/infrastructure">
         Fuel The Infrastructure
       </a>
-
     </div>
 
-    <!-- Navigation -->
-    <nav class="navcenter">
+    <nav class="navcenter" aria-label="Tool categories">
       <a class="pill" href="/">Home</a>
       <a class="pill" href="/tools">All Tools</a>
-      <a class="pill" href="/json-formatter">JSON Formatter</a>
-      <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
-      <a class="pill" href="/jwt-decoder">JWT Decoder</a>
-      <a class="pill" href="/regex-tester">Regex Tester</a>
-      <a class="pill" href="/uuid-generator">UUID Generator</a>
-      <a class="pill" href="/log-explorer">Log Explorer</a>
-    </nav>
 
+      <div class="nav-tab">
+        <button class="pill tab-btn" type="button">JSON Tools</button>
+        <div class="mega" role="menu">
+          <a class="pill" href="/json-formatter">JSON Formatter</a>
+          <a class="pill" href="/json-editor">JSON Editor</a>
+          <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
+          <a class="pill" href="/jwt-decoder">JWT Decoder</a>
+        </div>
+      </div>
+
+      <div class="nav-tab">
+        <button class="pill tab-btn" type="button">Network Tools</button>
+        <div class="mega" role="menu">
+          <a class="pill" href="/cidr-ip-converter">CIDR / IP Converter</a>
+          <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
+          <a class="pill" href="/ip-lookup">IP Lookup</a>
+          <a class="pill" href="/tools#binary-to-ip-converter">Binary to IP Converter</a>
+          <a class="pill" href="/tools#decimal-to-ip-converter">Decimal to IP Converter</a>
+          <a class="pill" href="/tools#hex-to-ip-converter">Hex to IP Converter</a>
+          <a class="pill" href="/tools#hostname-to-ip">Hostname to IP</a>
+          <a class="pill" href="/tools#ip-to-binary-converter">IP to Binary Converter</a>
+          <a class="pill" href="/tools#ip-to-decimal-converter">IP to Decimal Converter</a>
+          <a class="pill" href="/tools#ip-to-hex-converter">IP to Hex Converter</a>
+          <a class="pill" href="/tools#ip-to-octal-converter">IP to Octal Converter</a>
+          <a class="pill" href="/tools#ipv6-to-binary-converter">IPv6 to Binary Converter</a>
+          <a class="pill" href="/tools#octal-to-ip-converter">Octal to IP Converter</a>
+        </div>
+      </div>
+
+      <div class="nav-tab">
+        <button class="pill tab-btn" type="button">More Categories</button>
+        <div class="mega" role="menu">
+          <a class="pill" href="/yaml-validator">YAML Tools</a>
+          <a class="pill" href="/diff-checker">Text Tools</a>
+          <a class="pill" href="/log-explorer">Debugging Tools</a>
+          <a class="pill" href="/unix-timestamp-converter">Time Tools</a>
+          <a class="pill" href="/hash-generator">Hash Generators</a>
+          <a class="pill" href="/url-parser">URL Tools</a>
+          <a class="pill" href="/csp-analyzer">Security Tools</a>
+        </div>
+      </div>
+
+      <div class="search-wrap" id="site-search">
+        <button class="pill search-toggle" type="button" aria-label="Search tools">🔍</button>
+        <div class="search-panel">
+          <input id="tool-search-input" class="in" type="search" placeholder="Search tools..." />
+          <div id="tool-search-results" class="search-results"></div>
+        </div>
+      </div>
+    </nav>
   </div>
 </header>
+
+<script>
+(function () {
+  const navTabs = document.querySelectorAll('.nav-tab');
+  navTabs.forEach((tab) => {
+    const btn = tab.querySelector('.tab-btn');
+    btn?.addEventListener('click', () => {
+      const isOpen = tab.classList.contains('open');
+      navTabs.forEach((t) => t.classList.remove('open'));
+      if (!isOpen) tab.classList.add('open');
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.nav-tab')) {
+      navTabs.forEach((t) => t.classList.remove('open'));
+    }
+  });
+
+  const searchWrap = document.getElementById('site-search');
+  const toggle = searchWrap?.querySelector('.search-toggle');
+  const input = document.getElementById('tool-search-input');
+  const results = document.getElementById('tool-search-results');
+
+  const tools = [
+    ['JSON Formatter', '/json-formatter'], ['JSON Editor', '/json-editor'], ['JSON to TypeScript', '/json-to-typescript'], ['JWT Decoder', '/jwt-decoder'],
+    ['CIDR / IP Converter', '/cidr-ip-converter'], ['WHOIS Lookup', '/whois-lookup'], ['IP Lookup', '/ip-lookup'], ['Binary to IP Converter', '/tools#binary-to-ip-converter'], ['Decimal to IP Converter', '/tools#decimal-to-ip-converter'], ['Hex to IP Converter', '/tools#hex-to-ip-converter'], ['Hostname to IP', '/tools#hostname-to-ip'], ['IP to Binary Converter', '/tools#ip-to-binary-converter'], ['IP to Decimal Converter', '/tools#ip-to-decimal-converter'], ['IP to Hex Converter', '/tools#ip-to-hex-converter'], ['IP to Octal Converter', '/tools#ip-to-octal-converter'], ['IPv6 to Binary Converter', '/tools#ipv6-to-binary-converter'], ['Octal to IP Converter', '/tools#octal-to-ip-converter'],
+    ['YAML Validator', '/yaml-validator'], ['Diff Checker', '/diff-checker'], ['Word Counter', '/tools#word-counter'], ['Case Converter', '/tools#case-converter'], ['Line Sorter', '/tools#line-sorter'], ['Log Explorer', '/log-explorer'], ['Regex Tester', '/regex-tester'], ['UNIX Timestamp Converter', '/unix-timestamp-converter'], ['Md5 Hash Generator', '/hash-generator#md5'], ['SHA-1 Hash Generator', '/hash-generator#sha1'], ['SHA-3 Hash Generator', '/hash-generator#sha3'], ['SHA-224 Hash Generator', '/hash-generator#sha224'], ['SHA-256 Hash Generator', '/hash-generator#sha256'], ['SHA-384 Hash Generator', '/hash-generator#sha384'], ['SHA-512 Hash Generator', '/hash-generator#sha512'], ['RIPEMD-160 Hash Generator', '/hash-generator#ripemd160'], ['URL Parser', '/url-parser'], ['Secure Paste (client-side, self-destructing)', '/tools#secure-paste'], ['CSP Analyzer', '/csp-analyzer']
+  ];
+
+  const renderResults = (query = '') => {
+    if (!results) return;
+    const q = query.trim().toLowerCase();
+    const filtered = tools.filter(([name]) => name.toLowerCase().includes(q)).slice(0, 14);
+    results.innerHTML = filtered.map(([name, href]) => `<a class="pill" href="${href}">${name}</a>`).join('') || '<p class="muted">No tools found.</p>';
+  };
+
+  toggle?.addEventListener('click', () => {
+    searchWrap.classList.toggle('open');
+    if (searchWrap.classList.contains('open')) {
+      renderResults(input?.value || '');
+      input?.focus();
+    }
+  });
+
+  input?.addEventListener('input', (e) => renderResults(e.target.value));
+
+  document.addEventListener('click', (event) => {
+    if (!searchWrap?.contains(event.target)) {
+      searchWrap?.classList.remove('open');
+    }
+  });
+})();
+</script>
