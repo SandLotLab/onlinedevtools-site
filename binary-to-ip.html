@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Binary to IP Converter | Online Dev Tools</title>
+  <meta name="description" content="Convert 32-bit binary values into IPv4 addresses instantly in your browser." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/binary-to-ip" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Binary to IP Converter | Online Dev Tools" />
+  <meta property="og:description" content="Convert binary notation to dotted IPv4 quickly." />
+  <meta property="og:url" content="https://onlinedevtools.app/binary-to-ip" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function convert() {
+      const out = document.getElementById('out');
+      const bits = (document.getElementById('input').value || '').replace(/[^01]/g, '');
+      if (bits.length !== 32) {
+        out.value = 'Invalid input. Enter exactly 32 binary bits.';
+        return;
+      }
+      const octets = bits.match(/.{1,8}/g).map((b) => parseInt(b, 2));
+      out.value = octets.join('.');
+    }
+  </script>
+</head>
+<body onload="loadPartials()">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Binary to IP</nav>
+          <h1 class="h1">Binary to IP Converter</h1>
+          <p class="muted">Convert a 32-bit binary number into a dotted IPv4 address.</p>
+          <textarea id="input" class="in" style="min-height:120px;" placeholder="Example: 11000000101010000000000100000001"></textarea>
+          <div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div>
+        </div></div>
+        <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">Binary to IP helps translate packet-level binary values into readable IPv4 format for troubleshooting and lab work.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Studying subnetting fundamentals.</li><li>Verifying binary output from scripts.</li><li>Troubleshooting bitwise networking logic.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>Paste 32 bits of binary data.</li><li>The tool splits bits into 8-bit octets.</li><li>Each octet is converted to decimal and combined into IPv4 notation.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Can I include spaces?</strong><br>Yes. Non-binary characters are ignored before conversion.</p>
+        <p class="muted"><strong>Does this support IPv6?</strong><br>No, this page is for 32-bit IPv4 binary values.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>

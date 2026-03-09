@@ -29,6 +29,14 @@
   <url><loc>https://onlinedevtools.app/cidr-ip-converter</loc></url>
   <url><loc>https://onlinedevtools.app/whois-lookup</loc></url>
   <url><loc>https://onlinedevtools.app/ip-lookup</loc></url>
+  <url><loc>https://onlinedevtools.app/binary-to-ip</loc></url>
+  <url><loc>https://onlinedevtools.app/decimal-to-ip</loc></url>
+  <url><loc>https://onlinedevtools.app/hex-to-ip</loc></url>
+  <url><loc>https://onlinedevtools.app/hostname-to-ip</loc></url>
+  <url><loc>https://onlinedevtools.app/ip-to-binary</loc></url>
+  <url><loc>https://onlinedevtools.app/ip-to-decimal</loc></url>
+  <url><loc>https://onlinedevtools.app/ip-to-hex</loc></url>
+  <url><loc>https://onlinedevtools.app/ipv6-to-binary</loc></url>
 
   <url><loc>https://onlinedevtools.app/roguelike</loc></url>
   <url><loc>https://onlinedevtools.app/galactica</loc></url>

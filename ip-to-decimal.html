@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IP to Decimal Converter | Online Dev Tools</title>
+  <meta name="description" content="Convert IPv4 addresses into unsigned decimal integers." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/ip-to-decimal" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+    function convert() {
+      const out = document.getElementById('out');
+      const octets = (document.getElementById('input').value || '').trim().split('.').map((n) => Number(n));
+      if (octets.length !== 4 || octets.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) {
+        out.value = 'Invalid IPv4 address.';
+        return;
+      }
+      const value = (((octets[0] << 24) >>> 0) + (octets[1] << 16) + (octets[2] << 8) + octets[3]) >>> 0;
+      out.value = String(value);
+    }
+  </script>
+</head>
+<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
+<section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP to Decimal</nav><h1 class="h1">IP to Decimal Converter</h1><p class="muted">Convert dotted IPv4 addresses into a single unsigned decimal integer.</p><input id="input" class="in" placeholder="Example: 192.168.1.1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div></section>
+<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IP to Decimal is handy when databases, SIEMs, and custom tools store IPv4 values numerically.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Building numeric IP ranges in SQL.</li><li>Comparing address values in scripts.</li><li>Converting analytics exports to integer format.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter an IPv4 address.</li><li>Each octet is shifted into its 32-bit position.</li><li>The combined unsigned value is returned.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Why unsigned?</strong><br>IPv4 address space is 0 through 2^32-1.</p><p class="muted"><strong>Is endian format configurable?</strong><br>This tool uses standard network-byte order conversion.</p></div></section>
+</div></main><div id="siteFooter"></div></div></body>
+</html>

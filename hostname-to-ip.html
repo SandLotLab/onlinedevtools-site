@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hostname to IP Lookup | Online Dev Tools</title>
+  <meta name="description" content="Resolve hostnames to IPv4 addresses with a quick DNS lookup tool." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/hostname-to-ip" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+    async function convert() {
+      const out = document.getElementById('out');
+      const host = (document.getElementById('input').value || '').trim();
+      if (!host) {
+        out.value = 'Please enter a hostname.';
+        return;
+      }
+      out.value = 'Resolving...';
+      try {
+        const res = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(host)}&type=A`);
+        const data = await res.json();
+        const records = (data.Answer || []).filter((a) => a.type === 1).map((a) => a.data);
+        out.value = records.length ? records.join('\n') : 'No A records found.';
+      } catch {
+        out.value = 'Lookup failed. Please try again.';
+      }
+    }
+  </script>
+</head>
+<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
+  <section class="grid">
+    <div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Hostname to IP</nav><h1 class="h1">Hostname to IP</h1><p class="muted">Resolve a DNS hostname into one or more IPv4 addresses.</p><input id="input" class="in" placeholder="Example: example.com" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Resolve</button></div></div></div>
+    <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div>
+  </section>
+  <section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">Hostname to IP performs a fast DNS A-record lookup so you can validate where a domain resolves.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Checking DNS propagation.</li><li>Confirming endpoint targets during migrations.</li><li>Troubleshooting connectivity and firewall issues.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter a hostname.</li><li>The tool requests DNS A records.</li><li>Returned IPv4 addresses are listed line by line.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Does this return IPv6?</strong><br>This version focuses on IPv4 A records.</p><p class="muted"><strong>Can results vary?</strong><br>Yes, DNS can return different answers based on location, caching, and load-balancing.</p></div></section>
+</div></main><div id="siteFooter"></div></div></body>
+</html>

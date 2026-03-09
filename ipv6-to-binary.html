@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPv6 to Binary Converter | Online Dev Tools</title>
+  <meta name="description" content="Convert IPv6 addresses into full 128-bit binary format for labs and education." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/ipv6-to-binary" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    function expandIpv6(addr) {
+      if (!addr || addr.split('::').length > 2) return null;
+      const [left, right] = addr.split('::');
+      const leftParts = left ? left.split(':').filter(Boolean) : [];
+      const rightParts = right ? right.split(':').filter(Boolean) : [];
+      const missing = 8 - (leftParts.length + rightParts.length);
+      if (missing < 0) return null;
+      const full = [...leftParts, ...Array(missing).fill('0'), ...rightParts];
+      if (full.length !== 8) return null;
+      if (full.some((p) => !/^[0-9a-fA-F]{1,4}$/.test(p))) return null;
+      return full.map((p) => p.padStart(4, '0').toLowerCase());
+    }
+
+    function convert() {
+      const out = document.getElementById('out');
+      const expanded = expandIpv6((document.getElementById('input').value || '').trim());
+      if (!expanded) {
+        out.value = 'Invalid IPv6 address.';
+        return;
+      }
+      const grouped = expanded.map((part) => parseInt(part, 16).toString(2).padStart(16, '0'));
+      out.value = `${grouped.join('')}\n\nGrouped:\n${grouped.join(':')}`;
+    }
+  </script>
+</head>
+<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
+<section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IPv6 to Binary</nav><h1 class="h1">IPv6 to Binary Converter</h1><p class="muted">Convert IPv6 notation to full 128-bit binary output (great for labs and education).</p><input id="input" class="in" placeholder="Example: 2001:db8::1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:260px;" readonly></textarea></div></div></section>
+<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IPv6 to Binary expands compressed IPv6 addresses and renders their full 128-bit binary representation for training and validation.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Learning IPv6 structure and bit boundaries.</li><li>Validating subnet prefix exercises.</li><li>Teaching address compression/expansion mechanics.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter an IPv6 address (compressed or full).</li><li>The address is expanded to 8 hextets.</li><li>Each hextet is converted into a 16-bit binary block.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Does it accept :: compression?</strong><br>Yes, common compressed IPv6 forms are supported.</p><p class="muted"><strong>Is this intended for production planning?</strong><br>It is primarily optimized for education and lab workflows.</p></div></section>
+</div></main><div id="siteFooter"></div></div></body>
+</html>

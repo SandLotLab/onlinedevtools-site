@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IP to Hex Converter | Online Dev Tools</title>
+  <meta name="description" content="Convert IPv4 addresses to hexadecimal representation for low-level networking workflows." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/ip-to-hex" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+    function convert() {
+      const out = document.getElementById('out');
+      const octets = (document.getElementById('input').value || '').trim().split('.').map((n) => Number(n));
+      if (octets.length !== 4 || octets.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) {
+        out.value = 'Invalid IPv4 address.';
+        return;
+      }
+      out.value = octets.map((n) => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+  </script>
+</head>
+<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
+<section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP to Hex</nav><h1 class="h1">IP to Hex Converter</h1><p class="muted">Convert IPv4 dotted-decimal addresses into 8-character hexadecimal values.</p><input id="input" class="in" placeholder="Example: 192.168.1.1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div></section>
+<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IP to Hex converts familiar addresses into byte-wise hexadecimal strings used in packet-level tooling and software constants.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Reviewing network protocol logs.</li><li>Working with embedded/system code.</li><li>Cross-checking SIEM normalization pipelines.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter a valid IPv4 address.</li><li>Each decimal octet is converted into a 2-digit hex byte.</li><li>The bytes are concatenated into a single hex string.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Can I get a 0x prefix?</strong><br>The output is plain hex; add 0x manually if your workflow requires it.</p><p class="muted"><strong>Is output uppercase?</strong><br>Yes, uppercase hex is returned for readability.</p></div></section>
+</div></main><div id="siteFooter"></div></div></body>
+</html>

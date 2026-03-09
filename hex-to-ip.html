@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hex to IP Converter | Online Dev Tools</title>
+  <meta name="description" content="Convert hexadecimal IPv4 values into dotted IP addresses in one click." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/hex-to-ip" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+    function convert() {
+      const out = document.getElementById('out');
+      let hex = (document.getElementById('input').value || '').trim().toLowerCase();
+      hex = hex.replace(/^0x/, '').replace(/[^0-9a-f]/g, '');
+      if (hex.length !== 8) {
+        out.value = 'Invalid input. Enter exactly 8 hexadecimal characters.';
+        return;
+      }
+      const octets = hex.match(/../g).map((part) => parseInt(part, 16));
+      out.value = octets.join('.');
+    }
+  </script>
+</head>
+<body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
+  <section class="grid">
+    <div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Hex to IP</nav><h1 class="h1">Hex to IP Converter</h1><p class="muted">Convert a 32-bit hexadecimal value into a dotted IPv4 address.</p><input id="input" class="in" placeholder="Example: C0A80101 or 0xC0A80101" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div>
+    <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div>
+  </section>
+  <section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">Hex to IP makes it easy to decode IPv4 addresses shown in packet captures, configs, or code constants.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Reading low-level protocol dumps.</li><li>Translating embedded firmware values.</li><li>Converting logs that store IPs as hex.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter 8 hex characters (with or without 0x).</li><li>The value is split into four bytes.</li><li>Each byte is converted to decimal octets.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Uppercase or lowercase hex?</strong><br>Both are accepted.</p><p class="muted"><strong>Can I paste separators?</strong><br>Yes, non-hex characters are stripped automatically.</p></div></section>
+</div></main><div id="siteFooter"></div></div></body>
+</html>
