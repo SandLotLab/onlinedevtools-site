@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secure Paste (Client-Side Encrypted) | Online Dev Tools</title>
+  <meta name="description" content="Create client-side encrypted secure paste links using AES-GCM. No backend storage, no server-side paste data, hash-fragment sharing only." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://onlinedevtools.app/secure-paste" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Secure Paste | Online Dev Tools" />
+  <meta property="og:description" content="Client-side encrypted paste sharing with no backend storage." />
+  <meta property="og:url" content="https://onlinedevtools.app/secure-paste" />
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"Secure Paste",
+    "applicationCategory":"SecurityApplication",
+    "operatingSystem":"Web",
+    "url":"https://onlinedevtools.app/secure-paste",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+
+  <style>
+    .status { margin-top: 10px; font-size: 14px; }
+    .status.ok { color: #7ee787; }
+    .status.warn { color: #f2cc60; }
+    .status.err { color: #ff7b72; }
+    .mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+    .drop-zone {
+      border: 1px dashed rgba(120,160,255,.35);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+    .drop-zone.active { border-color: rgba(120,160,255,.85); background: rgba(120,160,255,.07); }
+    .helper { font-size: 12px; color: #9db1d6; margin-top: 6px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .row .pill { cursor: pointer; }
+    .hidden { display: none; }
+  </style>
+
+  <script>
+    async function loadPartials() {
+      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
+    }
+
+    const textEncoder = new TextEncoder();
+    const textDecoder = new TextDecoder();
+
+    function setStatus(msg, type = 'ok') {
+      const s = document.getElementById('status');
+      s.className = `status ${type}`;
+      s.textContent = msg;
+    }
+
+    function b64url(bytes) {
+      let s = btoa(String.fromCharCode(...bytes));
+      return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function fromB64url(input) {
+      const base64 = input.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((input.length + 3) % 4);
+      const binary = atob(base64);
+      const out = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) out[i] = binary.charCodeAt(i);
+      return out;
+    }
+
+    async function deriveKey(passphrase, salt) {
+      const material = await crypto.subtle.importKey('raw', textEncoder.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' },
+        material,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    async function getKeyFromPassphrase(passphrase, salt) {
+      if (!passphrase) throw new Error('Passphrase required.');
+      return deriveKey(passphrase, salt);
+    }
+
+    function parseHash() {
+      if (!location.hash || !location.hash.startsWith('#sp=')) return null;
+      try {
+        const payload = JSON.parse(textDecoder.decode(fromB64url(location.hash.slice(4))));
+        if (!payload || !payload.v || !payload.iv || !payload.salt || !payload.ct) return null;
+        return payload;
+      } catch {
+        return null;
+      }
+    }
+
+    function updateCounters() {
+      const text = document.getElementById('pasteInput').value || '';
+      const chars = text.length;
+      const currentLink = document.getElementById('shareLink').value || '';
+      const approx = currentLink.length;
+      document.getElementById('count').textContent = `${chars} chars`;
+      document.getElementById('estimate').textContent = approx ? `link length: ${approx}` : 'link length: n/a';
+      if (approx > 3500) {
+        setStatus('Payload too large for many browsers/tools. Keep secrets short.', 'warn');
+      }
+    }
+
+    function switchMode(mode) {
+      const createBox = document.getElementById('createMode');
+      const openBox = document.getElementById('openMode');
+      createBox.classList.toggle('hidden', mode !== 'create');
+      openBox.classList.toggle('hidden', mode !== 'open');
+    }
+
+    async function encryptPaste() {
+      const input = document.getElementById('pasteInput').value;
+      const passphrase = document.getElementById('passphraseCreate').value;
+
+      if (!input.trim()) {
+        setStatus('Add text/code to encrypt first.', 'warn');
+        return;
+      }
+      if (!passphrase) {
+        setStatus('Passphrase is required for secure sharing.', 'warn');
+        return;
+      }
+
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const key = await getKeyFromPassphrase(passphrase, salt);
+      const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, textEncoder.encode(input)));
+
+      const payload = {
+        v: 1,
+        iv: b64url(iv),
+        salt: b64url(salt),
+        ct: b64url(ciphertext),
+        alg: 'AES-GCM-256',
+        kdf: 'PBKDF2-SHA256-200000'
+      };
+
+      const encoded = b64url(textEncoder.encode(JSON.stringify(payload)));
+      const link = `${location.origin}${location.pathname}#sp=${encoded}`;
+      document.getElementById('shareLink').value = link;
+      updateCounters();
+
+      if (link.length > 3500) {
+        setStatus('Encryption succeeded, but link is likely too large for reliable sharing.', 'warn');
+      } else {
+        setStatus('Encryption success. Share the generated link and passphrase separately.', 'ok');
+      }
+    }
+
+    async function decryptFromLink() {
+      const payload = parseHash();
+      const passphrase = document.getElementById('passphraseOpen').value;
+      const out = document.getElementById('decryptedOutput');
+
+      if (!payload) {
+        setStatus('No secure payload found in URL fragment.', 'warn');
+        return;
+      }
+      if (!passphrase) {
+        setStatus('Enter the passphrase to decrypt.', 'warn');
+        return;
+      }
+
+      try {
+        const iv = fromB64url(payload.iv);
+        const salt = fromB64url(payload.salt);
+        const ct = fromB64url(payload.ct);
+        const key = await getKeyFromPassphrase(passphrase, salt);
+        const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+        out.value = textDecoder.decode(plain);
+        setStatus('Decryption success. Content was decrypted locally in your browser.', 'ok');
+      } catch {
+        out.value = '';
+        setStatus('Failed decrypt. Wrong passphrase or invalid link payload.', 'err');
+      }
+    }
+
+    async function copyShareLink() {
+      const link = document.getElementById('shareLink').value;
+      if (!link) {
+        setStatus('Generate a secure link first.', 'warn');
+        return;
+      }
+      await navigator.clipboard.writeText(link);
+      setStatus('Share link copied.', 'ok');
+    }
+
+    async function copyDecrypted() {
+      const text = document.getElementById('decryptedOutput').value;
+      if (!text) {
+        setStatus('Nothing decrypted to copy yet.', 'warn');
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      setStatus('Decrypted content copied.', 'ok');
+    }
+
+    function downloadDecrypted() {
+      const text = document.getElementById('decryptedOutput').value;
+      if (!text) {
+        setStatus('Nothing decrypted to download yet.', 'warn');
+        return;
+      }
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'secure-paste.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setStatus('Decrypted content downloaded.', 'ok');
+    }
+
+    function clearAll() {
+      document.getElementById('pasteInput').value = '';
+      document.getElementById('passphraseCreate').value = '';
+      document.getElementById('passphraseOpen').value = '';
+      document.getElementById('shareLink').value = '';
+      document.getElementById('decryptedOutput').value = '';
+      document.getElementById('wipeMinutes').value = '0';
+      setStatus('Cleared local fields.', 'ok');
+      updateCounters();
+    }
+
+    function startWipeTimer() {
+      const mins = Number(document.getElementById('wipeMinutes').value || 0);
+      if (!mins) {
+        setStatus('Wipe timer disabled.', 'warn');
+        return;
+      }
+      setStatus(`Wipe timer set for ${mins} minute(s).`, 'ok');
+      setTimeout(() => {
+        document.getElementById('pasteInput').value = '';
+        document.getElementById('decryptedOutput').value = '';
+        setStatus('Visible content wiped from screen by local timer.', 'warn');
+        updateCounters();
+      }, mins * 60 * 1000);
+    }
+
+    function setupDropAndPaste() {
+      const zone = document.getElementById('dropZone');
+      const input = document.getElementById('pasteInput');
+
+      ['dragenter', 'dragover'].forEach((evt) => {
+        zone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          zone.classList.add('active');
+        });
+      });
+      ['dragleave', 'drop'].forEach((evt) => {
+        zone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          zone.classList.remove('active');
+        });
+      });
+      zone.addEventListener('drop', async (e) => {
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file && file.type.startsWith('text/')) {
+          input.value = await file.text();
+          updateCounters();
+          setStatus('Loaded text from dropped file.', 'ok');
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadPartials();
+      setupDropAndPaste();
+      document.getElementById('pasteInput').addEventListener('input', updateCounters);
+
+      if (parseHash()) {
+        switchMode('open');
+        setStatus('Encrypted payload detected in URL fragment. Enter passphrase to decrypt.', 'ok');
+      } else {
+        switchMode('create');
+        setStatus('Create mode ready. Encrypt locally and share via URL fragment.', 'ok');
+      }
+      updateCounters();
+    });
+  </script>
+</head>
+<body>
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Secure Paste</nav>
+          <h1 class="h1">Secure Paste (Client-Side, Link Fragment)</h1>
+          <p class="muted">Encrypt text locally in your browser with Web Crypto (AES-GCM) and share using URL hash fragments only.</p>
+
+          <div class="mode-row">
+            <button class="pill" type="button" onclick="switchMode('create')">Create Secure Paste</button>
+            <button class="pill" type="button" onclick="switchMode('open')">Open Secure Paste</button>
+            <button class="pill" type="button" onclick="clearAll()">Clear / Reset</button>
+          </div>
+
+          <div id="createMode">
+            <label class="muted" for="pasteInput">Text / Code snippet</label>
+            <textarea id="pasteInput" class="in" style="min-height:220px;" placeholder="Paste secret text or short code snippet here..."></textarea>
+            <div id="dropZone" class="drop-zone muted">Drag and drop a text file here (optional).</div>
+            <div class="helper">Tip: You can also paste directly from clipboard into the textarea.</div>
+
+            <label class="muted" for="passphraseCreate" style="display:block;margin-top:10px;">Passphrase (required)</label>
+            <input id="passphraseCreate" class="in" type="password" autocomplete="new-password" placeholder="Strong passphrase" />
+
+            <div class="row">
+              <button class="pill" type="button" onclick="encryptPaste()">Encrypt + Generate Link</button>
+              <button class="pill" type="button" onclick="copyShareLink()">Copy Link</button>
+            </div>
+
+            <label class="muted" for="shareLink" style="display:block;margin-top:10px;">Shareable link (hash fragment only)</label>
+            <textarea id="shareLink" class="in" style="min-height:100px;" readonly></textarea>
+
+            <div class="helper"><span id="count">0 chars</span> • <span id="estimate">link length: n/a</span></div>
+          </div>
+
+          <div id="openMode" class="hidden">
+            <label class="muted" for="passphraseOpen">Passphrase</label>
+            <input id="passphraseOpen" class="in" type="password" autocomplete="current-password" placeholder="Enter passphrase to decrypt" />
+            <div class="row">
+              <button class="pill" type="button" onclick="decryptFromLink()">Decrypt from Current Link</button>
+              <button class="pill" type="button" onclick="copyDecrypted()">Copy Decrypted Content</button>
+              <button class="pill" type="button" onclick="downloadDecrypted()">Download .txt</button>
+            </div>
+            <textarea id="decryptedOutput" class="in" style="min-height:220px;margin-top:10px;" readonly></textarea>
+          </div>
+
+          <div class="row">
+            <label class="muted" for="wipeMinutes" style="align-self:center;">Wipe visible content after</label>
+            <select id="wipeMinutes" class="in" style="max-width:160px;">
+              <option value="0">Disabled</option>
+              <option value="1">1 minute</option>
+              <option value="3">3 minutes</option>
+              <option value="5">5 minutes</option>
+              <option value="10">10 minutes</option>
+            </select>
+            <button class="pill" type="button" onclick="startWipeTimer()">Start Timer</button>
+          </div>
+
+          <p id="status" class="status"></p>
+        </div></div>
+
+        <div class="card"><div class="pad">
+          <h2 class="h2">Limitations & Safety Notes</h2>
+          <ul class="muted">
+            <li>No backend storage: pastes are not saved on a server.</li>
+            <li>No true burn-after-read, deletion, expiration, or view counts without backend state.</li>
+            <li>Best for short sensitive snippets due to URL length limits.</li>
+            <li>Encrypted payload is stored in the URL fragment (<code>#...</code>), which is not sent in normal HTTP requests.</li>
+            <li>Share passphrase via a separate secure channel.</li>
+          </ul>
+        </div></div>
+      </section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this tool</h2>
+        <p class="muted">Secure Paste is a static, no-backend encryption utility for developers who need to share short secrets or snippets quickly. Encryption and decryption happen entirely in-browser using the Web Crypto API.</p>
+        <div class="hr"></div>
+        <h3 class="h2">Common use cases</h3>
+        <ul class="muted"><li>Share one-time API tokens between teammates during troubleshooting.</li><li>Pass short config snippets securely over chat using a separate passphrase channel.</li><li>Exchange temporary lab credentials without storing plaintext on a server.</li></ul>
+        <div class="hr"></div>
+        <h3 class="h2">How it works</h3>
+        <ol class="muted"><li>You enter text and a passphrase in create mode.</li><li>The browser derives an encryption key via PBKDF2 and encrypts with AES-GCM.</li><li>Encrypted payload is encoded into the URL fragment for sharing.</li><li>The recipient opens the link and decrypts locally using the passphrase.</li></ol>
+        <div class="hr"></div>
+        <h3 class="h2">FAQ</h3>
+        <p class="muted"><strong>Is data uploaded to a server?</strong><br>No. Only static assets are downloaded. Encrypted content remains in the URL fragment.</p>
+        <p class="muted"><strong>Can this guarantee self-destruct?</strong><br>No. True deletion/expiration needs backend state. This tool intentionally avoids fake claims.</p>
+        <p class="muted"><strong>What if decryption fails?</strong><br>Usually the passphrase is wrong or the link payload is incomplete/corrupted.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+</body>
+</html>
