@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /ga
 Allow: /
 
 Sitemap: https://onlinedevtools.app/sitemap.xml
