@@ -3,89 +3,410 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Diff Checker (Line-by-Line Text Compare) | Online Dev Tools</title>
-  <meta name="description" content="Compare two text blocks line by line and detect additions/removals quickly. Useful for config changes, policy diffs, and payload reviews." />
+  <title>Diff Checker (Advanced Client-Side Text Compare) | Online Dev Tools</title>
+  <meta name="description" content="Advanced client-side diff checker with side-by-side and unified views, inline changes, compare options, and structured modes for JSON/YAML/.env." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://onlinedevtools.app/diff-checker" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Diff Checker | Online Dev Tools" />
-  <meta property="og:description" content="Line-by-line text diff for quick comparison." />
+  <meta property="og:description" content="Engineering-grade, fully local text diff with options, navigation, and structured config modes." />
   <meta property="og:url" content="https://onlinedevtools.app/diff-checker" />
   <link rel="stylesheet" href="/assets/site.css" />
 
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"Diff Checker",
-    "applicationCategory":"DeveloperApplication",
-    "operatingSystem":"Web",
-    "url":"https://onlinedevtools.app/diff-checker",
-    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
-  }
-  </script>
-
-  <script>
-    async function loadPartials() {
-      const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
-      document.getElementById('siteHeader').innerHTML = await h.text();
-      document.getElementById('siteFooter').innerHTML = await f.text();
+  <style>
+    .diff-layout{display:grid;grid-template-columns:1fr;gap:14px;padding:20px 0 24px}
+    .diff-toolbar,.diff-subtoolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid rgba(23,36,59,.8);border-radius:999px;background:rgba(11,21,40,.45);font-size:11px;color:var(--muted)}
+    .chip b{color:var(--text)}
+    .chip.add b{color:#91ffbf}.chip.del b{color:#ff9ea0}.chip.mod b{color:#ffd98a}
+    .diff-io{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .dropzone{position:relative}
+    .dropzone.drag{outline:2px dashed rgba(246,195,74,.7);outline-offset:2px}
+    .pane-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .diff-text{min-height:280px;resize:vertical}
+    .mode-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .mode-row select{max-width:220px}
+    .options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
+    .check{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+    .result-wrap{border:1px solid rgba(23,36,59,.8);border-radius:12px;background:rgba(8,13,22,.72);max-height:62vh;overflow:auto}
+    .empty-state{padding:22px;color:var(--muted);font-size:12px}
+    .diff-table{width:100%;border-collapse:collapse;font-size:12px}
+    .diff-table td{vertical-align:top;padding:5px 8px;border-bottom:1px solid rgba(23,36,59,.38)}
+    .ln{width:52px;color:var(--muted);text-align:right;user-select:none}
+    .line{white-space:pre-wrap;word-break:break-word}
+    .row-add{background:rgba(32,126,73,.16)}
+    .row-del{background:rgba(141,47,57,.17)}
+    .row-mod{background:rgba(149,111,34,.16)}
+    .row-context{background:transparent}
+    .inline-add{background:rgba(58,190,110,.28);border-radius:4px;padding:0 1px}
+    .inline-del{background:rgba(211,79,91,.3);border-radius:4px;padding:0 1px}
+    .inline-mod{background:rgba(210,166,66,.3);border-radius:4px;padding:0 1px}
+    .seg{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .seg .col{border-right:1px solid rgba(23,36,59,.35);min-width:0}
+    .seg .col:last-child{border-right:0}
+    .seg-head{display:grid;grid-template-columns:1fr 1fr;background:rgba(11,18,32,.7);position:sticky;top:0;z-index:1;border-bottom:1px solid rgba(23,36,59,.6)}
+    .seg-head div{padding:8px 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.05em}
+    .diff-row{scroll-margin-top:120px}
+    @media (max-width: 900px){
+      .diff-io{grid-template-columns:1fr}
+      .seg,.seg-head{grid-template-columns:1fr}
+      .seg .col{border-right:0;border-bottom:1px solid rgba(23,36,59,.35)}
+      .seg .col:last-child{border-bottom:0}
     }
-
-    function runDiff() {
-      const left = document.getElementById('left').value.split('\n');
-      const right = document.getElementById('right').value.split('\n');
-      const output = [];
-      const len = Math.max(left.length, right.length);
-
-      for (let i = 0; i < len; i++) {
-        if (left[i] === right[i]) continue;
-        if (left[i] !== undefined) output.push(`- ${i + 1}: ${left[i]}`);
-        if (right[i] !== undefined) output.push(`+ ${i + 1}: ${right[i]}`);
-      }
-
-      document.getElementById('result').value = output.join('\n') || 'No line differences.';
-    }
-  </script>
+  </style>
 </head>
-<body onload="loadPartials()">
+<body>
   <div class="page">
     <div id="siteHeader"></div>
-    <main><div class="wrap">
-      <section class="grid">
-        <div class="card"><div class="pad">
-          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Diff Checker</nav>
-          <h1 class="h1">Diff Checker</h1>
-          <p class="muted">Compare two texts line by line and spot changes instantly.</p>
-          <div class="row">
-            <div class="col"><div class="small">Original</div><textarea id="left" class="in" style="min-height:280px;">line1
-line2
-line3</textarea></div>
-            <div class="col"><div class="small">Updated</div><textarea id="right" class="in" style="min-height:280px;">line1
-line2 changed
-line4</textarea></div>
-          </div>
-          <div style="margin-top:10px;"><button class="pill" type="button" onclick="runDiff()">Compare</button></div>
-        </div></div>
-        <div class="card"><div class="pad"><h2 class="h2">Line changes</h2><textarea id="result" class="in" style="min-height:380px;"></textarea></div></div>
-      </section>
 
-      <section class="card"><div class="pad">
-        <h2 class="h2">About this tool</h2>
-        <p class="muted">Use this diff checker to compare configuration files, policy documents, or API payload versions. It highlights changed lines in a compact, readable output.</p>
-        <div class="hr"></div>
-        <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Compare security policy revisions.</li><li>Review config changes between environments.</li><li>Inspect payload updates during debugging.</li></ul>
-        <div class="hr"></div>
-        <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Paste original text on the left.</li><li>Paste updated text on the right.</li><li>Run compare to get line-level additions/removals.</li></ol>
-        <div class="hr"></div>
-        <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Does it ignore whitespace?</strong><br>No, this simple mode compares lines exactly.</p>
-        <p class="muted"><strong>Do files upload?</strong><br>No. All comparison logic runs locally in-browser.</p>
-      </div></section>
-    </div></main>
+    <main>
+      <div class="wrap">
+        <section class="diff-layout">
+          <section class="card"><div class="pad">
+            <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Diff Checker</nav>
+            <h1 class="h1">Diff Checker</h1>
+            <p class="muted">Engineering-grade text comparison with structured modes, inline highlights, and navigation. Fully client-side.</p>
+
+            <div class="mode-row" style="margin-top:10px">
+              <label class="small" for="modeSelect">Config Diff Mode</label>
+              <select id="modeSelect" class="in" aria-label="Diff mode">
+                <option value="text">Plain Text</option>
+                <option value="json">JSON</option>
+                <option value="yaml">YAML</option>
+                <option value="env">.env / INI</option>
+              </select>
+              <label class="check"><input id="autoCompare" type="checkbox" /> Auto-compare</label>
+            </div>
+
+            <div class="options-grid">
+              <label class="check"><input id="optIgnoreWhitespace" type="checkbox" /> Ignore whitespace</label>
+              <label class="check"><input id="optIgnoreCase" type="checkbox" /> Ignore case</label>
+              <label class="check"><input id="optIgnoreBlank" type="checkbox" /> Ignore blank lines</label>
+              <label class="check"><input id="optTrimTrailing" type="checkbox" checked /> Trim trailing spaces</label>
+              <label class="check"><input id="optNormalize" type="checkbox" checked /> Normalize before compare</label>
+              <label class="check"><input id="optSortLines" type="checkbox" /> Sort lines before compare</label>
+            </div>
+
+            <div class="diff-io" style="margin-top:12px">
+              <div class="dropzone" data-target="left">
+                <div class="pane-title"><span class="small">Original</span><div class="diff-subtoolbar"><button class="pill" id="clearLeft" type="button">Clear</button></div></div>
+                <textarea id="left" class="in diff-text" spellcheck="false" placeholder="Paste original text or drop a text file here."></textarea>
+              </div>
+              <div class="dropzone" data-target="right">
+                <div class="pane-title"><span class="small">Updated</span><div class="diff-subtoolbar"><button class="pill" id="clearRight" type="button">Clear</button></div></div>
+                <textarea id="right" class="in diff-text" spellcheck="false" placeholder="Paste updated text or drop a text file here."></textarea>
+              </div>
+            </div>
+
+            <div class="diff-toolbar" style="margin-top:12px">
+              <button class="pill" id="btnCompare" type="button">Compare</button>
+              <button class="pill" id="btnSwap" type="button">Swap Inputs</button>
+              <button class="pill" id="btnPrev" type="button">Previous Change</button>
+              <button class="pill" id="btnNext" type="button">Next Change</button>
+              <button class="pill" id="btnCopy" type="button">Copy Diff</button>
+              <button class="pill" id="btnExportTxt" type="button">Export .txt</button>
+              <button class="pill" id="btnExportPatch" type="button">Export .patch</button>
+            </div>
+          </div></section>
+
+          <section class="card"><div class="pad">
+            <div class="diff-toolbar" style="justify-content:space-between">
+              <h2 class="h2" style="margin:0">Results</h2>
+              <div class="mode-row">
+                <label class="check"><input type="radio" name="viewMode" value="split" checked /> Side-by-side</label>
+                <label class="check"><input type="radio" name="viewMode" value="unified" /> Unified</label>
+              </div>
+            </div>
+
+            <div class="diff-toolbar" style="margin-top:10px">
+              <span class="chip add">Added: <b id="sumAdd">0</b></span>
+              <span class="chip del">Removed: <b id="sumDel">0</b></span>
+              <span class="chip mod">Modified: <b id="sumMod">0</b></span>
+              <span class="chip">Changes: <b id="sumAll">0</b></span>
+              <span class="chip">Status: <b id="runStatus">Idle</b></span>
+            </div>
+
+            <div id="resultWrap" class="result-wrap" aria-live="polite" style="margin-top:10px">
+              <div class="empty-state">Enter text and run compare. Tip: enable Auto-compare for live updates.</div>
+            </div>
+          </div></section>
+        </section>
+      </div>
+    </main>
+
     <div id="siteFooter"></div>
   </div>
+
+  <script>
+    (function(){
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        left: $('left'), right: $('right'), resultWrap: $('resultWrap'), runStatus: $('runStatus'),
+        sumAdd: $('sumAdd'), sumDel: $('sumDel'), sumMod: $('sumMod'), sumAll: $('sumAll'),
+        mode: $('modeSelect'), auto: $('autoCompare'),
+        optIgnoreWhitespace: $('optIgnoreWhitespace'), optIgnoreCase: $('optIgnoreCase'), optIgnoreBlank: $('optIgnoreBlank'),
+        optTrimTrailing: $('optTrimTrailing'), optNormalize: $('optNormalize'), optSortLines: $('optSortLines')
+      };
+
+      let changeAnchors = [];
+      let changeIdx = -1;
+      let lastDiffText = '';
+      let lastPatchText = '';
+      let compareTimer = 0;
+
+      async function loadPartials() {
+        const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+        $('siteHeader').innerHTML = await h.text();
+        $('siteFooter').innerHTML = await f.text();
+      }
+
+      function normalizeJson(txt){
+        const obj = JSON.parse(txt || 'null');
+        const sortObj = (v) => {
+          if (Array.isArray(v)) return v.map(sortObj);
+          if (v && typeof v === 'object') {
+            const out = {};
+            Object.keys(v).sort().forEach(k => out[k] = sortObj(v[k]));
+            return out;
+          }
+          return v;
+        };
+        return JSON.stringify(sortObj(obj), null, 2);
+      }
+
+      function parseIniEnv(txt){
+        const out = {};
+        let section = '';
+        (txt || '').split(/\r?\n/).forEach(line => {
+          const t = line.trim();
+          if (!t || t.startsWith('#') || t.startsWith(';')) return;
+          if (/^\[[^\]]+\]$/.test(t)) { section = t.slice(1, -1).trim(); return; }
+          const m = t.match(/^([^=:#\s]+)\s*[:=]\s*(.*)$/);
+          if (!m) return;
+          const k = section ? `${section}.${m[1].trim()}` : m[1].trim();
+          out[k] = m[2].trim();
+        });
+        return Object.keys(out).sort().map(k => `${k} = ${out[k]}`).join('\n');
+      }
+
+      function parseYamlLite(txt){
+        const lines = (txt || '').split(/\r?\n/);
+        const stack = [];
+        const out = {};
+        for (const line of lines) {
+          const raw = line.replace(/\t/g, '  ');
+          if (!raw.trim() || raw.trim().startsWith('#')) continue;
+          const indent = raw.match(/^\s*/)[0].length;
+          const m = raw.trim().match(/^([A-Za-z0-9_.-]+)\s*:\s*(.*)$/);
+          if (!m) continue;
+          while (stack.length && stack[stack.length - 1].indent >= indent) stack.pop();
+          const key = m[1];
+          const val = m[2];
+          const path = [...stack.map(s => s.key), key].join('.');
+          if (val === '' || val === '|' || val === '>') stack.push({indent, key});
+          else out[path] = val;
+        }
+        return Object.keys(out).sort().map(k => `${k} = ${out[k]}`).join('\n');
+      }
+
+      function preprocess(text, side){
+        let out = String(text || '');
+        const mode = els.mode.value;
+        const normalize = els.optNormalize.checked;
+
+        try {
+          if (normalize) {
+            if (mode === 'json') out = normalizeJson(out);
+            else if (mode === 'yaml') out = parseYamlLite(out);
+            else if (mode === 'env') out = parseIniEnv(out);
+          }
+        } catch (e) {
+          els.runStatus.textContent = `${side} parse warning`;
+        }
+
+        let lines = out.split(/\r?\n/);
+        if (els.optTrimTrailing.checked) lines = lines.map(l => l.replace(/\s+$/g, ''));
+        if (els.optIgnoreBlank.checked) lines = lines.filter(l => l.trim() !== '');
+        if (els.optIgnoreWhitespace.checked) lines = lines.map(l => l.replace(/\s+/g, ' '));
+        if (els.optIgnoreCase.checked) lines = lines.map(l => l.toLowerCase());
+        if (els.optSortLines.checked) lines = [...lines].sort((a,b) => a.localeCompare(b));
+        return lines;
+      }
+
+      function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+      function inlineDiff(a, b){
+        if (a === b) return {left:esc(a), right:esc(b)};
+        let start = 0;
+        while (start < a.length && start < b.length && a[start] === b[start]) start++;
+        let enda = a.length - 1, endb = b.length - 1;
+        while (enda >= start && endb >= start && a[enda] === b[endb]) { enda--; endb--; }
+        const ap = esc(a.slice(0, start));
+        const bp = esc(b.slice(0, start));
+        const am = esc(a.slice(start, enda + 1));
+        const bm = esc(b.slice(start, endb + 1));
+        const as = esc(a.slice(enda + 1));
+        const bs = esc(b.slice(endb + 1));
+        return {left:`${ap}<span class="inline-del">${am || ' '}</span>${as}`, right:`${bp}<span class="inline-add">${bm || ' '}</span>${bs}`};
+      }
+
+      function lcsDiff(a, b){
+        const n=a.length,m=b.length;
+        if (n * m > 4000000) return greedyDiff(a,b);
+        const dp = Array.from({length:n+1}, () => new Uint16Array(m+1));
+        for (let i=n-1;i>=0;i--) {
+          for (let j=m-1;j>=0;j--) dp[i][j] = a[i]===b[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+        }
+        const out=[]; let i=0,j=0;
+        while(i<n && j<m){
+          if (a[i]===b[j]) { out.push({t:'=',a:a[i],b:b[j],ai:i+1,bi:j+1}); i++;j++; }
+          else if (dp[i+1][j] >= dp[i][j+1]) { out.push({t:'-',a:a[i],ai:i+1}); i++; }
+          else { out.push({t:'+',b:b[j],bi:j+1}); j++; }
+        }
+        while(i<n) out.push({t:'-',a:a[i],ai:i+1}),i++;
+        while(j<m) out.push({t:'+',b:b[j],bi:j+1}),j++;
+        return compressModified(out);
+      }
+
+      function greedyDiff(a,b){
+        const out=[]; let i=0,j=0;
+        while(i<a.length && j<b.length){
+          if (a[i]===b[j]) { out.push({t:'=',a:a[i],b:b[j],ai:i+1,bi:j+1}); i++;j++; continue; }
+          if (a[i+1]===b[j]) { out.push({t:'-',a:a[i],ai:i+1}); i++; continue; }
+          if (a[i]===b[j+1]) { out.push({t:'+',b:b[j],bi:j+1}); j++; continue; }
+          out.push({t:'~',a:a[i],b:b[j],ai:i+1,bi:j+1}); i++;j++;
+        }
+        while(i<a.length) out.push({t:'-',a:a[i],ai:i+1}),i++;
+        while(j<b.length) out.push({t:'+',b:b[j],bi:j+1}),j++;
+        return compressModified(out);
+      }
+
+      function compressModified(rows){
+        const out=[];
+        for (let i=0;i<rows.length;i++){
+          const cur=rows[i], nxt=rows[i+1];
+          if (cur.t==='-' && nxt && nxt.t==='+') { out.push({t:'~',a:cur.a,b:nxt.b,ai:cur.ai,bi:nxt.bi}); i++; }
+          else out.push(cur);
+        }
+        return out;
+      }
+
+      function render(rows){
+        const view = document.querySelector('input[name="viewMode"]:checked').value;
+        if (!rows.length) {
+          els.resultWrap.innerHTML = '<div class="empty-state">No differences found.</div>';
+          changeAnchors=[]; changeIdx=-1; return;
+        }
+        let add=0, del=0, mod=0;
+        rows.forEach(r => { if (r.t==='+') add++; else if (r.t==='-') del++; else if (r.t==='~') mod++; });
+        els.sumAdd.textContent=add; els.sumDel.textContent=del; els.sumMod.textContent=mod; els.sumAll.textContent=add+del+mod;
+
+        if (view === 'unified') {
+          const html = ['<table class="diff-table"><tbody>'];
+          rows.forEach((r,idx) => {
+            const cls = r.t==='+'?'row-add':r.t==='-'?'row-del':r.t==='~'?'row-mod':'row-context';
+            const mark = r.t==='='?' ':r.t;
+            let line = '';
+            if (r.t==='~') {
+              const d = inlineDiff(r.a, r.b);
+              line = `<div><span class="inline-del">-</span> ${d.left}</div><div><span class="inline-add">+</span> ${d.right}</div>`;
+            } else line = esc(r.t==='+'?r.b:r.a||'');
+            html.push(`<tr class="${cls} diff-row" data-change="${r.t==='='?'0':'1'}"><td class="ln">${r.ai||''}</td><td class="ln">${r.bi||''}</td><td class="line">${mark} ${line}</td></tr>`);
+          });
+          html.push('</tbody></table>');
+          els.resultWrap.innerHTML = html.join('');
+        } else {
+          const left=['<div class="seg"><div class="col"><table class="diff-table"><tbody>'];
+          const right=['<div class="col"><table class="diff-table"><tbody>'];
+          rows.forEach(r => {
+            const cls = r.t==='+'?'row-add':r.t==='-'?'row-del':r.t==='~'?'row-mod':'row-context';
+            const d = r.t==='~' ? inlineDiff(r.a, r.b) : null;
+            left.push(`<tr class="${cls} diff-row" data-change="${r.t==='='?'0':'1'}"><td class="ln">${r.ai||''}</td><td class="line">${r.t==='+'?'':(d?d.left:esc(r.a||''))}</td></tr>`);
+            right.push(`<tr class="${cls} diff-row" data-change="${r.t==='='?'0':'1'}"><td class="ln">${r.bi||''}</td><td class="line">${r.t==='-'?'':(d?d.right:esc(r.b||''))}</td></tr>`);
+          });
+          left.push('</tbody></table></div>'); right.push('</tbody></table></div></div>');
+          els.resultWrap.innerHTML = '<div class="seg-head"><div>Original</div><div>Updated</div></div>' + left.join('') + right.join('');
+        }
+        changeAnchors = Array.from(els.resultWrap.querySelectorAll('.diff-row[data-change="1"]'));
+        changeIdx = changeAnchors.length ? 0 : -1;
+      }
+
+      function buildExports(rows){
+        const txt=[]; const patch=['--- original','+++ updated'];
+        rows.forEach(r => {
+          if (r.t==='=') { txt.push(`  ${r.a}`); patch.push(` ${r.a}`); }
+          if (r.t==='-') { txt.push(`- ${r.a}`); patch.push(`-${r.a}`); }
+          if (r.t==='+') { txt.push(`+ ${r.b}`); patch.push(`+${r.b}`); }
+          if (r.t==='~') { txt.push(`~ ${r.a} -> ${r.b}`); patch.push(`-${r.a}`); patch.push(`+${r.b}`); }
+        });
+        lastDiffText = txt.join('\n');
+        lastPatchText = patch.join('\n');
+      }
+
+      function compare(){
+        els.runStatus.textContent = 'Comparing...';
+        window.requestAnimationFrame(() => {
+          const left = preprocess(els.left.value, 'left');
+          const right = preprocess(els.right.value, 'right');
+          const rows = lcsDiff(left, right);
+          render(rows);
+          buildExports(rows);
+          els.runStatus.textContent = 'Done';
+        });
+      }
+
+      function maybeAuto(){
+        if (!els.auto.checked) return;
+        clearTimeout(compareTimer);
+        compareTimer = setTimeout(compare, 180);
+      }
+
+      function navChange(dir){
+        if (!changeAnchors.length) return;
+        changeIdx = (changeIdx + dir + changeAnchors.length) % changeAnchors.length;
+        changeAnchors[changeIdx].scrollIntoView({behavior:'smooth', block:'center'});
+      }
+
+      function download(name, text){
+        const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob); a.download=name; a.click();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 500);
+      }
+
+      function bindDrop(zone){
+        const target = zone.dataset.target === 'left' ? els.left : els.right;
+        ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag'); }));
+        ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag'); }));
+        zone.addEventListener('drop', async (e) => {
+          const file = e.dataTransfer.files && e.dataTransfer.files[0];
+          if (!file) return;
+          target.value = await file.text();
+          maybeAuto();
+        });
+      }
+
+      $('btnCompare').addEventListener('click', compare);
+      $('btnSwap').addEventListener('click', () => { const t=els.left.value; els.left.value=els.right.value; els.right.value=t; maybeAuto(); });
+      $('btnPrev').addEventListener('click', () => navChange(-1));
+      $('btnNext').addEventListener('click', () => navChange(1));
+      $('btnCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(lastDiffText || ''); els.runStatus.textContent='Copied'; } catch { els.runStatus.textContent='Copy blocked'; } });
+      $('btnExportTxt').addEventListener('click', () => download('diff-output.txt', lastDiffText || ''));
+      $('btnExportPatch').addEventListener('click', () => download('diff-output.patch', lastPatchText || ''));
+      $('clearLeft').addEventListener('click', ()=>{ els.left.value=''; maybeAuto(); });
+      $('clearRight').addEventListener('click', ()=>{ els.right.value=''; maybeAuto(); });
+
+      [els.left, els.right, els.mode, els.optIgnoreWhitespace, els.optIgnoreCase, els.optIgnoreBlank, els.optTrimTrailing, els.optNormalize, els.optSortLines]
+        .forEach(el => el.addEventListener(el.tagName==='TEXTAREA' ? 'input' : 'change', maybeAuto));
+      document.querySelectorAll('input[name="viewMode"]').forEach(r => r.addEventListener('change', compare));
+      document.querySelectorAll('.dropzone').forEach(bindDrop);
+
+      loadPartials().then(() => {
+        els.left.value = 'line1\nline2\nline3';
+        els.right.value = 'line1\nline2 changed\nline4';
+        compare();
+      });
+    })();
+  </script>
 </body>
 </html>

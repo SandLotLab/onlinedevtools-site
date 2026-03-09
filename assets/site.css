@@ -183,7 +183,7 @@ header h2{
 .mega-panel a:hover{background:rgba(12,25,49,.55)}
 .mega-item.disabled{opacity:.62;cursor:not-allowed}
 .mega-tab[open] .mega-panel{display:block}
-@media (hover:hover){.mega-tab:hover .mega-panel{display:block}}
+@media (hover:hover){.mega-tab:hover .mega-panel{display:block}.mega-tab>summary{pointer-events:none}}
 
 /* Cards */
 .grid{
