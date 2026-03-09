@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>All Developer & Security Tools (Free, Browser-Based) | Online Dev Tools</title>
-  <meta name="description" content="Browse tools by category: JSON, Network, YAML, Text, Debugging, Time, Hash Generators, URL, and Security. Free browser-based utilities." />
+  <meta name="description" content="Browse all Online Dev Tools utilities: JSON, JWT, regex, URL, Base64, YAML, timestamps, diff, CIDR/IP, WHOIS, and more. Free, browser-based tools." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://onlinedevtools.app/tools" />
 
@@ -32,46 +32,6 @@
       document.getElementById('site-header').innerHTML = await h.text();
       document.getElementById('site-footer').innerHTML = await f.text();
     }
-
-    function setupToolSearch() {
-      const searchInput = document.getElementById('tool-search');
-      const searchButton = document.getElementById('tool-search-btn');
-      const clearButton = document.getElementById('tool-search-clear');
-      const sections = Array.from(document.querySelectorAll('.tool-category'));
-      const toolNodes = Array.from(document.querySelectorAll('.tool-chip'));
-
-      if (!searchInput || !searchButton || !clearButton || !sections.length) return;
-
-      const applyFilter = () => {
-        const q = (searchInput.value || '').trim().toLowerCase();
-
-        toolNodes.forEach((node) => {
-          const text = (node.dataset.search || node.textContent || '').toLowerCase();
-          const show = !q || text.includes(q);
-          node.classList.toggle('hidden-tool', !show);
-        });
-
-        sections.forEach((section) => {
-          const visibleTools = section.querySelectorAll('.tool-chip:not(.hidden-tool)');
-          section.classList.toggle('hidden-tool', visibleTools.length === 0);
-        });
-      };
-
-      searchButton.addEventListener('click', applyFilter);
-      clearButton.addEventListener('click', () => {
-        searchInput.value = '';
-        applyFilter();
-        searchInput.focus();
-      });
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') applyFilter();
-      });
-      searchInput.addEventListener('input', applyFilter);
-
-      applyFilter();
-    }
-
-    window.addEventListener('DOMContentLoaded', setupToolSearch);
   </script>
 </head>
 <body onload="loadPartials()">
@@ -80,135 +40,82 @@
     <main>
       <div class="wrap">
         <section class="card" style="margin-top:22px">
-          <div class="pad tools-layout-fix">
-            <nav class="breadcrumbs"><a href="/">Home</a> / Tools</nav>
+          <div class="pad">
             <h1 class="h1">All Tools</h1>
-            <p class="muted">Browse by category. Search works instantly and every category is laid out directly on this page.</p>
+            <p class="muted">All tools are client-side and run directly in your browser. Choose a category to jump into the right workflow quickly.</p>
 
-            <div class="tools-search-row">
-              <input id="tool-search" class="in" type="text" placeholder="Search tools (example: json, ip, hash, yaml)" aria-label="Search tools" />
-              <button id="tool-search-btn" class="pill tool-action" type="button">Search</button>
-              <button id="tool-search-clear" class="pill tool-action" type="button">Clear</button>
+            <h2 class="h2" id="json-tools">JSON Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/json-formatter">JSON Formatter</a>
+              <a class="pill" href="/json-editor">JSON Editor</a>
+              <a class="pill" href="/json-to-typescript">JSON to TypeScript</a>
+              <a class="pill" href="/jwt-decoder">JWT Decoder</a>
             </div>
 
-            <div class="category-jump-links">
-              <a class="pill" href="#json-tools">JSON Tools</a>
-              <a class="pill" href="#network-tools">Network Tools</a>
-              <a class="pill" href="#yaml-tools">YAML Tools</a>
-              <a class="pill" href="#text-tools">Text Tools</a>
-              <a class="pill" href="#debugging-tools">Debugging Tools</a>
-              <a class="pill" href="#time-tools">Time Tools</a>
-              <a class="pill" href="#hash-generators">HASH Generators</a>
-              <a class="pill" href="#url-tools">URL Tools</a>
-              <a class="pill" href="#security-tools">Security Tools</a>
+            <div class="hr"></div>
+            <h2 class="h2" id="network-tools">Network Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/cidr-ip-converter">CIDR / IP Converter</a>
+              <a class="pill" href="/whois-lookup">WHOIS Lookup</a>
+              <a class="pill" href="/ip-lookup">IP Lookup</a>
+              <a class="pill" id="binary-to-ip-converter" href="#">Binary to IP Converter</a>
+              <a class="pill" id="decimal-to-ip-converter" href="#">Decimal to IP Converter</a>
+              <a class="pill" id="hex-to-ip-converter" href="#">Hex to IP Converter</a>
+              <a class="pill" id="hostname-to-ip" href="#">Hostname to IP</a>
+              <a class="pill" id="ip-to-binary-converter" href="#">IP to Binary Converter</a>
+              <a class="pill" id="ip-to-decimal-converter" href="#">IP to Decimal Converter</a>
+              <a class="pill" id="ip-to-hex-converter" href="#">IP to Hex Converter</a>
+              <a class="pill" id="ip-to-octal-converter" href="#">IP to Octal Converter</a>
+              <a class="pill" id="ipv6-to-binary-converter" href="#">IPv6 to Binary Converter</a>
+              <a class="pill" id="octal-to-ip-converter" href="#">Octal to IP Converter</a>
             </div>
-          </div>
-        </section>
 
-        <section id="json-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">A. JSON Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="json formatter" href="/json-formatter">JSON Formatter</a>
-              <a class="pill tool-chip" data-search="json editor" href="/json-editor">JSON Editor</a>
-              <a class="pill tool-chip" data-search="json to typescript converter" href="/json-to-typescript">JSON to TypeScript</a>
-              <a class="pill tool-chip" data-search="jwt decoder json token" href="/jwt-decoder">JWT Decoder</a>
+            <div class="hr"></div>
+            <h2 class="h2" id="yaml-tools">YAML Tools</h2>
+            <div class="tool-grid" style="margin-top:10px"><a class="pill" href="/yaml-validator">YAML Validator</a></div>
+
+            <div class="hr"></div>
+            <h2 class="h2" id="text-tools">Text Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/diff-checker">Diff Checker</a>
+              <a class="pill" id="word-counter" href="#">Word Counter</a>
+              <a class="pill" id="case-converter" href="#">Case Converter</a>
+              <a class="pill" id="line-sorter" href="#">Line Sorter</a>
             </div>
-          </div>
-        </section>
 
-        <section id="network-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">B. Network Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="cidr ip converter" href="/cidr-ip-converter">CIDR / IP Converter</a>
-              <a class="pill tool-chip" data-search="whois lookup" href="/whois-lookup">WHOIS Lookup</a>
-              <a class="pill tool-chip" data-search="ip lookup" href="/ip-lookup">IP Lookup</a>
-              <span class="pill tool-chip disabled" data-search="binary to ip converter">Binary to IP Converter</span>
-              <span class="pill tool-chip disabled" data-search="decimal to ip converter">Decimal to IP Converter</span>
-              <span class="pill tool-chip disabled" data-search="hex to ip converter">Hex to IP Converter</span>
-              <span class="pill tool-chip disabled" data-search="hostname to ip">Hostname to IP</span>
-              <span class="pill tool-chip disabled" data-search="ip to binary converter">IP to Binary Converter</span>
-              <span class="pill tool-chip disabled" data-search="ip to decimal converter">IP to Decimal Converter</span>
-              <span class="pill tool-chip disabled" data-search="ip to hex converter">IP to Hex Converter</span>
-              <span class="pill tool-chip disabled" data-search="ip to octal converter">IP to Octal Converter</span>
-              <span class="pill tool-chip disabled" data-search="ipv6 to binary converter">IPv6 to Binary Converter</span>
-              <span class="pill tool-chip disabled" data-search="octal to ip converter">Octal to IP Converter</span>
+            <div class="hr"></div>
+            <h2 class="h2" id="debugging-tools">Debugging Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/log-explorer">Log Explorer</a>
+              <a class="pill" href="/regex-tester">Regex Tester</a>
             </div>
-          </div>
-        </section>
 
-        <section id="yaml-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">C. YAML Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="yaml validator" href="/yaml-validator">YAML Validator</a>
+            <div class="hr"></div>
+            <h2 class="h2" id="time-tools">Time Tools</h2>
+            <div class="tool-grid" style="margin-top:10px"><a class="pill" href="/unix-timestamp-converter">UNIX Timestamp Converter</a></div>
+
+            <div class="hr"></div>
+            <h2 class="h2" id="hash-tools">HASH Generators</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" href="/hash-generator#md5">Md5 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha1">SHA-1 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha3">SHA-3 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha224">SHA-224 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha256">SHA-256 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha384">SHA-384 Hash Generator</a>
+              <a class="pill" href="/hash-generator#sha512">SHA-512 Hash Generator</a>
+              <a class="pill" href="/hash-generator#ripemd160">RIPEMD-160 Hash Generator</a>
             </div>
-          </div>
-        </section>
 
-        <section id="text-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">D. Text Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="diff checker" href="/diff-checker">Diff Checker</a>
-              <span class="pill tool-chip disabled" data-search="word counter">Word Counter</span>
-              <span class="pill tool-chip disabled" data-search="case converter">Case Converter</span>
-              <span class="pill tool-chip disabled" data-search="line sorter">Line Sorter</span>
-            </div>
-          </div>
-        </section>
+            <div class="hr"></div>
+            <h2 class="h2" id="url-tools">URL Tools</h2>
+            <div class="tool-grid" style="margin-top:10px"><a class="pill" href="/url-parser">URL Parser</a></div>
 
-        <section id="debugging-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">E. Debugging Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="log explorer" href="/log-explorer">Log Explorer</a>
-              <a class="pill tool-chip" data-search="regex tester" href="/regex-tester">Regex Tester</a>
-            </div>
-          </div>
-        </section>
-
-        <section id="time-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">F. Time Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="unix timestamp converter" href="/unix-timestamp-converter">UNIX Timestamp Converter</a>
-            </div>
-          </div>
-        </section>
-
-        <section id="hash-generators" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">G. HASH Generators</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="md5 hash generator" href="/hash-generator">MD5 Hash Generator</a>
-              <a class="pill tool-chip" data-search="sha-1 hash generator" href="/hash-generator">SHA-1 Hash Generator</a>
-              <a class="pill tool-chip" data-search="sha-3 hash generator" href="/hash-generator">SHA-3 Hash Generator</a>
-              <a class="pill tool-chip" data-search="sha-224 hash generator" href="/hash-generator">SHA-224 Hash Generator</a>
-              <a class="pill tool-chip" data-search="sha-256 hash generator" href="/hash-generator">SHA-256 Hash Generator</a>
-              <a class="pill tool-chip" data-search="sha-384 hash generator" href="/hash-generator">SHA-384 Hash Generator</a>
-              <a class="pill tool-chip" data-search="sha-512 hash generator" href="/hash-generator">SHA-512 Hash Generator</a>
-              <a class="pill tool-chip" data-search="ripemd-160 hash generator" href="/hash-generator">RIPEMD-160 Hash Generator</a>
-            </div>
-          </div>
-        </section>
-
-        <section id="url-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">H. URL Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <a class="pill tool-chip" data-search="url parser" href="/url-parser">URL Parser</a>
-            </div>
-          </div>
-        </section>
-
-        <section id="security-tools" class="card tool-category">
-          <div class="pad">
-            <h2 class="h2">I. Security Tools</h2>
-            <div class="tool-grid" style="margin-top:12px">
-              <span class="pill tool-chip disabled" data-search="secure paste client side self destructing">Secure Paste (client-side, self-destructing)</span>
-              <a class="pill tool-chip" data-search="csp analyzer" href="/csp-analyzer">CSP Analyzer</a>
+            <div class="hr"></div>
+            <h2 class="h2" id="security-tools">Security Tools</h2>
+            <div class="tool-grid" style="margin-top:10px">
+              <a class="pill" id="secure-paste" href="#">Secure Paste (client-side, self-destructing)</a>
+              <a class="pill" href="/csp-analyzer">CSP Analyzer</a>
             </div>
           </div>
         </section>
