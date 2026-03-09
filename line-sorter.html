@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Line Sorter | Online Dev Tools</title>
+  <meta name="description" content="Sort lines alphabetically, numerically, by length, or entropy complexity. Fully client-side." />
+  <link rel="canonical" href="https://onlinedevtools.app/line-sorter" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <style>
+    .tool-layout{display:grid;gap:14px;padding:20px 0 24px}
+    .toolbar,.opts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .io{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    textarea.in{min-height:300px;resize:vertical}
+    .check{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+    .dropzone.drag{outline:2px dashed rgba(246,195,74,.7);outline-offset:2px;border-radius:12px}
+    @media (max-width:900px){.io{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="page"><div id="siteHeader"></div>
+<main><div class="wrap"><section class="tool-layout"><section class="card"><div class="pad">
+  <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Line Sorter</nav>
+  <h1 class="h1">Line Sorter</h1><p class="muted">Sort each line using alphabetical, numeric, length, or Shannon entropy complexity modes.</p>
+  <div class="toolbar" style="margin-top:10px">
+    <input id="fileInput" class="in" style="max-width:260px" type="file" accept=".txt,.log,.csv,.json,.yaml,.yml,text/plain" />
+    <select id="sortMode" class="in" style="max-width:240px" aria-label="Sort mode">
+      <option value="alphaAsc">Alphabetical A→Z</option><option value="alphaDesc">Alphabetical Z→A</option>
+      <option value="numericAsc">Numeric ascending (leading number)</option><option value="numericDesc">Numeric descending (leading number)</option>
+      <option value="lengthAsc">Length shortest→longest</option><option value="lengthDesc">Length longest→shortest</option>
+      <option value="entropyAsc">Complexity simplest→complex</option><option value="entropyDesc">Complexity complex→simple</option>
+    </select>
+    <button id="sortBtn" class="pill" type="button">Sort</button>
+    <button id="copyBtn" class="pill" type="button">Copy</button>
+    <button id="downloadBtn" class="pill" type="button">Export .txt</button>
+    <button id="clearBtn" class="pill" type="button">Clear</button>
+    <button id="swapBtn" class="pill" type="button">Swap</button>
+  </div>
+  <div class="opts" style="margin-top:10px">
+    <label class="check"><input id="caseSensitive" type="checkbox" /> Case-sensitive alpha sort</label>
+    <label class="check"><input id="delDupes" type="checkbox" /> Delete duplicate lines</label>
+    <label class="check"><input id="delEmpty" type="checkbox" /> Delete empty lines</label>
+    <label class="check"><input id="trimLines" type="checkbox" checked /> Trim spaces per line</label>
+    <label class="check"><input id="lineNumbers" type="checkbox" /> Show line numbers in output</label>
+    <label class="check"><input id="normalize" type="checkbox" checked /> Normalize line endings + trim trailing</label>
+  </div>
+  <div class="io" style="margin-top:10px">
+    <div id="dropzone" class="dropzone"><label class="small" for="inputText">Input Lines</label><textarea id="inputText" class="in" spellcheck="false"></textarea></div>
+    <div><label class="small" for="outputText">Sorted Output</label><textarea id="outputText" class="in" readonly></textarea></div>
+  </div>
+</div></section></section></div></main>
+<div id="siteFooter"></div></div>
+<script>
+(() => {
+  const $=id=>document.getElementById(id);
+  const els={input:$('inputText'),output:$('outputText'),mode:$('sortMode')};
+  const undoStack=[]; const redoStack=[];
+  let worker;
+
+  async function loadPartials(){ const [h,f]=await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]); $('siteHeader').innerHTML=await h.text(); $('siteFooter').innerHTML=await f.text(); }
+  function makeWorker(){
+    const src = `onmessage=e=>{const {lines,mode,opts}=e.data;const entropy=s=>{if(!s)return 0;const m={};for(const c of s)m[c]=(m[c]||0)+1;const n=s.length;let h=0;for(const k in m){const p=m[k]/n;h-=p*Math.log2(p);}return h;};
+      const num=s=>{const m=s.match(/^[\s]*([+-]?\d+(?:\.\d+)?)/);return m?Number(m[1]):Number.POSITIVE_INFINITY;};
+      const alpha=(a,b)=>opts.caseSensitive?a.localeCompare(b):a.localeCompare(b,undefined,{sensitivity:'base'});
+      const map={alphaAsc:(a,b)=>alpha(a,b),alphaDesc:(a,b)=>alpha(b,a),numericAsc:(a,b)=>num(a)-num(b),numericDesc:(a,b)=>num(b)-num(a),lengthAsc:(a,b)=>a.length-b.length,lengthDesc:(a,b)=>b.length-a.length,entropyAsc:(a,b)=>entropy(a)-entropy(b),entropyDesc:(a,b)=>entropy(b)-entropy(a)};
+      lines.sort(map[mode]||map.alphaAsc);postMessage(lines);}`;
+    const blob = new Blob([src], {type:'text/javascript'}); worker = new Worker(URL.createObjectURL(blob));
+  }
+
+  function preprocess(text){
+    let t = String(text||'').replace(/\r\n?/g,'\n');
+    if ($('normalize').checked) t = t.split('\n').map(l=>l.replace(/[ \t]+$/,'')).join('\n');
+    let lines = t.split('\n');
+    if ($('trimLines').checked) lines = lines.map(l=>l.trim());
+    if ($('delEmpty').checked) lines = lines.filter(l=>l !== '');
+    if ($('delDupes').checked){ const seen=new Set(); lines=lines.filter(l=>!seen.has(l)&&(seen.add(l),true)); }
+    return lines;
+  }
+
+  function renderOutput(lines){
+    if ($('lineNumbers').checked) els.output.value = lines.map((l,i)=>`${i+1}. ${l}`).join('\n');
+    else els.output.value = lines.join('\n');
+  }
+
+  function sortLines(){
+    const lines = preprocess(els.input.value);
+    worker.onmessage = (e)=>renderOutput(e.data);
+    worker.postMessage({lines, mode:els.mode.value, opts:{caseSensitive:$('caseSensitive').checked}});
+  }
+
+  function saveUndo(){ undoStack.push(els.input.value); if(undoStack.length>50) undoStack.shift(); redoStack.length=0; }
+  async function copy(){ await navigator.clipboard.writeText(els.output.value); }
+  function download(){ const b=new Blob([els.output.value],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='line-sorter-output.txt'; a.click(); URL.revokeObjectURL(a.href); }
+
+  $('sortBtn').addEventListener('click', sortLines);
+  $('copyBtn').addEventListener('click', copy);
+  $('downloadBtn').addEventListener('click', download);
+  $('clearBtn').addEventListener('click', ()=>{saveUndo(); els.input.value=''; els.output.value='';});
+  $('swapBtn').addEventListener('click', ()=>{saveUndo(); [els.input.value, els.output.value] = [els.output.value, els.input.value]; sortLines();});
+  $('fileInput').addEventListener('change', async e=>{const f=e.target.files?.[0]; if(f){saveUndo(); els.input.value=await f.text(); sortLines();}});
+  ['input','change'].forEach(evt=>{ [els.input, els.mode, $('caseSensitive'), $('delDupes'), $('delEmpty'), $('trimLines'), $('lineNumbers'), $('normalize')].forEach(el=>el.addEventListener(evt, sortLines));});
+  els.input.addEventListener('input', saveUndo);
+
+  const dz=$('dropzone'); ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');})); ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');})); dz.addEventListener('drop', async e=>{const f=e.dataTransfer.files?.[0]; if(f){saveUndo(); els.input.value=await f.text(); sortLines();}});
+
+  document.addEventListener('keydown', e=>{
+    if(!(e.ctrlKey||e.metaKey)) return; const k=e.key.toLowerCase();
+    if(k==='s'){e.preventDefault(); sortLines();}
+    if(k==='c' && e.shiftKey){e.preventDefault(); copy();}
+    if(k==='z'&&undoStack.length){e.preventDefault(); redoStack.push(els.input.value); els.input.value=undoStack.pop(); sortLines();}
+    if(k==='y'&&redoStack.length){e.preventDefault(); undoStack.push(els.input.value); els.input.value=redoStack.pop(); sortLines();}
+  });
+
+  makeWorker(); loadPartials(); sortLines();
+})();
+</script>
+</body>
+</html>

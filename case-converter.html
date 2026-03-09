@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Case Converter | Online Dev Tools</title>
+  <meta name="description" content="Convert text to standard and programming case formats instantly in your browser." />
+  <link rel="canonical" href="https://onlinedevtools.app/case-converter" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <style>
+    .tool-layout{display:grid;gap:14px;padding:20px 0 24px}
+    .toolbar,.result-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .io{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    textarea.in{min-height:280px;resize:vertical}
+    .dropzone.drag{outline:2px dashed rgba(246,195,74,.7);outline-offset:2px;border-radius:12px}
+    .check{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+    .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:10px}
+    .case-card{border:1px solid rgba(23,36,59,.8);border-radius:12px;background:rgba(11,21,40,.4);padding:10px}
+    .case-card textarea{min-height:120px}
+    .pill.tiny{padding:6px 9px;font-size:11px}
+    @media (max-width:900px){.io{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="page"><div id="siteHeader"></div>
+  <main><div class="wrap"><section class="tool-layout"><section class="card"><div class="pad">
+    <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Case Converter</nav>
+    <h1 class="h1">Case Converter</h1><p class="muted">Standard and developer-focused case transforms. Private, local, and instant.</p>
+    <div class="toolbar" style="margin-top:10px">
+      <input id="fileInput" class="in" style="max-width:260px" type="file" accept=".txt,.md,.json,.yaml,.yml,text/plain" />
+      <button id="sampleBtn" type="button" class="pill">Sample Text</button>
+      <button id="clearBtn" type="button" class="pill">Clear</button>
+      <button id="swapBtn" type="button" class="pill">Swap Input/Selected</button>
+      <button id="downloadBtn" type="button" class="pill">Export Selected .txt</button>
+    </div>
+    <div class="io" style="margin-top:10px">
+      <div id="dropzone" class="dropzone"><label class="small" for="inputText">Input</label><textarea id="inputText" class="in" spellcheck="false" aria-label="Input text"></textarea></div>
+      <div><label class="small" for="selectedOutput">Selected Output</label><textarea id="selectedOutput" class="in" readonly aria-label="Selected transformed text"></textarea></div>
+    </div>
+    <div class="toolbar" style="margin-top:10px">
+      <label class="check"><input id="cleanSpacing" type="checkbox" /> Clean up spacing</label>
+      <label class="small" for="status">Status</label><input id="status" class="in" style="max-width:230px" readonly value="Ready (client-side only)" />
+    </div>
+    <div class="result-grid" id="results"></div>
+  </div></section></section></div></main>
+  <div id="siteFooter"></div></div>
+  <script>
+  (() => {
+    const $=id=>document.getElementById(id);
+    const els={input:$('inputText'),selected:$('selectedOutput'),results:$('results'),status:$('status'),clean:$('cleanSpacing')};
+    const cases = [
+      ['UPPERCASE', s=>s.toUpperCase()], ['lowercase', s=>s.toLowerCase()], ['Title Case', toTitle], ['Sentence case', toSentence],
+      ['camelCase', s=>joinWords(tokens(s), '', false)], ['PascalCase', s=>joinWords(tokens(s), '', true)],
+      ['snake_case', s=>joinWords(tokens(s), '_', false, false)], ['kebab-case', s=>joinWords(tokens(s), '-', false, false)],
+      ['SCREAMING_SNAKE_CASE', s=>joinWords(tokens(s), '_', false, true)], ['SCREAMING-KEBAB-CASE', s=>joinWords(tokens(s), '-', false, true)],
+      ['dot.case', s=>joinWords(tokens(s), '.', false, false)], ['path/case', s=>joinWords(tokens(s), '/', false, false)],
+      ['Alternating CaSe', alternating], ['Inverse cASE', inverse]
+    ];
+    let selectedName = 'UPPERCASE'; const undoStack=[]; const redoStack=[];
+
+    async function loadPartials(){ const [h,f]=await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]); $('siteHeader').innerHTML=await h.text(); $('siteFooter').innerHTML=await f.text(); }
+    function normalize(s){ const n=String(s||'').replace(/\r\n?/g,'\n'); return els.clean.checked ? n.replace(/\s+/g,' ').trim() : n; }
+    function tokens(s){ return normalize(s).match(/[\p{L}\p{M}\d]+/gu) || []; }
+    function joinWords(arr, delim, pascal=false, screaming=false){
+      if (!arr.length) return '';
+      const words = arr.map(w=>w.toLowerCase());
+      const out = words.map((w,i)=> (pascal || i>0) ? (w[0]?w[0].toUpperCase()+w.slice(1):w) : w).join(delim);
+      return screaming ? out.toUpperCase() : out;
+    }
+    function toTitle(s){ return normalize(s).replace(/\p{L}[\p{L}\p{M}]*/gu, w=>w[0].toUpperCase()+w.slice(1).toLowerCase()); }
+    function toSentence(s){
+      return normalize(s).toLowerCase().replace(/(^|[.!?。！？]\s+)([\p{L}\p{M}])/gu, (_,a,b)=>a+b.toUpperCase());
+    }
+    function alternating(s){ let i=0; return normalize(s).replace(/[\p{L}\p{M}]/gu, ch => (i++%2?ch.toLowerCase():ch.toUpperCase())); }
+    function inverse(s){ return normalize(s).replace(/[\p{L}\p{M}]/gu, ch=> ch===ch.toUpperCase()?ch.toLowerCase():ch.toUpperCase()); }
+
+    function render(){
+      const src = els.input.value;
+      els.results.innerHTML = '';
+      for (const [name, fn] of cases){
+        const val = fn(src);
+        const card = document.createElement('div'); card.className='case-card';
+        card.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center"><b>${name}</b><div class="result-actions"><button class="pill tiny" data-copy="${name}">Copy</button><button class="pill tiny" data-apply="${name}">Apply to input</button></div></div><textarea class="in" readonly>${val}</textarea>`;
+        card.querySelector('textarea').setAttribute('aria-label', `${name} output`);
+        card.dataset.name=name;
+        card.dataset.value=val;
+        if (name===selectedName) { card.style.borderColor='rgba(246,195,74,.55)'; els.selected.value=val; }
+        els.results.appendChild(card);
+      }
+      els.status.value='Updated locally';
+    }
+
+    function saveUndo(){ undoStack.push(els.input.value); if(undoStack.length>50) undoStack.shift(); redoStack.length=0; }
+    function download(text){ const b=new Blob([text],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='case-converter-output.txt'; a.click(); URL.revokeObjectURL(a.href); }
+    async function copy(text){ await navigator.clipboard.writeText(text); els.status.value='Copied to clipboard'; }
+    function setSelected(name){ selectedName=name; render(); }
+
+    $('results').addEventListener('click', e=>{
+      const copyBtn=e.target.closest('[data-copy]'); const applyBtn=e.target.closest('[data-apply]');
+      if (copyBtn){ const card=copyBtn.closest('.case-card'); setSelected(card.dataset.name); copy(card.dataset.value); }
+      if (applyBtn){ const card=applyBtn.closest('.case-card'); saveUndo(); els.input.value=card.dataset.value; setSelected(card.dataset.name); }
+    });
+    $('results').addEventListener('focusin', e=>{ const card=e.target.closest('.case-card'); if(card) setSelected(card.dataset.name); });
+    $('results').addEventListener('click', e=>{ const card=e.target.closest('.case-card'); if(card) setSelected(card.dataset.name); });
+
+    els.input.addEventListener('input', ()=>{ saveUndo(); render(); });
+    els.clean.addEventListener('input', render);
+    $('sampleBtn').addEventListener('click', ()=>{ saveUndo(); els.input.value='hello world\njson parser utility v2\nmake THIS readable.'; render();});
+    $('clearBtn').addEventListener('click', ()=>{ saveUndo(); els.input.value=''; render();});
+    $('swapBtn').addEventListener('click', ()=>{ saveUndo(); const t=els.input.value; els.input.value=els.selected.value; els.selected.value=t; render();});
+    $('downloadBtn').addEventListener('click', ()=>download(els.selected.value));
+    $('fileInput').addEventListener('change', async e=>{ const f=e.target.files?.[0]; if(f){ saveUndo(); els.input.value=await f.text(); render(); } });
+
+    const dz=$('dropzone'); ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');})); ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');})); dz.addEventListener('drop', async e=>{ const f=e.dataTransfer.files?.[0]; if(f){ saveUndo(); els.input.value=await f.text(); render(); } });
+
+    document.addEventListener('keydown', e=>{
+      if(!(e.ctrlKey||e.metaKey)) return; const key=e.key.toLowerCase();
+      if(key==='u'){e.preventDefault(); saveUndo(); els.input.value=els.input.value.toUpperCase(); render();}
+      if(key==='l'){e.preventDefault(); saveUndo(); els.input.value=els.input.value.toLowerCase(); render();}
+      if(key==='s'){e.preventDefault(); download(els.selected.value);}
+      if(key==='z' && undoStack.length){e.preventDefault(); redoStack.push(els.input.value); els.input.value=undoStack.pop(); render();}
+      if(key==='y' && redoStack.length){e.preventDefault(); undoStack.push(els.input.value); els.input.value=redoStack.pop(); render();}
+    });
+
+    loadPartials(); render();
+  })();
+  </script>
+</body>
+</html>

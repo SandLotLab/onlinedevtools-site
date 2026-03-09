@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Word Counter (Unicode-Aware) | Online Dev Tools</title>
+  <meta name="description" content="Unicode-aware word counter with live stats, frequency analysis, reading/speaking time, and regex filtering. Fully client-side." />
+  <link rel="canonical" href="https://onlinedevtools.app/word-counter" />
+  <meta name="robots" content="index,follow" />
+  <link rel="stylesheet" href="/assets/site.css" />
+  <style>
+    .tool-layout{display:grid;gap:14px;padding:20px 0 24px}
+    .toolbar,.row-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .io-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+    .dropzone{position:relative}
+    .dropzone.drag{outline:2px dashed rgba(246,195,74,.7);outline-offset:2px;border-radius:12px}
+    textarea.in{min-height:300px;resize:vertical}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0}
+    .stat{border:1px solid rgba(23,36,59,.8);border-radius:12px;background:rgba(11,21,40,.4);padding:10px}
+    .stat .k{font-size:11px;color:var(--muted)}.stat .v{font-size:18px;font-weight:700;margin-top:4px}
+    .table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{border-bottom:1px solid rgba(23,36,59,.55);padding:7px 6px;text-align:left}
+    .table th{color:var(--muted)}
+    .faq{font-size:12px;color:var(--muted);line-height:1.55}
+    .check{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+    .sr-only{position:absolute;left:-10000px}
+    @media (max-width:900px){.io-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap"><section class="tool-layout">
+      <section class="card"><div class="pad">
+        <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Word Counter</nav>
+        <h1 class="h1">Word Counter</h1>
+        <p class="muted">Unicode-aware text analysis that runs fully in your browser.</p>
+
+        <div class="toolbar" style="margin-top:10px">
+          <input id="fileInput" class="in" style="max-width:260px" type="file" accept=".txt,.md,.csv,.json,.yaml,.yml,text/plain" aria-label="Load text file" />
+          <button id="analyzeBtn" class="pill" type="button" aria-label="Analyze text">Analyze</button>
+          <button id="copyStatsBtn" class="pill" type="button">Copy Stats</button>
+          <button id="downloadStatsBtn" class="pill" type="button">Export .txt</button>
+          <button id="clearBtn" class="pill" type="button">Clear</button>
+          <button id="swapBtn" class="pill" type="button">Swap Input/Output</button>
+        </div>
+
+        <div class="io-grid" style="margin-top:10px">
+          <div class="dropzone" id="dropzone">
+            <label class="small" for="inputText">Input Text</label>
+            <textarea id="inputText" class="in" spellcheck="false" aria-label="Input text" placeholder="Paste, type, or drop text file here..."></textarea>
+          </div>
+          <div>
+            <label class="small" for="outputText">Filtered/Normalized Output</label>
+            <textarea id="outputText" class="in" readonly aria-label="Processed output text"></textarea>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <label class="check"><input id="ignoreNumbers" type="checkbox"/> Ignore numbers in word count</label>
+          <label class="check"><input id="ignorePunctuation" type="checkbox"/> Ignore punctuation in word count</label>
+          <label class="check"><input id="normalizeFormats" type="checkbox" checked/> Normalize line endings + trim trailing spaces</label>
+          <label class="check"><input id="prettyMode" type="checkbox"/> JSON/YAML pretty mode (best effort)</label>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="col"><label class="small" for="regexExclude">Regex exclude filter (words/lines)</label><input id="regexExclude" class="in" placeholder="Example: ^#.*$|TODO" aria-label="Regex exclude filter" /></div>
+          <div class="col"><label class="small" for="status">Status</label><input id="status" class="in" readonly value="Ready (client-side only)"/></div>
+        </div>
+
+        <div class="stats" id="statsGrid" aria-live="polite"></div>
+
+        <div class="card" style="margin-top:10px"><div class="pad">
+          <h2 class="h2">Top 5 Word Frequency</h2>
+          <table class="table" aria-label="Word frequency table"><thead><tr><th>Word</th><th>Count</th><th>Percent</th></tr></thead><tbody id="freqBody"></tbody></table>
+          <p class="small" id="longShort" style="margin-top:8px"></p>
+        </div></div>
+
+        <div class="card" style="margin-top:10px"><div class="pad faq">
+          <h2 class="h2">Usage Tips</h2>
+          <ul>
+            <li>Use <b>Ctrl/Cmd + Enter</b> to analyze manually.</li>
+            <li><b>Ctrl/Cmd + U</b> uppercase input, <b>Ctrl/Cmd + L</b> lowercase input.</li>
+            <li>Words are detected with Unicode-aware segmentation and CJK fallback.</li>
+          </ul>
+        </div></div>
+      </div></section>
+    </section></div></main>
+    <div id="siteFooter"></div>
+  </div>
+
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const els = {
+        input:$('inputText'), output:$('outputText'), stats:$('statsGrid'), freq:$('freqBody'), longShort:$('longShort'), status:$('status'),
+        regex:$('regexExclude'), ignoreNums:$('ignoreNumbers'), ignorePunc:$('ignorePunctuation'), normalize:$('normalizeFormats'), pretty:$('prettyMode')
+      };
+      const undoStack = []; const redoStack = []; let timer=0;
+
+      async function loadPartials(){
+        const [h,f]=await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
+        $('siteHeader').innerHTML=await h.text(); $('siteFooter').innerHTML=await f.text();
+      }
+
+      function normalizeText(txt){
+        let out = String(txt||'').replace(/\r\n?/g,'\n');
+        if (els.normalize.checked) out = out.split('\n').map(l=>l.replace(/[ \t]+$/,'')).join('\n');
+        if (els.pretty.checked) {
+          try { out = JSON.stringify(JSON.parse(out), null, 2); }
+          catch { out = out; }
+        }
+        return out;
+      }
+
+      function unicodeWords(text){
+        const langWord = /[\p{L}\p{M}]+(?:[-'][\p{L}\p{M}]+)*/gu;
+        const cjk = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu;
+        const words = [];
+        const regex = new RegExp(`${langWord.source}|\\d+`, 'gu');
+        for (const m of text.matchAll(regex)) {
+          const token = m[0];
+          if (els.ignoreNums.checked && /^\d+$/.test(token)) continue;
+          if (els.ignorePunc.checked && /^[^\p{L}\p{M}\d]+$/u.test(token)) continue;
+          words.push(token);
+        }
+        const cjkChars = text.match(cjk)?.length || 0;
+        return { words, cjkChars };
+      }
+
+      function sentencesCount(text){ return (text.match(/[.!?。！？]+(?:\s|$)/g)?.length || 0) || (text.trim()?1:0); }
+      function paragraphsCount(text){ return text.trim() ? text.trim().split(/\n\s*\n+/).length : 0; }
+
+      function applyRegexFilter(text){
+        if (!els.regex.value.trim()) return text;
+        try {
+          const re = new RegExp(els.regex.value, 'u');
+          const reg = new RegExp(els.regex.value, 'gu');
+          return text.split('\n').filter(l=>!re.test(l)).join('\n').replace(reg, '');
+        } catch { els.status.value='Invalid regex'; return text; }
+      }
+
+      function compute(){
+        const source = els.input.value;
+        const normalized = normalizeText(source);
+        const filtered = applyRegexFilter(normalized);
+        els.output.value = filtered;
+        els.status.value = 'Analyzed locally';
+
+        const charsWith = filtered.length;
+        const charsNo = filtered.replace(/\s/gu,'').length;
+        const lines = filtered === '' ? 0 : filtered.split('\n').length;
+        const sentences = sentencesCount(filtered);
+        const paragraphs = paragraphsCount(filtered);
+        const {words, cjkChars} = unicodeWords(filtered);
+        const wordCount = words.length || Math.ceil(cjkChars/2);
+
+        const readMins = wordCount / 200;
+        const speakFast = wordCount / 150;
+        const speakSlow = wordCount / 130;
+
+        const stats = [
+          ['Words', wordCount], ['Characters (with spaces)', charsWith], ['Characters (no spaces)', charsNo],
+          ['Lines', lines], ['Sentences', sentences], ['Paragraphs', paragraphs],
+          ['Read time', `${Math.max(1,Math.round(readMins*60))} sec`], ['Speaking time', `${Math.round(speakFast*60)}–${Math.round(speakSlow*60)} sec`]
+        ];
+        els.stats.innerHTML = stats.map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+        const freqMap = new Map();
+        words.map(w=>w.toLocaleLowerCase()).forEach(w=>freqMap.set(w,(freqMap.get(w)||0)+1));
+        const top = [...freqMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
+        els.freq.innerHTML = top.length ? top.map(([w,c])=>`<tr><td>${escapeHtml(w)}</td><td>${c}</td><td>${((c/Math.max(1,wordCount))*100).toFixed(1)}%</td></tr>`).join('') : '<tr><td colspan="3">No words detected</td></tr>';
+
+        const uniqueWords = [...new Set(words)];
+        let longest='', shortest='';
+        uniqueWords.forEach(w=>{ if(!longest||w.length>longest.length) longest=w; if(!shortest||w.length<shortest.length) shortest=w; });
+        els.longShort.textContent = `Longest: ${longest || 'n/a'} | Shortest: ${shortest || 'n/a'}`;
+      }
+
+      function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+      function debouncedCompute(){ clearTimeout(timer); timer = setTimeout(compute, 120); }
+      function saveUndo(){ undoStack.push(els.input.value); if(undoStack.length>50) undoStack.shift(); redoStack.length=0; }
+
+      function handleDropzone(){
+        const dz = $('dropzone');
+        ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+        ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+        dz.addEventListener('drop', async e => {
+          const file = e.dataTransfer.files?.[0]; if(!file) return;
+          els.input.value = await file.text(); compute();
+        });
+      }
+
+      function download(filename, text){ const b=new Blob([text],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=filename; a.click(); URL.revokeObjectURL(a.href); }
+      async function copyText(text){ await navigator.clipboard.writeText(text); els.status.value='Copied to clipboard'; }
+
+      $('analyzeBtn').addEventListener('click', compute);
+      $('clearBtn').addEventListener('click', ()=>{ saveUndo(); els.input.value=''; els.output.value=''; compute(); });
+      $('swapBtn').addEventListener('click', ()=>{ saveUndo(); [els.input.value, els.output.value] = [els.output.value, els.input.value]; compute(); });
+      $('copyStatsBtn').addEventListener('click', ()=>copyText([...els.stats.querySelectorAll('.stat')].map(s=>`${s.querySelector('.k').textContent}: ${s.querySelector('.v').textContent}`).join('\n')));
+      $('downloadStatsBtn').addEventListener('click', ()=>{
+        const txt = [...els.stats.querySelectorAll('.stat')].map(s=>`${s.querySelector('.k').textContent}: ${s.querySelector('.v').textContent}`).join('\n');
+        download('word-counter-results.txt', txt + '\n\nTop Words:\n' + [...els.freq.querySelectorAll('tr')].map(r=>r.innerText).join('\n'));
+      });
+
+      $('fileInput').addEventListener('change', async e=>{ const file=e.target.files?.[0]; if(file){ els.input.value = await file.text(); compute(); } });
+      [els.input, els.regex, els.ignoreNums, els.ignorePunc, els.normalize, els.pretty].forEach(el=>el.addEventListener('input', debouncedCompute));
+      els.input.addEventListener('input', saveUndo);
+
+      document.addEventListener('keydown', e => {
+        if (!(e.ctrlKey||e.metaKey)) return;
+        const key = e.key.toLowerCase();
+        if (key === 'enter'){ e.preventDefault(); compute(); }
+        if (key === 'u'){ e.preventDefault(); saveUndo(); els.input.value=els.input.value.toUpperCase(); compute(); }
+        if (key === 'l'){ e.preventDefault(); saveUndo(); els.input.value=els.input.value.toLowerCase(); compute(); }
+        if (key === 'z' && undoStack.length){ e.preventDefault(); redoStack.push(els.input.value); els.input.value=undoStack.pop(); compute(); }
+        if (key === 'y' && redoStack.length){ e.preventDefault(); undoStack.push(els.input.value); els.input.value=redoStack.pop(); compute(); }
+      });
+
+      loadPartials(); handleDropzone(); compute();
+    })();
+  </script>
+</body>
+</html>
