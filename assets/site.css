@@ -163,7 +163,7 @@ header h2{
 }
 
 
-.category-nav{padding-bottom:10px;overflow-x:auto;overflow-y:visible;scrollbar-width:thin}
+.category-nav{padding-bottom:10px;overflow-x:auto;overflow-y:visible;scrollbar-width:thin;position:relative;z-index:50}
 .category-nav-track{display:flex !important;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;min-width:max-content;padding:2px 0}
 .mega-tab{position:relative;display:inline-flex;flex:0 0 auto}
 .mega-tab summary{list-style:none !important;display:inline-flex !important;align-items:center;justify-content:center}
