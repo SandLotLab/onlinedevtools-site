@@ -136,8 +136,11 @@ header h2{
 .navcenter{
   display:flex;
   gap:10px;
+  row-gap:10px;
   justify-content:center;
   flex-wrap:wrap;
+  max-width:760px;
+  margin:0 auto;
   padding-bottom:8px;
 }
 
