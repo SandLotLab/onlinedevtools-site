@@ -1,5 +1,10 @@
 export async function onRequestPost({ request, env }) {
   try {
+    // block non-POST (prevents Google from seeing this as a page)
+    if (request.method !== "POST") {
+      return new Response("Not Found", { status: 404 })
+    }
+
     const body = await request.json();
     const path = body.path || "/";
     const event = body.event || "page_view";
@@ -29,13 +34,19 @@ export async function onRequestPost({ request, env }) {
 
     return new Response(JSON.stringify({ ok: gaRes.ok }), {
       status: gaRes.ok ? 200 : 502,
-      headers: { "content-type": "application/json" }
+      headers: {
+        "content-type": "application/json",
+        "x-robots-tag": "noindex, nofollow"
+      }
     });
 
   } catch {
     return new Response(JSON.stringify({ ok: false }), {
       status: 400,
-      headers: { "content-type": "application/json" }
+      headers: {
+        "content-type": "application/json",
+        "x-robots-tag": "noindex, nofollow"
+      }
     });
   }
 }
