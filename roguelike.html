@@ -2,24 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Roguelike Survival: Derelict Station Breachline (Playable Browser Game) | Online Dev Tools</title>
-
-  <meta name="description" content="Play a tactical sci-fi roguelike in your browser. Navigate derelict station sectors, outmaneuver hostiles, and reach extraction with tight turn-based movement and replayable runs." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roguelike Browser Game - Derelict Station Breachline | Online Dev Tools</title>
+  <meta name="description" content="Play Derelict Station Breachline, a turn-based browser roguelike focused on tactical movement, extraction planning, and short replayable runs." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://onlinedevtools.app/roguelike" />
-  <meta property="og:title" content="Roguelike Survival: Derelict Station Breachline | Online Dev Tools" />
-  <meta property="og:description" content="A browser roguelike with procedural sectors, tactical movement, escalating pressure, and fast replays across 25 sectors." />
   <meta property="og:type" content="website" />
+  <meta property="og:title" content="Roguelike Browser Game - Derelict Station Breachline" />
+  <meta property="og:description" content="Turn-based extraction roguelike with procedural sectors, route planning, and fast replayable sessions." />
   <meta property="og:url" content="https://onlinedevtools.app/roguelike" />
-
   <link rel="stylesheet" href="/assets/site.css" />
 
   <script>
     async function loadPartials() {
       const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
-      document.getElementById('site-header').innerHTML = await h.text();
-      document.getElementById('site-footer').innerHTML = await f.text();
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
     }
   </script>
 
@@ -29,9 +27,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      color-scheme: dark;
-      --bg:#050814;
+    .roguelike-module {
+      margin-top: 10px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      color: #e8f2ff;
       --panel:#0a1224;
       --panel2:#0d1a31;
       --ink:#e8f2ff;
@@ -44,72 +43,46 @@
       --corr:#173157;
       --grid:rgba(255,255,255,.05);
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; background:radial-gradient(circle at 10% 0%, #10203a 0%, #050814 55%);
-      color:var(--ink); font-family:"JetBrains Mono", ui-monospace, monospace;
-    }
-    main .wrap{margin:0 auto;}
-    .game-content{margin-top:20px;}
-    .game-content .card{background:rgba(8,15,30,.78);border:1px solid #20314e;}
-    .game-content h2{margin:0 0 8px;color:#cde6ff;font-size:20px;}
-    .game-content h3{margin:14px 0 6px;color:#9fd7ff;font-size:16px;}
-    .game-content p,.game-content li{color:#c8d8f1;line-height:1.6;font-size:14px;}
-    .game-content ul{margin:8px 0 0;padding-left:20px;}
-    .game-shell{ width:min(1100px,96vw); padding:18px 0 24px; margin:0 auto; }
-     #frame{
+    .roguelike-module #frame{
       border:1px solid #20314e; border-radius:16px; padding:14px; background:linear-gradient(180deg, #0a1428 0%, #060d1d 100%);
       box-shadow:0 18px 46px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05);
     }
-    .game-title{margin:0;font:700 14px/1 "Press Start 2P", monospace; color:var(--accent); letter-spacing:.04em}
-    .sub{font-size:12px;color:var(--muted);margin:6px 0 0}
-    .hud{
-      display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; margin:12px 0;
-    }
-    .hud-item{background:var(--panel2); border:1px solid #294266; border-radius:10px; padding:8px 10px; min-height:62px}
-    .k{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
-    .v{font-size:16px; font-weight:700; margin-top:5px}
-    .goal-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;border:1px solid #2a5b3d;background:rgba(43,96,66,.45);font-size:11px}
-
-    .play-area{position:relative}
-    canvas{width:100%;max-width:100%;display:block;border:1px solid #253750;border-radius:12px;background:#03060f}
-    .crt canvas{filter:contrast(1.05) saturate(1.05)}
-
-    .overlay{
-      position:absolute; inset:0; display:none; place-items:center; border-radius:12px; background:rgba(3,6,15,.68);
-      backdrop-filter: blur(3px);
-    }
-    .overlay.show{display:grid; animation:fade .2s ease}
-    .panel{width:min(560px,94%); background:#091529; border:1px solid #2a4368; border-radius:14px; padding:16px}
-    .panel h2{font-family:"Press Start 2P", monospace; font-size:13px; color:var(--accent); margin:0 0 14px}
-    .btnrow{display:flex;gap:8px;flex-wrap:wrap}
-    button,select,input{
-      background:#0d1f3a; color:var(--ink); border:1px solid #28456c; border-radius:10px; padding:8px 10px; font:inherit; font-size:12px;
-    }
-    button{cursor:pointer}
-    button:hover{border-color:#3d6699}
-
-    .lower{margin-top:12px; display:grid; grid-template-columns:1fr 220px; gap:12px}
-    .tabs{display:flex;gap:4px;border-bottom:1px solid #233955;padding-bottom:8px}
-    .tab{padding:6px 10px;border-radius:8px;border:1px solid transparent;color:var(--muted);font-size:12px}
-    .tab.active{background:#112744;color:var(--ink);border-color:#2d4d75}
-    .panel-scroll{height:170px; overflow:auto; margin-top:8px; padding-right:8px; line-height:1.5; font-size:12px; scroll-behavior:smooth}
-    .panel-scroll p{margin:.3em 0}
-    .panel-scroll .event{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.03)}
-    .side-card{border:1px solid #253c5d; border-radius:12px; padding:10px; background:var(--panel)}
-    .mini{width:100%; image-rendering:pixelated; border-radius:8px; border:1px solid #203651; background:#030a16}
-    .hint-row{margin-top:10px; font-size:11px; color:var(--muted); display:flex; flex-wrap:wrap; gap:14px; justify-content:center}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-    .floaters{position:absolute; inset:0; pointer-events:none}
-    .floater{position:absolute; font-weight:700; animation:floatUp .6s ease forwards}
-
-    .shake{animation:shake .2s linear}
+    .roguelike-module .game-title{margin:0;font:700 14px/1 "Press Start 2P", monospace; color:var(--accent); letter-spacing:.04em}
+    .roguelike-module .sub{font-size:12px;color:var(--muted);margin:6px 0 0}
+    .roguelike-module .hud{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; margin:12px 0;}
+    .roguelike-module .hud-item{background:var(--panel2); border:1px solid #294266; border-radius:10px; padding:8px 10px; min-height:62px}
+    .roguelike-module .k{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
+    .roguelike-module .v{font-size:16px; font-weight:700; margin-top:5px}
+    .roguelike-module .goal-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;border:1px solid #2a5b3d;background:rgba(43,96,66,.45);font-size:11px}
+    .roguelike-module .play-area{position:relative}
+    .roguelike-module canvas{width:100%;max-width:100%;display:block;border:1px solid #253750;border-radius:12px;background:#03060f}
+    .roguelike-module .crt canvas{filter:contrast(1.05) saturate(1.05)}
+    .roguelike-module .overlay{position:absolute; inset:0; display:none; place-items:center; border-radius:12px; background:rgba(3,6,15,.68);backdrop-filter: blur(3px);}
+    .roguelike-module .overlay.show{display:grid; animation:fade .2s ease}
+    .roguelike-module .panel{width:min(560px,94%); background:#091529; border:1px solid #2a4368; border-radius:14px; padding:16px}
+    .roguelike-module .panel h2{font-family:"Press Start 2P", monospace; font-size:13px; color:var(--accent); margin:0 0 14px}
+    .roguelike-module .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+    .roguelike-module button,.roguelike-module select,.roguelike-module input{background:#0d1f3a; color:var(--ink); border:1px solid #28456c; border-radius:10px; padding:8px 10px; font:inherit; font-size:12px;}
+    .roguelike-module button{cursor:pointer}
+    .roguelike-module button:hover{border-color:#3d6699}
+    .roguelike-module .lower{margin-top:12px; display:grid; grid-template-columns:1fr 220px; gap:12px}
+    .roguelike-module .tabs{display:flex;gap:4px;border-bottom:1px solid #233955;padding-bottom:8px}
+    .roguelike-module .tab{padding:6px 10px;border-radius:8px;border:1px solid transparent;color:var(--muted);font-size:12px}
+    .roguelike-module .tab.active{background:#112744;color:var(--ink);border-color:#2d4d75}
+    .roguelike-module .panel-scroll{height:170px; overflow:auto; margin-top:8px; padding-right:8px; line-height:1.5; font-size:12px; scroll-behavior:smooth}
+    .roguelike-module .panel-scroll p{margin:.3em 0}
+    .roguelike-module .panel-scroll .event{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.03)}
+    .roguelike-module .side-card{border:1px solid #253c5d; border-radius:12px; padding:10px; background:var(--panel)}
+    .roguelike-module .mini{width:100%; image-rendering:pixelated; border-radius:8px; border:1px solid #203651; background:#030a16}
+    .roguelike-module .hint-row{margin-top:10px; font-size:11px; color:var(--muted); display:flex; flex-wrap:wrap; gap:14px; justify-content:center}
+    .roguelike-module .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .roguelike-module .floaters{position:absolute; inset:0; pointer-events:none}
+    .roguelike-module .floater{position:absolute; font-weight:700; animation:floatUp .6s ease forwards}
+    .roguelike-module .shake{animation:shake .2s linear}
     @keyframes floatUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-18px)}}
     @keyframes shake{0%{transform:translate(0)}25%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0)}}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-    @media (max-width:980px){ .hud{grid-template-columns:repeat(3,minmax(0,1fr))}.lower{grid-template-columns:1fr} }
-    @media (max-width:720px){ .game-shell{width:min(1100px,94vw);} }
+    @media (max-width:980px){ .roguelike-module .hud{grid-template-columns:repeat(3,minmax(0,1fr))}.roguelike-module .lower{grid-template-columns:1fr} }
   </style>
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -128,116 +101,115 @@
     gtag('js', new Date());
     gtag('config', 'G-ENRW2HEKZS');
   </script>
-
 </head>
 <body onload="loadPartials()">
-<div class="page">
-  <div id="site-header"></div>
-  <main>
-    <div class="wrap">
-      <section class="card game-content" style="margin-top:22px;">
-        <div class="pad">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Roguelike</nav>
           <h1 class="h1">Roguelike: Derelict Station Breachline</h1>
-          <p class="muted">A turn-based sci-fi extraction run built for short sessions. Each sector is procedurally generated, enemies move with intent, and your route choices matter because one bad turn can end the run.</p>
-          <p class="muted">If you came here from <a href="/">home</a>, you can jump back to <a href="/tools">all developer tools</a>, learn more <a href="/about">about the project</a>, or <a href="/contact">contact us</a> with gameplay feedback.</p>
-        </div>
+          <p class="muted">A turn-based extraction game where each move advances enemy pressure. Plan safe routes, commit to tactical movement, and survive long enough to reach the beacon.</p>
+        </div></div>
       </section>
-    </div>
 
-    <div class="game-shell">
-      <div id="frame">
-        <p class="game-title">Derelict Station: Breachline</p>
-        <p class="sub">WASD / Arrows / Swipe • Reach the green extraction beacon before hostiles overrun you.</p>
+      <section class="card"><div class="pad">
+        <div class="roguelike-module">
+          <p class="game-title">Derelict Station: Breachline</p>
+          <p class="sub">WASD / Arrows / Swipe • Reach the green extraction beacon before hostiles overrun you.</p>
+          <div id="frame">
+            <div class="hud">
+              <div class="hud-item"><div class="k">Sector</div><div class="v" id="lvlLabel">0</div></div>
+              <div class="hud-item"><div class="k">Moves</div><div class="v" id="movesRun">0</div></div>
+              <div class="hud-item"><div class="k">HP</div><div class="v" id="hpLabel">1</div></div>
+              <div class="hud-item"><div class="k">Hostiles</div><div class="v" id="enemyLabel">0</div></div>
+              <div class="hud-item"><div class="k">Objective</div><div class="v"><span class="goal-chip">🟢 Reach Beacon</span></div></div>
+              <div class="hud-item"><div class="k">Run Time</div><div class="v" id="timeRun">0.0s</div></div>
+              <div class="hud-item"><div class="k">Best</div><div class="v" id="bestLabel">—</div></div>
+            </div>
 
-        <div class="hud">
-      <div class="hud-item"><div class="k">Sector</div><div class="v" id="lvlLabel">0</div></div>
-      <div class="hud-item"><div class="k">Moves</div><div class="v" id="movesRun">0</div></div>
-      <div class="hud-item"><div class="k">HP</div><div class="v" id="hpLabel">1</div></div>
-      <div class="hud-item"><div class="k">Hostiles</div><div class="v" id="enemyLabel">0</div></div>
-      <div class="hud-item"><div class="k">Objective</div><div class="v"><span class="goal-chip">🟢 Reach Beacon</span></div></div>
-      <div class="hud-item"><div class="k">Run Time</div><div class="v" id="timeRun">0.0s</div></div>
-      <div class="hud-item"><div class="k">Best</div><div class="v" id="bestLabel">—</div></div>
-    </div>
+            <div class="play-area" id="playArea">
+              <canvas id="game" width="768" height="512"></canvas>
+              <div class="floaters" id="floaters"></div>
+              <div id="overlay" class="overlay">
+                <div class="panel">
+                  <h2 id="overlayTitle">Start Run</h2>
+                  <div id="overlayBody" class="sub" style="line-height:1.7"></div>
+                  <div class="btnrow" id="overlayButtons"></div>
+                </div>
+              </div>
+            </div>
 
-    <div class="play-area" id="playArea">
-      <canvas id="game" width="768" height="512"></canvas>
-      <div class="floaters" id="floaters"></div>
-      <div id="overlay" class="overlay">
-        <div class="panel">
-          <h2 id="overlayTitle">Start Run</h2>
-          <div id="overlayBody" class="sub" style="line-height:1.7"></div>
-          <div class="btnrow" id="overlayButtons"></div>
+            <div class="lower">
+              <div class="side-card">
+                <div class="tabs">
+                  <button class="tab active" data-tab="log">LOG</button>
+                  <button class="tab" data-tab="inventory">INVENTORY</button>
+                  <button class="tab" data-tab="character">CHARACTER</button>
+                  <button class="tab" data-tab="help">HELP</button>
+                </div>
+                <div id="tabContent" class="panel-scroll"></div>
+              </div>
+              <div class="side-card">
+                <div class="k">Tactical Map</div>
+                <canvas id="minimap" class="mini" width="176" height="120"></canvas>
+                <div class="sub" id="status" style="font-size:11px;margin-top:8px">Awaiting deployment</div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <label>Sector <input id="levelInput" type="number" min="0" max="24" step="1" value="0" style="width:76px"></label>
+              <button id="goBtn">Deploy</button>
+              <button id="retryBtn">Retry (R)</button>
+              <button id="resetBestBtn">Reset Best</button>
+              <label><input type="checkbox" id="confirmMove"> Confirm touch move</label>
+              <label><input type="checkbox" id="gridHint"> Grid hint</label>
+              <label><input type="checkbox" id="fogToggle" checked> Fog</label>
+              <label><input type="checkbox" id="soundToggle" checked> Sound</label>
+              <label><input type="checkbox" id="motionToggle" checked> Motion FX</label>
+            </div>
+            <div class="hint-row">
+              <span>Move: WASD / Arrows / Swipe</span><span>Pause: Esc</span><span>Next Sector: N</span><span>Previous: P</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </div></section>
 
-    <div class="lower">
-      <div class="side-card">
-        <div class="tabs">
-          <button class="tab active" data-tab="log">LOG</button>
-          <button class="tab" data-tab="inventory">INVENTORY</button>
-          <button class="tab" data-tab="character">CHARACTER</button>
-          <button class="tab" data-tab="help">HELP</button>
-        </div>
-        <div id="tabContent" class="panel-scroll"></div>
-      </div>
-      <div class="side-card">
-        <div class="k">Tactical Map</div>
-        <canvas id="minimap" class="mini" width="176" height="120"></canvas>
-        <div class="sub" id="status" style="font-size:11px;margin-top:8px">Awaiting deployment</div>
-      </div>
-    </div>
-
-    <div class="controls">
-      <label>Sector <input id="levelInput" type="number" min="0" max="24" step="1" value="0" style="width:76px"></label>
-      <button id="goBtn">Deploy</button>
-      <button id="retryBtn">Retry (R)</button>
-      <button id="resetBestBtn">Reset Best</button>
-      <label><input type="checkbox" id="confirmMove"> Confirm touch move</label>
-      <label><input type="checkbox" id="gridHint"> Grid hint</label>
-      <label><input type="checkbox" id="fogToggle" checked> Fog</label>
-      <label><input type="checkbox" id="soundToggle" checked> Sound</label>
-      <label><input type="checkbox" id="motionToggle" checked> Motion FX</label>
-    </div>
-    <div class="hint-row">
-      <span>Move: WASD / Arrows / Swipe</span><span>Pause: Esc</span><span>Next Sector: N</span><span>Previous: P</span>
-    </div>
-      </div>
-    </div>
-
-    <div class="wrap game-content">
-      <section class="card">
-        <div class="pad">
-          <h2>How to Play</h2>
-          <p>Pick a sector (0–24), deploy, then move one tile at a time to reach the extraction beacon. Enemies advance after your move, so every step is a tactical commitment.</p>
-          <h3>Controls</h3>
-          <ul>
-            <li><strong>Movement:</strong> WASD or Arrow keys on desktop, swipe on touch devices.</li>
-            <li><strong>Run control:</strong> R to retry, N/P to move between sectors, Esc to pause.</li>
-            <li><strong>Tactical toggles:</strong> fog, grid hints, touch-move confirmation, motion FX, and sound.</li>
-          </ul>
-
-          <h3>Game Objective</h3>
-          <p>Survive long enough to reach the green extraction beacon before enemies close distance. Fast routes can beat your best time, but safer paths reduce the risk of getting cornered.</p>
-
-          <h3>Tips / Strategy</h3>
-          <ul>
-            <li>Use corridors to limit approach angles instead of crossing wide open rooms.</li>
-            <li>Read the minimap and hover scan details to plan two to three moves ahead.</li>
-            <li>If a sector starts ugly, reset quickly and preserve momentum for your next run.</li>
-          </ul>
-
-          <h3>FAQ</h3>
-          <p><strong>Is every sector beatable?</strong><br>Sector generation targets beatable layouts with a reachable extraction path, then scales pressure through enemy count and movement speed.</p>
-          <p><strong>Does progress save?</strong><br>Best performance is stored locally per sector (moves and time). Nothing is uploaded.</p>
-          <p><strong>Can I play on mobile?</strong><br>Yes. Swipe movement is enabled, and optional touch-confirm helps avoid accidental moves.</p>
-          <p><strong>Why host a roguelike on a dev tools site?</strong><br>It works as a focused break between tasks: a tactical loop, no install, and quick reset when you only have a few minutes.</p>
-        </div>
-      </section>
-    </div>
-  </main>
-  <div id="site-footer"></div>
-</div>
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this game</h2>
+        <p class="muted">Derelict Station Breachline is a turn-based tactical survival run. Sectors are procedurally generated, enemy placement shifts by level, and successful runs depend on route planning instead of random rushing.</p>
+        <div class="hr"></div>
+        <h2 class="h2">How to play</h2>
+        <p class="muted">Select a sector, deploy, and move one tile per turn toward extraction. After every move, enemies react and close distance, so movement efficiency is the core skill.</p>
+        <div class="hr"></div>
+        <h2 class="h2">Controls</h2>
+        <ul class="muted">
+          <li><strong>Move:</strong> WASD or Arrow keys, plus swipe on touch devices.</li>
+          <li><strong>Run controls:</strong> R to retry, N/P for sector navigation, Esc to pause.</li>
+          <li><strong>Tactical toggles:</strong> fog, grid hints, touch confirmation, sound, and motion effects.</li>
+        </ul>
+        <div class="hr"></div>
+        <h2 class="h2">Objective</h2>
+        <p class="muted">Reach the extraction beacon before hostiles collapse your route. You can chase better move/time records, but survival comes first.</p>
+        <div class="hr"></div>
+        <h2 class="h2">Tips & strategy</h2>
+        <ul class="muted">
+          <li>Prefer corridors over open rooms to reduce enemy approach angles.</li>
+          <li>Use the minimap and event log to plan two to three turns ahead.</li>
+          <li>Reset quickly on a bad opening sector to preserve run rhythm.</li>
+        </ul>
+        <div class="hr"></div>
+        <h2 class="h2">FAQ</h2>
+        <p class="muted"><strong>Is this game replayable in short sessions?</strong><br>Yes. Runs are designed to start fast, resolve quickly, and encourage repeat attempts.</p>
+        <p class="muted"><strong>Does progress save online?</strong><br>No. Best results are saved only in your browser storage per sector.</p>
+        <p class="muted"><strong>Can I play on mobile?</strong><br>Yes, with swipe movement and optional touch confirmation for safer input.</p>
+        <div class="hr"></div>
+        <p class="muted">Looking for utility workflows after a run? Try the <a href="/cidr-ip-converter">CIDR/IP Converter</a>, <a href="/json-formatter">JSON Formatter</a>, or browse the full <a href="/tools">tools directory</a>.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
 
 <script>
 "use strict";

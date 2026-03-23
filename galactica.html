@@ -2,54 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Galactica: Neon Orbit Sentinel Space Shooter (Play in Browser) | Online Dev Tools</title>
-  <meta name="description" content="Play Galactica: Neon Orbit Sentinel, a browser arcade space shooter with wave survival, score chasing, quick controls, and short-session replayability." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Galactica Browser Game - Neon Orbit Sentinel Shooter | Online Dev Tools</title>
+  <meta name="description" content="Play Galactica: Neon Orbit Sentinel, an arcade browser shooter focused on wave survival, reaction timing, and short score-chasing sessions." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://onlinedevtools.app/galactica" />
-  <meta property="og:title" content="Galactica: Neon Orbit Sentinel | Online Dev Tools" />
-  <meta property="og:description" content="Arcade space-defense shooter with escalating waves, reaction-based dodging, weapon upgrades, and local best-score tracking." />
   <meta property="og:type" content="website" />
+  <meta property="og:title" content="Galactica Browser Game - Neon Orbit Sentinel" />
+  <meta property="og:description" content="Arcade space shooter with escalating waves, fast dodging, and repeatable high-score runs." />
   <meta property="og:url" content="https://onlinedevtools.app/galactica" />
   <link rel="stylesheet" href="/assets/site.css" />
 
   <script>
     async function loadPartials() {
       const [h, f] = await Promise.all([fetch('/partials/header.html'), fetch('/partials/footer.html')]);
-      document.getElementById('site-header').innerHTML = await h.text();
-      document.getElementById('site-footer').innerHTML = await f.text();
+      document.getElementById('siteHeader').innerHTML = await h.text();
+      document.getElementById('siteFooter').innerHTML = await f.text();
     }
   </script>
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7167291111213614" crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    :root{ color-scheme:dark; --ink:#d8edff; --neon:#76e7ff; --panel:#081426; }
-    *{ box-sizing:border-box; }
-    body{
-      margin:0; min-height:100vh;
-      background:radial-gradient(circle at 50% 0%, #1c2542 0%, #090d16 45%, #03050a 100%);
-      color:var(--ink); font-family:"Press Start 2P", monospace;
+    .galactica-module{
+      margin-top:10px;
+      color:#d8edff;
+      font-family:"Press Start 2P", monospace;
+      --neon:#76e7ff;
     }
-    main .wrap{margin:0 auto;}
-    .game-shell{ width:min(1080px,96vw); display:grid; gap:12px; margin:0 auto; padding:18px 0 24px; }
-    .game-content{margin-top:20px;}
-    .game-content .card{background:rgba(8,15,30,.78);border:1px solid rgba(122,208,255,.35);}
-    .game-content h2{margin:0 0 8px;color:#d8edff;font-size:20px;font-family:"JetBrains Mono",ui-monospace,monospace;}
-    .game-content h3{margin:14px 0 6px;color:#97e4ff;font-size:16px;font-family:"JetBrains Mono",ui-monospace,monospace;}
-    .game-content p,.game-content li{color:#c7ddf4;line-height:1.6;font-size:14px;font-family:"JetBrains Mono",ui-monospace,monospace;}
-    .game-content ul{margin:8px 0 0;padding-left:20px;}
-    
-    .topbar,.controls{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; }
-    .topbar{ font-size:11px; text-shadow:0 0 10px rgba(118,231,255,.45); opacity:.9; }
-    .cabinet{ position:relative; padding:14px; border-radius:18px; background:linear-gradient(180deg,#071426,#030915); border:1px solid rgba(122,208,255,.35); box-shadow:0 0 40px rgba(84,176,255,.2), inset 0 0 40px rgba(0,0,0,.65); }
-    canvas{ width:100%; height:auto; display:block; border-radius:14px; border:1px solid rgba(95,170,255,.5); box-shadow:0 0 30px rgba(60,150,255,.25), inset 0 0 60px rgba(0,0,0,.7); background:#03070d; }
-    input,button{ font:inherit; font-size:10px; color:var(--ink); background:#071427; border:1px solid rgba(108,184,255,.4); border-radius:10px; padding:8px 10px; }
-    button{ cursor:pointer; text-shadow:0 0 8px rgba(118,231,255,.45); }
-    button:hover{ border-color:rgba(151,229,255,.8); }
-    .muted{ opacity:.65; }
-    @media (max-width:720px){ .game-shell{width:min(1080px,94vw);} }
+    .galactica-module .topbar,.galactica-module .controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}
+    .galactica-module .topbar{font-size:11px;text-shadow:0 0 10px rgba(118,231,255,.45);opacity:.9}
+    .galactica-module .controls{margin-top:10px;}
+    .galactica-module .cabinet{position:relative;padding:14px;border-radius:18px;background:linear-gradient(180deg,#071426,#030915);border:1px solid rgba(122,208,255,.35);box-shadow:0 0 40px rgba(84,176,255,.2), inset 0 0 40px rgba(0,0,0,.65);margin-top:10px}
+    .galactica-module canvas{width:100%;height:auto;display:block;border-radius:14px;border:1px solid rgba(95,170,255,.5);box-shadow:0 0 30px rgba(60,150,255,.25), inset 0 0 60px rgba(0,0,0,.7);background:#03070d}
+    .galactica-module input,.galactica-module button{font:inherit;font-size:10px;color:#d8edff;background:#071427;border:1px solid rgba(108,184,255,.4);border-radius:10px;padding:8px 10px}
+    .galactica-module button{cursor:pointer}
+    .galactica-module button:hover{border-color:rgba(151,229,255,.8)}
   </style>
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
@@ -67,73 +57,73 @@
     gtag('js', new Date());
     gtag('config', 'G-ENRW2HEKZS');
   </script>
-
 </head>
 <body onload="loadPartials()">
-<div class="page">
-  <div id="site-header"></div>
-  <main>
-    <div class="wrap">
-      <section class="card game-content" style="margin-top:22px;">
-        <div class="pad">
+  <div class="page">
+    <div id="siteHeader"></div>
+    <main><div class="wrap">
+      <section class="grid">
+        <div class="card"><div class="pad">
+          <nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Galactica</nav>
           <h1 class="h1">Galactica: Neon Orbit Sentinel</h1>
-          <p class="muted">An arcade-style browser space shooter built around wave survival, fast reaction windows, and score pressure. It is tuned for short runs where you can launch, clear a wave, and jump back to work.</p>
-          <p class="muted">Need to switch context after a run? Return to <a href="/">home</a>, browse <a href="/tools">developer tools</a>, read <a href="/about">about this site</a>, or send ideas on the <a href="/contact">contact page</a>.</p>
-        </div>
+          <p class="muted">An arcade space shooter focused on wave survival, reaction timing, and score chasing. Launch a quick run, clear a level, and jump right back to your workflow.</p>
+        </div></div>
       </section>
-    </div>
 
-    <div class="game-shell">
-      <div class="topbar">Neon Orbit Sentinel • Move: ← → / A D • Missile: Space • Auto-fire: F • Pause: Esc • Restart: R • Level: N/P</div>
-  <div class="controls">
-    <label for="levelInput">Level</label>
-    <input id="levelInput" type="number" min="0" max="50" step="1" value="0" />
-    <button id="goBtn">Go</button>
-    <button id="resetBestBtn" title="Clears best stats for this level only">Reset Best</button>
-    <button id="crtBtn">CRT: ON</button>
-    <button id="muteBtn">Mute: OFF</button>
-    <label for="volInput">Vol</label>
-    <input id="volInput" type="range" min="0" max="1" step="0.01" value="0.45" style="width:130px;" />
-  </div>
-  <div class="cabinet">
-    <canvas id="game" width="900" height="540"></canvas>
-  </div>
-    </div>
-
-    <div class="wrap game-content">
-      <section class="card">
-        <div class="pad">
-          <h2>How to Play</h2>
-          <p>Choose a level, start the wave, then survive long enough to clear every enemy ship. You steer on a single horizontal lane while prioritizing incoming fire, swarm movement, and high-value targets.</p>
-
-          <h3>Controls</h3>
-          <ul>
-            <li><strong>Movement:</strong> Left/Right arrows or A/D.</li>
-            <li><strong>Weapons:</strong> Auto-fire toggle (F), missile launch (Space), volume/mute controls.</li>
-            <li><strong>Session control:</strong> Esc pause, R restart, N/P level change.</li>
-          </ul>
-
-          <h3>Game Objective</h3>
-          <p>Clear each wave before enemy pressure overwhelms your ship. Keep HP intact, build score through efficient kills, and improve your local best for each level.</p>
-
-          <h3>Tips / Strategy</h3>
-          <ul>
-            <li>Stay near center until patterns form, then commit to short bursts instead of constant drift.</li>
-            <li>Save missiles for dense formations or recovery moments when lanes get crowded.</li>
-            <li>Watch enemy descent timing—reaction time matters more than raw firing speed.</li>
-          </ul>
-
-          <h3>FAQ</h3>
-          <p><strong>Is this level-based or endless?</strong><br>It is level-based (0–50), with escalating wave complexity and faster enemy behavior as you progress.</p>
-          <p><strong>Do scores persist?</strong><br>Yes. Best score, completion time, and kill count are saved locally for each level.</p>
-          <p><strong>Can I play quickly between tasks?</strong><br>That is the intent—each wave is short enough for a quick browser break without long setup.</p>
-          <p><strong>Why include a shooter on a developer tools website?</strong><br>It offers a fast reflex reset between debugging sessions while staying lightweight and fully in-browser.</p>
+      <section class="card"><div class="pad">
+        <div class="galactica-module">
+          <div class="topbar">Neon Orbit Sentinel • Move: ← → / A D • Missile: Space • Auto-fire: F • Pause: Esc • Restart: R • Level: N/P</div>
+          <div class="controls">
+            <label for="levelInput">Level</label>
+            <input id="levelInput" type="number" min="0" max="50" step="1" value="0" />
+            <button id="goBtn">Go</button>
+            <button id="resetBestBtn" title="Clears best stats for this level only">Reset Best</button>
+            <button id="crtBtn">CRT: ON</button>
+            <button id="muteBtn">Mute: OFF</button>
+            <label for="volInput">Vol</label>
+            <input id="volInput" type="range" min="0" max="1" step="0.01" value="0.45" style="width:130px;" />
+          </div>
+          <div class="cabinet">
+            <canvas id="game" width="900" height="540"></canvas>
+          </div>
         </div>
-      </section>
-    </div>
-  </main>
-  <div id="site-footer"></div>
-</div>
+      </div></section>
+
+      <section class="card"><div class="pad">
+        <h2 class="h2">About this game</h2>
+        <p class="muted">Galactica: Neon Orbit Sentinel is a browser arcade shooter with escalating wave behavior. Each level pushes faster enemy movement and heavier projectile patterns, making reflexes and lane discipline central to survival.</p>
+        <div class="hr"></div>
+        <h2 class="h2">How to play</h2>
+        <p class="muted">Choose a level and start the run. Move horizontally, fire continuously, and clear each enemy formation before your ship is overwhelmed.</p>
+        <div class="hr"></div>
+        <h2 class="h2">Controls</h2>
+        <ul class="muted">
+          <li><strong>Move:</strong> Left/Right arrows or A/D.</li>
+          <li><strong>Attack:</strong> Auto-fire toggle (F) and missile launch (Space).</li>
+          <li><strong>Session controls:</strong> Esc pause, R restart, N/P level navigation, plus mute/volume settings.</li>
+        </ul>
+        <div class="hr"></div>
+        <h2 class="h2">Objective</h2>
+        <p class="muted">Survive each wave and maximize score through clean clears, efficient target focus, and minimal damage taken.</p>
+        <div class="hr"></div>
+        <h2 class="h2">Tips & strategy</h2>
+        <ul class="muted">
+          <li>Hold center when possible, then burst to dodge instead of drifting constantly.</li>
+          <li>Use missiles for dense clusters or recovery when enemy bullets stack.</li>
+          <li>Track descent cadence; reacting early matters more than late panic movement.</li>
+        </ul>
+        <div class="hr"></div>
+        <h2 class="h2">FAQ</h2>
+        <p class="muted"><strong>Is this game endless?</strong><br>No. It is wave-based and level-driven from 0 through 50.</p>
+        <p class="muted"><strong>Do high scores save?</strong><br>Yes. Best score, time, and kills are stored locally in your browser for each level.</p>
+        <p class="muted"><strong>Is it built for quick sessions?</strong><br>Yes. Runs are intentionally short so you can play between tasks.</p>
+        <div class="hr"></div>
+        <p class="muted">Need productivity tools after a run? Open the <a href="/json-editor">JSON Editor</a>, inspect patterns with the <a href="/regex-tester">Regex Tester</a>, or return to the full <a href="/tools">tools list</a>.</p>
+      </div></section>
+    </div></main>
+    <div id="siteFooter"></div>
+  </div>
+
 <script>
 "use strict";
 const c = document.getElementById("game");
