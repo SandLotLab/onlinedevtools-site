@@ -27,6 +27,48 @@
 </head>
 <body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
 <section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP to Hex</nav><h1 class="h1">IP to Hex Converter</h1><p class="muted">Convert IPv4 dotted-decimal addresses into 8-character hexadecimal values.</p><input id="input" class="in" placeholder="Example: 192.168.1.1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div></section>
-<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IP to Hex converts familiar addresses into byte-wise hexadecimal strings used in packet-level tooling and software constants.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Reviewing network protocol logs.</li><li>Working with embedded/system code.</li><li>Cross-checking SIEM normalization pipelines.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter a valid IPv4 address.</li><li>Each decimal octet is converted into a 2-digit hex byte.</li><li>The bytes are concatenated into a single hex string.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Can I get a 0x prefix?</strong><br>The output is plain hex; add 0x manually if your workflow requires it.</p><p class="muted"><strong>Is output uppercase?</strong><br>Yes, uppercase hex is returned for readability.</p></div></section>
+<section class="card"><div class="pad">
+  <h2 class="h2">About this tool</h2>
+  <p class="muted">IP to Hex converts IPv4 dotted-decimal addresses into their 8-character hexadecimal representation. Networking protocols, system code, and security tooling frequently express IP addresses as hex values — this is the standard format in packet headers, C preprocessor macros, and many firewall and router debug outputs. This tool handles the conversion instantly so you can match addresses across formats without manual arithmetic.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Real example</h3>
+  <p class="muted">Input: <strong>192.168.1.1</strong></p>
+  <p class="muted">Each decimal octet is converted to a 2-digit hex byte:<br>
+  192 → <strong>C0</strong><br>
+  168 → <strong>A8</strong><br>
+  1 → <strong>01</strong><br>
+  1 → <strong>01</strong><br>
+  Result: <strong>C0A80101</strong></p>
+  <p class="muted">In C or C++ code this would typically be written as <code>0xC0A80101</code>. The 0x prefix is not included in the output — add it manually if your context requires it.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common use cases</h3>
+  <ul class="muted">
+    <li><strong>Network protocol debugging:</strong> Raw Ethernet frames and IP headers encode addresses as 4-byte hex sequences. When reading a hex dump from Wireshark, tcpdump, or a custom parser, convert addresses here to confirm you are reading the correct bytes.</li>
+    <li><strong>Embedded and systems programming:</strong> Hardcoded IP addresses in firmware, drivers, and network stack code are often expressed as hex constants. Use this to prepare values before committing them to source code.</li>
+    <li><strong>SIEM and log normalization:</strong> Cross-checking whether a SIEM's hex-encoded IP field matches a known address is a common incident response task. Paste the source IP and verify the hex instantly.</li>
+    <li><strong>Packet crafting tools:</strong> Tools like Scapy, libpcap, and custom socket code sometimes require IP fields as hex integers. This converter prepares those values.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">How it works</h3>
+  <p class="muted">The IPv4 address is split into four decimal octets. Each octet is converted to a 2-digit hexadecimal string using <code>n.toString(16).padStart(2, '0')</code>. The leading zero padding is critical — without it, <code>01</code> becomes <code>1</code> and the final hex string is the wrong length. The four 2-digit bytes are concatenated and returned in uppercase.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common mistakes</h3>
+  <ul class="muted">
+    <li><strong>Forgetting the leading zero on small octets:</strong> Octet values 0–15 produce a single hex digit without padding. Always use 2-character pairs: <code>0A</code> not <code>A</code>. This tool handles padding automatically.</li>
+    <li><strong>Expecting the 0x prefix in output:</strong> The output is plain hex. If your tool or codebase requires <code>0x</code>, prepend it manually: <code>0x</code> + <code>C0A80101</code>.</li>
+    <li><strong>Byte order issues:</strong> This tool uses network byte order (big-endian). Some x86 systems store IP values in little-endian byte order, which reverses the bytes. If your tool expects little-endian, reverse the byte pairs manually.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">FAQ</h3>
+  <p class="muted"><strong>Is the output uppercase or lowercase?</strong><br>Uppercase by default (C0A80101). Some tools and languages prefer lowercase hex — you can convert in your editor or terminal with a quick <code>tr '[:upper:]' '[:lower:]'</code>.</p>
+  <p class="muted"><strong>How do I convert hex back to an IP?</strong><br>Use the <a href="/hex-to-ip">Hex to IP</a> tool — paste the 8-character hex and it reconstructs the dotted-decimal address.</p>
+  <p class="muted"><strong>What is the hex for 8.8.8.8 (Google DNS)?</strong><br>8.8.8.8 → 08080808. The leading zeros matter — each pair must be exactly 2 characters.</p>
+  <p class="muted"><strong>Can I convert multiple IPs at once?</strong><br>This tool handles one address at a time. For batch conversion, a quick Python one-liner works: <code>socket.inet_aton("192.168.1.1").hex()</code>.</p>
+</div></section>
 </div></main><div id="siteFooter"></div></div></body>
 </html>

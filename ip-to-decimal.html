@@ -28,6 +28,48 @@
 </head>
 <body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
 <section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP to Decimal</nav><h1 class="h1">IP to Decimal Converter</h1><p class="muted">Convert dotted IPv4 addresses into a single unsigned decimal integer.</p><input id="input" class="in" placeholder="Example: 192.168.1.1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div></section>
-<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IP to Decimal is handy when databases, SIEMs, and custom tools store IPv4 values numerically.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Building numeric IP ranges in SQL.</li><li>Comparing address values in scripts.</li><li>Converting analytics exports to integer format.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter an IPv4 address.</li><li>Each octet is shifted into its 32-bit position.</li><li>The combined unsigned value is returned.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Why unsigned?</strong><br>IPv4 address space is 0 through 2^32-1.</p><p class="muted"><strong>Is endian format configurable?</strong><br>This tool uses standard network-byte order conversion.</p></div></section>
+<section class="card"><div class="pad">
+  <h2 class="h2">About this tool</h2>
+  <p class="muted">IP to Decimal converts IPv4 dotted-decimal addresses into single unsigned 32-bit integers. Many databases, analytics platforms, and network monitoring tools store IP addresses as integers rather than strings — it is faster to index and compare numbers than text. This tool performs that conversion so you can prepare values for storage queries, scripted comparisons, or log normalization workflows.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Real example</h3>
+  <p class="muted">Input: <strong>192.168.1.1</strong></p>
+  <p class="muted">The formula shifts each octet into its 32-bit position:<br>
+  192 × 16,777,216 (2²⁴) = 3,221,225,472<br>
+  168 × 65,536 (2¹⁶) = 11,010,048<br>
+  1 × 256 (2⁸) = 256<br>
+  1 × 1 = 1<br>
+  Sum: <strong>3,232,235,777</strong></p>
+  <p class="muted">To reverse: enter 3232235777 in the <a href="/decimal-to-ip">Decimal to IP</a> tool and confirm you get 192.168.1.1 back.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common use cases</h3>
+  <ul class="muted">
+    <li><strong>Database range queries:</strong> Instead of LIKE '192.168.%', store IPs as integers and query with <code>WHERE ip BETWEEN 3232235520 AND 3232235775</code> — much faster on large tables.</li>
+    <li><strong>SIEM and log normalization:</strong> Some SIEMs ingest integer IPs. Convert the addresses from your application logs to integers before feeding them into the pipeline.</li>
+    <li><strong>Script comparisons:</strong> In bash or Python, comparing integers is simpler than string-based IP comparisons. Convert both addresses, then subtract or compare numerically.</li>
+    <li><strong>Analytics export preparation:</strong> Web analytics platforms like BigQuery and Redshift often support integer-based IP grouping. This converter prepares values in the correct format.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">How it works</h3>
+  <p class="muted">The IPv4 address is split into four octets. Each octet is left-shifted into its 32-bit position using the formula: <code>(o1 &lt;&lt; 24) + (o2 &lt;&lt; 16) + (o3 &lt;&lt; 8) + o4</code>. The result is treated as an unsigned 32-bit integer, giving a range from 0 (0.0.0.0) to 4,294,967,295 (255.255.255.255).</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common mistakes</h3>
+  <ul class="muted">
+    <li><strong>Signed vs unsigned integers:</strong> In some languages (notably Java and older C code), 32-bit integers are signed. An IP like 192.x.x.x has bit 31 set and becomes negative in signed arithmetic. Always use unsigned 32-bit or 64-bit integers when storing converted IPs.</li>
+    <li><strong>Byte order confusion:</strong> This tool uses network byte order (big-endian), which is the standard for IPv4. If your system stores IPs in little-endian format, the bytes will appear reversed and the integers will not match.</li>
+    <li><strong>Not the same as the decimal parts:</strong> 192.168.1.1 as a decimal integer is 3,232,235,777 — not a simple concatenation of the octets. <code>1921681001</code> is a different number and will not round-trip correctly.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">FAQ</h3>
+  <p class="muted"><strong>Why is the result unsigned?</strong><br>IPv4 address space spans 0 to 2³²−1 (4,294,967,295). Signed 32-bit integers max out at 2,147,483,647, which is not enough. The conversion uses unsigned arithmetic to cover the full range.</p>
+  <p class="muted"><strong>What is the decimal for 255.255.255.255?</strong><br>4,294,967,295 — the maximum possible value for an unsigned 32-bit integer.</p>
+  <p class="muted"><strong>How do I convert back?</strong><br>Use the <a href="/decimal-to-ip">Decimal to IP</a> tool — paste the integer and it reconstructs the dotted-decimal address.</p>
+  <p class="muted"><strong>Does this work for private IP ranges?</strong><br>Yes. 10.0.0.1 = 167,772,161 and 172.16.0.1 = 2,886,729,729. The math is the same regardless of whether the address is public or private.</p>
+</div></section>
 </div></main><div id="siteFooter"></div></div></body>
 </html>

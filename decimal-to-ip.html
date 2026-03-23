@@ -35,7 +35,49 @@
       <div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Decimal to IP</nav><h1 class="h1">Decimal to IP Converter</h1><p class="muted">Convert a 32-bit decimal number into IPv4 dotted notation.</p><input id="input" class="in" placeholder="Example: 3232235777" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div>
       <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div>
     </section>
-    <section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">Decimal to IP is useful when systems store IPv4 values as unsigned 32-bit integers and you need human-readable addresses.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Converting database-stored IP numbers.</li><li>Reading SIEM or firewall export data.</li><li>Validating custom parser output.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter a decimal value between 0 and 4294967295.</li><li>The value is split into four 8-bit octets.</li><li>The octets are displayed as x.x.x.x.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Are signed integers supported?</strong><br>Use the unsigned equivalent for accurate IPv4 conversion.</p><p class="muted"><strong>Can this validate public/private ranges?</strong><br>This converter only transforms formats and does not classify ranges.</p></div></section>
+    <section class="card"><div class="pad">
+      <h2 class="h2">About this tool</h2>
+      <p class="muted">Decimal to IP is the reverse of <a href="/ip-to-decimal">IP to Decimal</a> — it converts an unsigned 32-bit integer back into standard IPv4 dotted-decimal notation. Databases, security tools, and analytics platforms frequently store IP addresses as integers for efficiency. When you are reading those systems' output, you need a fast way to get back to a human-readable address. This tool does that in one step.</p>
+      <div class="hr"></div>
+
+      <h3 class="h2">Real example</h3>
+      <p class="muted">Input: <strong>3232235777</strong></p>
+      <p class="muted">The tool extracts each octet by bit-shifting:<br>
+      3232235777 &gt;&gt;&gt; 24 = <strong>192</strong><br>
+      (3232235777 &gt;&gt;&gt; 16) &amp; 255 = <strong>168</strong><br>
+      (3232235777 &gt;&gt;&gt; 8) &amp; 255 = <strong>1</strong><br>
+      3232235777 &amp; 255 = <strong>1</strong><br>
+      Result: <strong>192.168.1.1</strong></p>
+      <p class="muted">A few useful reference values: 0 = 0.0.0.0, 2130706433 = 127.0.0.1 (localhost), 3232235520 = 192.168.1.0, 4294967295 = 255.255.255.255.</p>
+      <div class="hr"></div>
+
+      <h3 class="h2">Common use cases</h3>
+      <ul class="muted">
+        <li><strong>Database exports:</strong> MySQL's <code>INET_ATON()</code> and PostgreSQL's integer IP storage formats produce decimal integers. When querying raw values from these tables, convert them here to verify you are looking at the right address.</li>
+        <li><strong>SIEM and firewall log analysis:</strong> Many SIEM exports include integer-formatted IPs in raw event data. Paste the number here to immediately read the address without writing a conversion function.</li>
+        <li><strong>Incident response:</strong> When reviewing large log volumes, integer IPs appear frequently. Having a fast converter avoids mental arithmetic during time-sensitive investigations.</li>
+        <li><strong>Validating parser output:</strong> If you have written custom IP parsing code, convert the integer output here to verify the dotted-decimal result is correct.</li>
+      </ul>
+      <div class="hr"></div>
+
+      <h3 class="h2">How it works</h3>
+      <p class="muted">The decimal integer is treated as an unsigned 32-bit value. Each octet is extracted by right-shifting and masking: the first octet is bits 31–24 (value &gt;&gt;&gt; 24), the second is bits 23–16 ((value &gt;&gt;&gt; 16) &amp; 255), the third is bits 15–8 ((value &gt;&gt;&gt; 8) &amp; 255), and the fourth is bits 7–0 (value &amp; 255). The four values are joined with dots.</p>
+      <div class="hr"></div>
+
+      <h3 class="h2">Common mistakes</h3>
+      <ul class="muted">
+        <li><strong>Negative signed integers:</strong> In signed 32-bit representation, addresses above 127.255.255.255 appear as negative numbers. If your source is a signed integer, you need to add 2³² (4,294,967,296) to it before converting. For example, -1062731775 + 4294967296 = 3232235521 = 192.168.1.1 (roughly).</li>
+        <li><strong>Octet concatenation confusion:</strong> 3232235777 is not <code>192</code>+<code>168</code>+<code>1</code>+<code>1</code> concatenated as a string. The conversion involves bit shifting — simple string joining of the octets produces a completely different number.</li>
+        <li><strong>Out-of-range values:</strong> Valid inputs are 0 to 4,294,967,295. Values above this represent addresses outside the IPv4 space and are not valid.</li>
+      </ul>
+      <div class="hr"></div>
+
+      <h3 class="h2">FAQ</h3>
+      <p class="muted"><strong>What is 2130706433 in dotted notation?</strong><br>127.0.0.1 — the loopback address (localhost). This is a common value to recognize when reviewing logs.</p>
+      <p class="muted"><strong>How do I convert an IP to a decimal integer?</strong><br>Use the <a href="/ip-to-decimal">IP to Decimal</a> tool — the reverse of this converter.</p>
+      <p class="muted"><strong>Does this handle negative numbers?</strong><br>No. Enter the unsigned equivalent (add 4,294,967,296 to negative signed values first). This tool only accepts values in the 0–4,294,967,295 range.</p>
+      <p class="muted"><strong>What is the valid range?</strong><br>0 (= 0.0.0.0) through 4,294,967,295 (= 255.255.255.255).</p>
+    </div></section>
   </div></main><div id="siteFooter"></div></div>
 </body>
 </html>

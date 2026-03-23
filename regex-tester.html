@@ -106,28 +106,54 @@
         <section class="card">
           <div class="pad">
             <h2 class="h2">About this tool</h2>
-            <p class="muted">This regex tester helps developers and security teams validate regular expressions quickly. It runs fully in-browser and displays capture groups and match positions for fast debugging.</p>
+            <p class="muted">This regex tester runs regular expressions against test input directly in your browser and displays every match, its position, and all captured groups. It uses JavaScript's native <code>RegExp</code> engine with full support for flags, named groups, and lookaheads. Useful for developers building input validation, log parsers, ETL pipelines, and security detection rules who need to iterate quickly before committing a pattern to code.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Real example</h3>
+            <p class="muted">Pattern: <code>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}</code> with flags: <code>g</code></p>
+            <p class="muted">Test input: <code>Contact security@onlinedevtools.app and hello@example.org</code></p>
+            <p class="muted">Results:<br>
+            Match 1: <strong>"security@onlinedevtools.app"</strong> @ position 8<br>
+            Match 2: <strong>"hello@example.org"</strong> @ position 42</p>
+            <p class="muted">The <code>g</code> flag is what makes the engine find all matches instead of stopping at the first. Without it, only Match 1 would be returned.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Flags reference</h3>
+            <ul class="muted">
+              <li><code>g</code> — Global: find all matches, not just the first.</li>
+              <li><code>i</code> — Case-insensitive: <code>Hello</code> matches <code>hello</code>, <code>HELLO</code>, etc.</li>
+              <li><code>m</code> — Multiline: <code>^</code> and <code>$</code> match start/end of each line, not just the full string.</li>
+              <li><code>s</code> — Dotall: makes <code>.</code> match newline characters as well as other characters.</li>
+              <li><code>gm</code> — The most common combination for log parsing — global match across all lines.</li>
+            </ul>
             <div class="hr"></div>
 
             <h3 class="h2">Common use cases</h3>
             <ul class="muted">
-              <li>Validate email, URL, token, or log parsing patterns.</li>
-              <li>Debug capture groups for parser and ETL pipelines.</li>
-              <li>Prototype validation rules before app integration.</li>
+              <li><strong>Input validation:</strong> Prototype email, phone, UUID, and URL validation patterns before wiring them into form validation or an API schema.</li>
+              <li><strong>Log parsing and ETL pipelines:</strong> Extract structured fields from unstructured log lines. Test patterns against real log samples before deploying to a production parser.</li>
+              <li><strong>Security detection rules:</strong> Draft and test regex-based SIEM detection patterns against example log events. Verify the pattern does not produce false positives on benign lines.</li>
+              <li><strong>Capture group debugging:</strong> When using named or numbered capture groups for extraction, this tool shows exactly what each group matched so you can tune the pattern without trial-and-error in your codebase.</li>
             </ul>
             <div class="hr"></div>
 
             <h3 class="h2">How it works</h3>
-            <ol class="muted">
-              <li>Enter your regex pattern and flags.</li>
-              <li>Paste test text.</li>
-              <li>Run to see all matches and groups instantly.</li>
-            </ol>
+            <p class="muted">The pattern and flags are passed directly to JavaScript's <code>new RegExp(pattern, flags)</code>. The engine then calls <code>re.exec(input)</code> in a loop (for global patterns) until no more matches are found or the 5,000-match safety limit is reached. Each match object exposes the full match string, its index in the input, and any captured groups (numbered or named). All processing happens in your browser.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Common mistakes</h3>
+            <ul class="muted">
+              <li><strong>Forgetting to escape backslashes:</strong> In the pattern input field, <code>\d</code> means a digit. But in many languages' string literals, you need <code>\\d</code> because the backslash itself must be escaped. Test your unescaped pattern here, then double-escape when embedding in source code.</li>
+              <li><strong>Greedy vs lazy quantifiers:</strong> <code>.*</code> is greedy — it matches as much as possible. <code>.*?</code> is lazy — it matches as little as possible. For extracting content between tags or delimiters, the lazy version is almost always what you want.</li>
+              <li><strong>Missing the multiline flag for log lines:</strong> Without <code>m</code>, anchors <code>^</code> and <code>$</code> only match the very start and end of the entire input string. Add <code>m</code> when working with multi-line text to anchor to individual lines.</li>
+            </ul>
             <div class="hr"></div>
 
             <h3 class="h2">FAQ</h3>
-            <p class="muted"><strong>Does this support global matching?</strong><br>Yes. Add the <code>g</code> flag to iterate over all matches.</p>
-            <p class="muted"><strong>Is my text uploaded?</strong><br>No. Pattern processing is done locally in your browser.</p>
+            <p class="muted"><strong>Does this support named capture groups?</strong><br>Yes. JavaScript's RegExp supports named groups with <code>(?&lt;name&gt;...)</code> syntax. The group name and its matched value will appear in the output alongside the numbered groups.</p>
+            <p class="muted"><strong>Why does my pattern work here but not in Python?</strong><br>JavaScript and Python regex engines are mostly compatible but differ in a few areas — notably, Python does not support JavaScript's <code>y</code> (sticky) flag, and the two engines handle some Unicode categories differently. Test in the language you are actually deploying to when exact matching matters.</p>
+            <p class="muted"><strong>Is there a match limit?</strong><br>Yes — the tool stops after 5,000 matches to prevent browser hangs. For patterns expected to produce millions of matches, run them server-side.</p>
+            <p class="muted"><strong>Is my text or pattern sent anywhere?</strong><br>No. Regex processing runs entirely in your browser using JavaScript's native RegExp engine.</p>
           </div>
         </section>
       </div>

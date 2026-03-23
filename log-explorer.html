@@ -294,46 +294,66 @@
 
 
         <!-- SEO content (full-width, outside the grid) -->
-        <section class="card">
-          <div class="pad">
+        <section class=”card”>
+          <div class=”pad”>
 
-             <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
-            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
-              This free online log explorer lets you parse, search, filter, and aggregate logs directly in your browser. Paste text or drop <span class="kbd">.log</span>/<span class="kbd">.txt</span>/<span class="kbd">.ndjson</span> files to inspect events fast without uploading data to a server. It’s built for debugging production incidents, analyzing application output, and exploring structured or semi-structured logs with simple query syntax.
+            <h2 class=”h2” style=”margin:0 0 8px 0;”>About this tool</h2>
+            <p class=”muted” style=”margin:0 0 12px 0; line-height:1.6;”>
+              This log explorer parses, searches, filters, and aggregates application logs directly in your browser — no uploads, no accounts, no log ingestion pipeline required. It handles three common log formats: NDJSON/JSON Lines (one JSON object per line, used by Node.js pino, Bunyan, Logstash, and most cloud services), key=value structured text (used by Logfmt, some Apache-style logs), and plain syslog-style text. Recognized fields — <code>time</code>, <code>level</code>, <code>source</code>, and <code>message</code> — are normalized into a unified structure, then displayed in a sortable results table with level-based color coding. Query syntax supports free-text search, <code>field:value</code> field matching, AND/OR logic, and optional time range filters.
             </p>
 
-            <div class="hr"></div>
+            <div class=”hr”></div>
 
-            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
-            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
-              <li>Search logs with text queries, <span class="kbd">field:value</span>, and AND/OR conditions</li>
-              <li>Filter events by time range and severity (error/warn/info/debug)</li>
-              <li>Review NDJSON / JSON lines from services, proxies, and cloud platforms</li>
-              <li>Aggregate counts by level and spot spikes with per-minute buckets</li>
-              <li>Export filtered results to JSON or CSV for tickets, reports, or follow-up analysis</li>
+            <h3 class=”h2” style=”margin:14px 0 8px 0;”>Real example</h3>
+            <p class=”muted” style=”margin:0 0 8px 0; line-height:1.6;”>Input (NDJSON log from a Node.js service):</p>
+            <pre class=”muted” style=”background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;margin:0 0 12px 0;”>{“time”:”2024-03-15T14:22:01Z”,”level”:”info”,”service”:”api-gateway”,”msg”:”request received”,”path”:”/users/42”,”ms”:12}
+{“time”:”2024-03-15T14:22:03Z”,”level”:”error”,”service”:”auth”,”msg”:”token validation failed”,”userId”:”u-991”}
+{“time”:”2024-03-15T14:22:05Z”,”level”:”warn”,”service”:”db”,”msg”:”slow query detected”,”ms”:2400,”table”:”sessions”}
+{“time”:”2024-03-15T14:22:06Z”,”level”:”error”,”service”:”api-gateway”,”msg”:”upstream timeout”,”path”:”/payments”}
+{“time”:”2024-03-15T14:22:08Z”,”level”:”info”,”service”:”api-gateway”,”msg”:”request received”,”path”:”/health”,”ms”:1}</pre>
+            <p class=”muted” style=”margin:0 0 8px 0; line-height:1.6;”>Query: <code>level:error</code> — filters to 2 events (token validation failed, upstream timeout).</p>
+            <p class=”muted” style=”margin:0 0 8px 0; line-height:1.6;”>Query: <code>service:api-gateway AND level:error</code> — narrows to 1 event (upstream timeout).</p>
+            <p class=”muted” style=”margin:0 0 12px 0; line-height:1.6;”>The aggregates panel shows: error=2, warn=1, info=2. The per-minute bucket chart shows all 5 events landing in the same minute, making it easy to identify the incident window before exporting the filtered set as CSV for an incident report.</p>
+
+            <div class=”hr”></div>
+
+            <h3 class=”h2” style=”margin:14px 0 8px 0;”>Common use cases</h3>
+            <ul class=”muted” style=”margin:0 0 12px 0; line-height:1.7;”>
+              <li><strong>Production incident triage:</strong> During an outage, download a log file from your server or cloud console and drop it here. Use <code>level:error</code> to surface all error events, then narrow by <code>source:</code> or time range to identify the first error in the chain. Export the filtered results as JSON for the incident ticket.</li>
+              <li><strong>NDJSON log analysis from cloud services:</strong> AWS CloudWatch Logs Insights, Google Cloud Logging, and Datadog all support NDJSON export. Paste or drop an exported log file here to query it without needing to re-ingest it or write a query in the cloud console.</li>
+              <li><strong>Finding slow queries or high-latency events:</strong> If your log format includes a numeric latency field (e.g., <code>ms</code> or <code>duration</code>), use the field query to filter for lines containing specific services or endpoints, then visually scan the message column for latency values or error context.</li>
+              <li><strong>Pre-deployment log review:</strong> Before deploying to production, run your application locally, capture its log output, and drop it here to verify that expected log events are present and no unexpected errors appear — without setting up a full logging stack.</li>
             </ul>
 
-            <div class="hr"></div>
+            <div class=”hr”></div>
 
-            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
-            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
-              Parsing and filtering run client-side. The tool streams file reads, tokenizes common formats (NDJSON, key=value, syslog-ish), and normalizes fields like <span class="kbd">time</span>, <span class="kbd">level</span>, <span class="kbd">source</span>, and <span class="kbd">message</span>. Queries support free text plus simple field matching. Results are sorted with recent events first, and aggregates (counts + buckets) are computed from the filtered set. Because everything executes in your browser, your log data stays on your machine.
+            <h3 class=”h2” style=”margin:14px 0 8px 0;”>How it works</h3>
+            <p class=”muted” style=”margin:0 0 12px 0; line-height:1.6;”>
+              Parsing runs in a Web Worker to avoid blocking the UI for large files. Lines are processed one at a time. If a line begins with <code>{</code> and ends with <code>}</code>, it is parsed as JSON and fields are normalized: <code>time</code>/<code>timestamp</code>/<code>ts</code>/<code>@timestamp</code> → time, <code>level</code>/<code>severity</code>/<code>lvl</code> → level, <code>source</code>/<code>service</code>/<code>app</code>/<code>logger</code> → source, <code>msg</code>/<code>message</code>/<code>text</code>/<code>body</code>/<code>log</code> → message. Lines matching key=value patterns (e.g., <code>level=info msg=”request received”</code>) are parsed similarly. Unrecognized lines are kept as raw text and searchable as free text. Queries are evaluated as a simple AND/OR tree of terms, where <code>field:value</code> terms match against normalized fields and plain terms match anywhere in the raw line.
             </p>
 
-            <div class="hr"></div>
+            <div class=”hr”></div>
 
-            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+            <h3 class=”h2” style=”margin:14px 0 8px 0;”>Common mistakes</h3>
+            <ul class=”muted” style=”margin:0 0 12px 0; line-height:1.7;”>
+              <li><strong>Multi-line log entries not parsed correctly:</strong> This tool processes one line at a time. If your logs contain stack traces or multi-line messages (Java exception stack traces, Python tracebacks), the continuation lines will appear as separate unstructured entries. The first line of the exception is typically parseable, but the stack trace lines will appear as raw text. Filter for the exception message on the first line to find the event.</li>
+              <li><strong>Time filters require parseable timestamps:</strong> Time range filters only apply to events where a timestamp was successfully parsed. If your log uses a non-standard timestamp format (e.g., seconds since epoch as a plain integer rather than an ISO string), the time field may not parse and the event will be excluded from time-filtered results while still appearing in text searches.</li>
+              <li><strong>AND is implicit between multiple terms:</strong> Entering <code>error auth</code> is treated as <code>error AND auth</code> — both terms must be present. To match either term, use explicit <code>error OR auth</code>. This is the opposite of some full-text search engines (like Elasticsearch default behavior) where multiple terms produce OR results.</li>
+            </ul>
 
-            <h4 class="h4" style="margin:10px 0 6px 0;">Does this tool upload my logs anywhere?</h4>
-            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Parsing, searching, and exporting all happen locally in your browser.</p>
+            <div class=”hr”></div>
 
-            <h4 class="h4" style="margin:10px 0 6px 0;">What formats does it support?</h4>
-            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">It parses NDJSON/JSON lines, key=value logs, and common “syslog-like” lines, and still lets you search raw text when fields aren’t present.</p>
+            <h3 class=”h2” style=”margin:14px 0 8px 0;”>FAQ</h3>
 
-            <h4 class="h4" style="margin:10px 0 6px 0;">How do I search specific fields?</h4>
-            <p class="muted" style="margin:0; line-height:1.6;">Use <span class="kbd">field:value</span> terms (for example <span class="kbd">level:error</span> or <span class="kbd">source:nginx</span>) combined with AND/OR.</p>
-          
-		  </div>
+            <p class=”muted” style=”margin:0 0 10px 0; line-height:1.6;”><strong>Does this upload my logs anywhere?</strong><br>No. Parsing, searching, filtering, and export all run in a browser Web Worker — a local JavaScript thread. Your log data never leaves your device. This makes the tool safe to use with production logs that contain PII, authentication tokens, or internal service names.</p>
+
+            <p class=”muted” style=”margin:0 0 10px 0; line-height:1.6;”><strong>What NDJSON field names are recognized automatically?</strong><br>The parser recognizes common field name variants: time (<code>time</code>, <code>timestamp</code>, <code>ts</code>, <code>@timestamp</code>), level (<code>level</code>, <code>severity</code>, <code>lvl</code>), source (<code>source</code>, <code>service</code>, <code>app</code>, <code>logger</code>, <code>host</code>, <code>component</code>), and message (<code>msg</code>, <code>message</code>, <code>text</code>, <code>body</code>, <code>log</code>). Fields that don’t match these patterns are preserved in the raw JSON and remain searchable via free text.</p>
+
+            <p class=”muted” style=”margin:0 0 10px 0; line-height:1.6;”><strong>How large a log file can I analyze?</strong><br>The tool uses a streaming Web Worker and can handle files with hundreds of thousands of lines. Performance depends on browser memory — files up to ~50MB typically work without issues. For very large files, use the time range filter to constrain the loaded result set before running queries.</p>
+
+            <p class=”muted” style=”margin:0; line-height:1.6;”><strong>Can I export filtered results?</strong><br>Yes. After running a query, use the Export JSON or Export CSV button to download the filtered event set. The CSV export includes time, level, source, and message columns and can be opened directly in Excel or Google Sheets for sharing with non-technical stakeholders during incident review.</p>
+
+          </div>
         </section>
 
       </div>

@@ -71,17 +71,46 @@
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">This WHOIS lookup tool uses RDAP to retrieve domain/IP registration metadata helpful for threat analysis and infrastructure attribution.</p>
+        <p class="muted">This WHOIS lookup tool uses RDAP (Registration Data Access Protocol) — the modern, structured replacement for the legacy WHOIS text protocol. RDAP returns registration data for domains and IP addresses in JSON format, making it easier to parse programmatically and more consistent across registries. Typical data includes registrant contact information, registration and expiration dates, nameservers, and the registrar name.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Input: <strong>example.com</strong></p>
+        <p class="muted">The RDAP response includes:<br>
+        <strong>ldhName:</strong> EXAMPLE.COM<br>
+        <strong>status:</strong> client delete prohibited, client transfer prohibited, client update prohibited<br>
+        <strong>registrar:</strong> RESERVED-Internet Assigned Numbers Authority<br>
+        <strong>events:</strong> registration date 1995-08-14, last changed date (recent)<br>
+        <strong>nameservers:</strong> a.iana-servers.net, b.iana-servers.net</p>
+        <p class="muted">For an IP like <strong>8.8.8.8</strong>, the ARIN RDAP response shows the network block <code>8.8.8.0/24</code>, the organization (Google LLC), and the abuse contact handle.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Investigate suspicious domains during incidents.</li><li>Validate ownership context for infrastructure assets.</li><li>Check network records for abuse investigations.</li></ul>
+        <ul class="muted">
+          <li><strong>Phishing and threat investigation:</strong> When a suspicious domain appears in your logs or in a reported phishing email, RDAP lookup reveals when the domain was registered, who the registrar is, and whether key privacy fields are redacted. Recently registered domains with privacy protection and generic nameservers are a common phishing signal.</li>
+          <li><strong>Infrastructure attribution:</strong> During a security incident, look up the IPs making suspicious requests to identify the hosting provider and whether they belong to known cloud, CDN, or bot infrastructure. Combine with <a href="/ip-lookup">IP Lookup</a> for ASN-level detail.</li>
+          <li><strong>Brand protection and domain monitoring:</strong> Check registration details for lookalike domains (typosquats) targeting your brand. Expiration dates and registrar information can inform takedown requests.</li>
+          <li><strong>Abuse reporting:</strong> RDAP responses include abuse contact handles. Look up the hosting IP to find the correct abuse reporting address for a provider.</li>
+        </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Enter a domain or IPv4 address.</li><li>Run lookup.</li><li>Review RDAP output JSON.</li></ol>
+        <p class="muted">For domains, the tool queries <code>https://rdap.org/domain/&lt;domain&gt;</code>. For IPv4 addresses, it queries <code>https://rdap.arin.net/registry/ip/&lt;ip&gt;</code> (the ARIN registry, which handles North American IP space). The full RDAP JSON response is returned and displayed. RDAP replaced WHOIS because WHOIS responses are unstructured text that differs by registry — RDAP is a standardized JSON API defined in RFC 7483.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>CORS failures are expected:</strong> Some RDAP endpoints block direct browser requests due to CORS policy. If the lookup fails, use the <code>rdap.org</code> or <code>rdap.arin.net</code> endpoints directly from your terminal: <code>curl https://rdap.org/domain/example.com | jq .</code></li>
+          <li><strong>Privacy-redacted contacts are the norm:</strong> GDPR and registrar policies result in most registrant contact fields being redacted. The absence of a registrant name does not mean the domain is suspicious — most consumer registrations are now privacy-protected.</li>
+          <li><strong>RDAP scope is limited to registration data:</strong> RDAP tells you who registered a domain and when — it does not show DNS records, hosting details, or traffic information. For DNS, use <a href="/hostname-to-ip">Hostname to IP</a>.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Why can lookup fail in browser?</strong><br>Some RDAP providers block cross-origin browser requests.</p>
-        <p class="muted"><strong>Is this classic WHOIS protocol?</strong><br>No, this tool uses modern RDAP endpoints.</p>
+        <p class="muted"><strong>What is the difference between RDAP and classic WHOIS?</strong><br>Classic WHOIS is a plain-text protocol defined in RFC 3912 with no standardized response format. RDAP (RFC 7483) returns structured JSON with consistent field names, supports authentication, and is the replacement standard that most registries have now adopted.</p>
+        <p class="muted"><strong>Why does the lookup sometimes fail?</strong><br>Browser-based RDAP queries are subject to CORS restrictions. Some registries and regional Internet registries do not allow direct browser queries. For reliable lookups, use a CLI tool like <code>whois</code> or <code>curl</code> from a server.</p>
+        <p class="muted"><strong>Can I look up IPv6 addresses?</strong><br>Yes. Enter the full IPv6 address and the tool will query the appropriate RDAP registry endpoint for that address block.</p>
+        <p class="muted"><strong>What does "client transfer prohibited" status mean?</strong><br>It means the registrar has placed a lock on the domain preventing transfer to another registrar. This is a standard security lock applied to most commercial domains to prevent unauthorized transfers.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>

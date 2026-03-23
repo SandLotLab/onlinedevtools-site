@@ -78,21 +78,41 @@
 
         <section class="card"><div class="pad">
           <h2 class="h2">About this tool</h2>
-          <p class="muted">Use this tool to quickly encode plain text to Base64 or decode Base64 back to readable UTF-8 text. It is useful for JWT segment inspection and payload diagnostics.</p>
+          <p class="muted">This Base64 encoder and decoder converts UTF-8 text to Base64-encoded output and back. It handles both standard Base64 (using <code>+</code> and <code>/</code>) and Base64url (using <code>-</code> and <code>_</code>, with optional padding omission) — the URL-safe variant normalizes <code>-</code> and <code>_</code> before decoding so JWT segments and URL-embedded Base64 values decode correctly without manual character substitution. All processing happens locally in your browser using JavaScript's native <code>btoa()</code> and <code>atob()</code> functions with UTF-8 encoding applied via <code>encodeURIComponent</code> to correctly handle non-ASCII characters.</p>
           <div class="hr"></div>
+
+          <h3 class="h2">Real example</h3>
+          <p class="muted">Input: <code>{"sub":"user-42","role":"admin"}</code></p>
+          <p class="muted">Base64 encoded output: <code>eyJzdWIiOiJ1c2VyLTQyIiwicm9sZSI6ImFkbWluIn0=</code></p>
+          <p class="muted">This is the exact format used in JWT payload segments. A JWT token like <code>eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyLTQyIn0.sig</code> has three dot-separated parts — header, payload, and signature — each Base64url-encoded. Paste any segment here to read its contents. The trailing <code>=</code> padding may be absent in JWT segments (Base64url allows padding omission) — the decoder handles both cases. For full JWT inspection including all claims, use the <a href="/jwt-decoder">JWT Decoder</a> which processes all three segments at once.</p>
+          <div class="hr"></div>
+
           <h3 class="h2">Common use cases</h3>
           <ul class="muted">
-            <li>Decode JWT header or payload fragments.</li>
-            <li>Inspect Base64 API blobs in logs.</li>
-            <li>Create quick encoded test values.</li>
+            <li><strong>JWT segment inspection:</strong> JWT tokens are three Base64url-encoded segments separated by dots. Copy the header or payload segment (between the dots) and decode it here to read the JSON claims — algorithm, subject, expiration, issued-at, and any custom claims. This is the fastest way to inspect a JWT without installing a separate tool.</li>
+            <li><strong>HTTP Basic Auth credential encoding:</strong> The Authorization header for HTTP Basic Auth requires <code>Base64(username:password)</code>. Type <code>username:password</code> in the input and click Encode to produce the value that goes after <code>Basic </code> in the header. Use this when testing APIs that require Basic Auth without writing code.</li>
+            <li><strong>Inspecting Base64-encoded log values:</strong> Application logs and SIEM events often contain Base64-encoded fields (event payloads, serialized objects, embedded tokens). Paste the encoded string here to decode it and read the underlying value without needing to write a script.</li>
+            <li><strong>Encoding binary data representations:</strong> Before embedding binary data in a JSON payload or environment variable, encode it to Base64 to make it a safe ASCII string. Copy the encoded output directly into your config or API request body.</li>
           </ul>
           <div class="hr"></div>
+
           <h3 class="h2">How it works</h3>
-          <ol class="muted"><li>Paste text or Base64 data.</li><li>Choose Encode or Decode.</li><li>Copy output for your workflow.</li></ol>
+          <p class="muted">Encoding: the input string is passed through <code>encodeURIComponent()</code> then <code>unescape()</code> to convert it to a byte representation where each character maps to a single byte, then <code>btoa()</code> produces the standard Base64 string. This correctly handles multi-byte UTF-8 characters (accented letters, emoji, CJK characters) that <code>btoa()</code> alone cannot handle. Decoding: the input is first normalized — <code>-</code> is replaced with <code>+</code> and <code>_</code> with <code>/</code> to handle Base64url input — then <code>atob()</code> decodes it, and <code>decodeURIComponent(escape())</code> reverses the byte-to-character mapping to restore the original UTF-8 string.</p>
           <div class="hr"></div>
+
+          <h3 class="h2">Common mistakes</h3>
+          <ul class="muted">
+            <li><strong>Decoding with whitespace or line breaks:</strong> Base64 strings copied from emails, certificates, or multi-line encoded values often contain newlines or spaces. These cause <code>atob()</code> to throw an "invalid character" error. Trim the input before decoding — the tool's Decode button automatically trims leading and trailing whitespace from the input.</li>
+            <li><strong>Encoding binary files instead of text:</strong> This tool is designed for text (UTF-8) encoding. Binary files (images, PDFs, compiled binaries) cannot be pasted as text — the copy operation loses non-printable bytes. For file-to-Base64 conversion, you need a tool that reads file bytes directly, such as the <a href="/hash-generator">Hash Generator & Encoders</a>.</li>
+            <li><strong>Expecting encryption from encoding:</strong> Base64 is not encryption — it is a reversible encoding that converts binary data to ASCII text. Anyone who sees a Base64 string can decode it instantly. Do not use Base64 to obscure sensitive values; use proper encryption instead.</li>
+          </ul>
+          <div class="hr"></div>
+
           <h3 class="h2">FAQ</h3>
-          <p class="muted"><strong>Does it support Base64URL?</strong><br>Yes, URL-safe characters are normalized before decoding.</p>
-          <p class="muted"><strong>Is this local-only?</strong><br>Yes, processing happens in your browser.</p>
+          <p class="muted"><strong>Does this support Base64url (JWT-style) decoding?</strong><br>Yes. The decoder automatically converts Base64url characters (<code>-</code>→<code>+</code> and <code>_</code>→<code>/</code>) before decoding, so JWT payload and header segments decode correctly without needing to manually substitute characters.</p>
+          <p class="muted"><strong>What is the difference between Base64 and Base64url?</strong><br>Standard Base64 uses <code>+</code>, <code>/</code>, and <code>=</code> padding. These characters have special meaning in URLs, so Base64url replaces <code>+</code> with <code>-</code> and <code>/</code> with <code>_</code>, and typically omits the <code>=</code> padding. JWTs, OAuth tokens, and URL-embedded encoded data all use Base64url. Standard Base64 is used in MIME email encoding, PEM certificates, and most other contexts.</p>
+          <p class="muted"><strong>Can I decode multi-line Base64 (like PEM certificates)?</strong><br>Yes. PEM certificate blocks are Base64-encoded with line breaks every 64 characters. Paste the content between the <code>-----BEGIN CERTIFICATE-----</code> and <code>-----END CERTIFICATE-----</code> lines (without the headers) and decode it. The output will be binary certificate data represented as text, which may not be fully readable but confirms the content is decodable.</p>
+          <p class="muted"><strong>Is my data sent anywhere?</strong><br>No. Encoding and decoding use JavaScript's built-in <code>btoa()</code> and <code>atob()</code> functions running locally in your browser. Nothing is transmitted to any server.</p>
         </div></section>
       </div>
     </main>

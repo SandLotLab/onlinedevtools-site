@@ -77,29 +77,49 @@
 
                 <div class="card" style="margin-top:10px"><div class="pad">
           <h2 class="h2">About this tool</h2>
-          <p class="muted">Word Counter is a free online text analysis utility for writers, marketers, students, and developers. It provides fast word count, character count, and readability metrics for SEO content, social copy, and technical documentation, all client-side in your browser.</p>
+          <p class="muted">This word counter provides live text analysis for writers, developers, and content teams. Beyond a basic word count, it calculates character counts (with and without spaces), line and paragraph counts, estimated reading time (at 200 words/minute), speaking time range, and a word frequency table showing your top five most-used words. A regex exclude filter lets you strip comment lines, boilerplate headers, or any pattern before counting. All analysis is Unicode-aware and runs entirely in your browser — paste text, drop a file, or load from the file picker to get instant stats.</p>
+          <div class="hr"></div>
+
+          <h3 class="h2">Real example</h3>
+          <p class="muted">Input: a 500-word blog post draft pasted into the tool.</p>
+          <p class="muted">Stats output:</p>
+          <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">Words: 498
+Characters (with spaces): 2,941
+Characters (no spaces): 2,447
+Lines: 32
+Sentences: 21
+Paragraphs: 8
+Read time: 149 sec
+Speaking time: 199–229 sec</pre>
+          <p class="muted">Top 5 word frequency: "the" (28, 5.6%), "and" (19, 3.8%), "api" (14, 2.8%), "request" (11, 2.2%), "data" (9, 1.8%). Seeing "the" at 5.6% is expected — academic writing style guides typically recommend keeping common filler words below 7%. Seeing a technical term like "api" at 2.8% confirms the post stays on topic.</p>
           <div class="hr"></div>
 
           <h3 class="h2">Common use cases</h3>
           <ul class="muted">
-            <li>Track word count for blog posts and SEO landing pages.</li>
-            <li>Check character limits for ads, metadata, and social captions.</li>
-            <li>Estimate reading and speaking time for scripts and presentations.</li>
+            <li><strong>SEO content length verification:</strong> Paste a draft blog post or landing page to confirm it meets your target word count before publishing. Most competitive SEO topics benefit from 1,000–2,000 words of substantive content.</li>
+            <li><strong>Social media and ad copy:</strong> Twitter/X limits posts to 280 characters; Google Ads headlines to 30. Paste your copy here to check character counts before switching between platforms.</li>
+            <li><strong>Presentation and script timing:</strong> Speaking time at 130–150 words/minute is accurate for a measured delivery. A 10-minute conference talk needs roughly 1,300–1,500 words. Use the speaking time output to calibrate your script length.</li>
+            <li><strong>Code comment and documentation audits:</strong> Use the regex exclude filter with a pattern like <code>^//|^#|^\*</code> to strip comment lines before counting, so you measure only prose content in a mixed source file or runbook.</li>
           </ul>
           <div class="hr"></div>
 
           <h3 class="h2">How it works</h3>
-          <ol class="muted">
-            <li>Paste or type text into the input box.</li>
-            <li>Apply optional filters and formatting options.</li>
-            <li>Review live counts, frequency data, and exportable stats.</li>
-          </ol>
+          <p class="muted">Word tokenization uses a Unicode-aware regex (<code>[\p{L}\p{M}]+(?:[-'][\p{L}\p{M}]+)*</code>) that correctly handles accented characters, CJK scripts, and hyphenated compounds like "well-formed". CJK characters (Chinese, Japanese, Korean) are counted separately and divided by two to approximate word units, since they do not use spaces. Reading time divides the word count by 200 (average adult reading speed). Speaking time brackets use 150 words/minute (fast) and 130 words/minute (measured). The regex exclude filter applies per-line and per-token, so you can strip entire lines (e.g., <code>^#.*$</code> to remove Markdown headers) or specific words.</p>
+          <div class="hr"></div>
+
+          <h3 class="h2">Common mistakes</h3>
+          <ul class="muted">
+            <li><strong>Counting with "ignore numbers" off:</strong> If your text contains phone numbers, IP addresses, or code snippets, the word count will include numeric tokens. Enable "Ignore numbers in word count" to exclude them and get a cleaner prose count.</li>
+            <li><strong>Reading time for technical content:</strong> The 200 words/minute rate is for standard prose. Dense technical documentation, code-heavy tutorials, or legal text is read at 100–130 words/minute. Adjust your expectations accordingly — double the reading time estimate for deeply technical material.</li>
+            <li><strong>Frequency table misleading due to stop words:</strong> Common words like "the", "a", "is", and "and" will always dominate the frequency table. For meaningful keyword density analysis, add a stop-word regex filter (e.g., <code>\b(the|and|is|a|in|of)\b</code>) before running the frequency analysis.</li>
+          </ul>
           <div class="hr"></div>
 
           <h3 class="h2">FAQ</h3>
-          <p class="muted"><strong>How accurate is the word count?</strong><br>The tool uses Unicode-aware parsing to handle multilingual text reliably.</p>
-          <p class="muted"><strong>Does this tool upload my text?</strong><br>No. Analysis runs locally in your browser.</p>
-          <p class="muted"><strong>Can I export results?</strong><br>Yes. You can copy stats or export a plain text summary.</p>
+          <p class="muted"><strong>How accurate is the word count for non-English text?</strong><br>The tokenizer uses Unicode property escapes (<code>\p{L}</code>) which cover all alphabetic scripts including Arabic, Thai, Hebrew, and Cyrillic. CJK text (Chinese, Japanese, Korean) does not use word boundaries, so those characters are counted individually and divided by two to approximate words — this is a common convention, not an exact count.</p>
+          <p class="muted"><strong>What does the regex exclude filter do?</strong><br>The filter is applied both per-line (lines matching the pattern are dropped entirely) and per-token (matching substrings within remaining lines are removed). This lets you strip comment lines, boilerplate, or specific words before counting. Invalid regex patterns are caught and reported in the status field.</p>
+          <p class="muted"><strong>Does this tool upload my text?</strong><br>No. All analysis — word tokenization, frequency counting, regex filtering, and normalization — runs in your browser using JavaScript. No text is sent to any server.</p>
+          <p class="muted"><strong>Can I analyze a file directly?</strong><br>Yes. Use the file picker or drag and drop a .txt, .md, .csv, .json, or .yaml file onto the input area. The file's text content is read locally and loaded into the input for immediate analysis.</p>
         </div></div>
       </div></section>
     </section></div></main>

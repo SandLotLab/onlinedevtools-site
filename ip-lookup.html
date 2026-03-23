@@ -84,17 +84,46 @@
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">This tool helps quickly identify your current public IP and retrieve metadata for a target IPv4 address, which is useful for network troubleshooting and access verification.</p>
+        <p class="muted">IP Lookup retrieves geolocation and network metadata for any IPv4 address — or detects your own public IP automatically. The metadata includes country, region, city, ISP name, ASN (Autonomous System Number), and organization. This is useful for network troubleshooting, incident response, firewall allowlist verification, and quickly identifying who owns a given address block.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Input: <strong>8.8.8.8</strong> (Google's public DNS resolver)</p>
+        <p class="muted">Expected result fields:<br>
+        ip: <strong>8.8.8.8</strong><br>
+        org: <strong>AS15169 Google LLC</strong><br>
+        city: <strong>Mountain View</strong>, region: <strong>California</strong><br>
+        country: <strong>US</strong>, postal: <strong>94043</strong><br>
+        timezone: <strong>America/Los_Angeles</strong></p>
+        <p class="muted">The ASN (<strong>AS15169</strong>) is the key identifier — it tells you which organization controls this IP block at a routing level, regardless of the imprecise geolocation city data.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Confirm public egress IP for firewall allowlists.</li><li>Investigate geolocation mismatch reports.</li><li>Validate ASN/network ownership at a glance.</li></ul>
+        <ul class="muted">
+          <li><strong>Firewall allowlist verification:</strong> If your application only accepts traffic from specific IPs, use "Find My IP" to confirm your current egress address matches the allowlisted entry before debugging a connection failure.</li>
+          <li><strong>Incident response and abuse investigation:</strong> When reviewing logs during a security incident, look up the source IPs to identify the hosting provider or ISP. Combine with <a href="/whois-lookup">WHOIS Lookup</a> to find abuse contact information.</li>
+          <li><strong>CDN and proxy detection:</strong> Cloud providers (AWS, Cloudflare, GCP) have well-known ASNs. If traffic from an unexpected ASN appears in your logs, this lookup quickly identifies the source organization.</li>
+          <li><strong>Geolocation debugging:</strong> If your application serves region-specific content and a user reports seeing the wrong region, look up their IP to see what metadata your geolocation library would return for their address.</li>
+        </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Find your IP automatically or enter an IPv4 manually.</li><li>Run lookup request.</li><li>Review returned metadata JSON.</li></ol>
+        <p class="muted">"Find My IP" calls the ipify.org API (<code>https://api.ipify.org?format=json</code>) to detect the public IP of the browser's current network connection. The IP lookup calls ipapi.co to fetch metadata associated with any IPv4 address. Both calls are made directly from your browser — the results are displayed in the output panel and are not stored by this site.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>Expecting precise city-level geolocation:</strong> IP geolocation is a best-effort estimate based on registration data and network routing. The city shown may be the ISP's headquarters or a major routing hub, not the actual device location. Accuracy varies significantly by provider and region.</li>
+          <li><strong>Confusing egress IP with device IP:</strong> When behind a NAT router or corporate proxy, your device's private IP (192.168.x.x) is not your public IP. "Find My IP" returns your public egress address — the IP seen by external servers.</li>
+          <li><strong>Treating VPN results as real location:</strong> If you are on a VPN, the lookup returns the VPN exit node's location and ASN, not your actual location or ISP.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Will geolocation always be exact?</strong><br>No, IP geolocation is approximate.</p>
-        <p class="muted"><strong>Is this private data collection?</strong><br>No, this utility only shows lookup output and does not store your input.</p>
+        <p class="muted"><strong>What is an ASN?</strong><br>An Autonomous System Number (ASN) identifies a network operated by a single organization under a unified routing policy. Major cloud providers, ISPs, and CDNs each have one or more ASNs. AS15169 is Google, AS16509 is Amazon AWS, AS13335 is Cloudflare.</p>
+        <p class="muted"><strong>Why does geolocation show the wrong city?</strong><br>IP geolocation databases map IPs to locations based on ARIN/RIPE registration data and routing analysis. The result is often the ISP's data center city, not the actual user location. For precise location, GPS or user-provided data is needed.</p>
+        <p class="muted"><strong>Does this tool store my IP?</strong><br>No. The lookup is performed by your browser and the result is displayed locally. This site does not log or store IP addresses.</p>
+        <p class="muted"><strong>Can I look up IPv6 addresses?</strong><br>The tool currently supports IPv4 only. For IPv6 metadata, use a dedicated WHOIS or RDAP lookup via <a href="/whois-lookup">WHOIS Lookup</a>.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>

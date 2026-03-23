@@ -42,6 +42,49 @@
 </head>
 <body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
 <section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IPv6 to Binary</nav><h1 class="h1">IPv6 to Binary Converter</h1><p class="muted">Convert IPv6 notation to full 128-bit binary output (great for labs and education).</p><input id="input" class="in" placeholder="Example: 2001:db8::1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:260px;" readonly></textarea></div></div></section>
-<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IPv6 to Binary expands compressed IPv6 addresses and renders their full 128-bit binary representation for training and validation.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Learning IPv6 structure and bit boundaries.</li><li>Validating subnet prefix exercises.</li><li>Teaching address compression/expansion mechanics.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter an IPv6 address (compressed or full).</li><li>The address is expanded to 8 hextets.</li><li>Each hextet is converted into a 16-bit binary block.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Does it accept :: compression?</strong><br>Yes, common compressed IPv6 forms are supported.</p><p class="muted"><strong>Is this intended for production planning?</strong><br>It is primarily optimized for education and lab workflows.</p></div></section>
+<section class="card"><div class="pad">
+  <h2 class="h2">About this tool</h2>
+  <p class="muted">IPv6 to Binary expands a compressed or full IPv6 address into its complete 128-bit binary representation. Where IPv4 has 32 bits across 4 octets, IPv6 has 128 bits across 8 groups of 16 bits (hextets). Seeing the full binary form makes prefix boundaries, subnet divisions, and address structure immediately visible — something that is impossible to reason about from the compressed colon-hex notation alone.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Real example</h3>
+  <p class="muted">Input: <strong>2001:db8::1</strong></p>
+  <p class="muted">Step 1 — expand the <code>::</code> shorthand to its full 8-hextet form:<br>
+  <strong>2001:0db8:0000:0000:0000:0000:0000:0001</strong></p>
+  <p class="muted">Step 2 — convert each hextet to 16-bit binary:<br>
+  2001 → <strong>0010000000000001</strong><br>
+  0db8 → <strong>0000110110111000</strong><br>
+  0000 → <strong>0000000000000000</strong> (×5 repeated)<br>
+  0001 → <strong>0000000000000001</strong></p>
+  <p class="muted">The <code>2001:db8::/32</code> documentation prefix (defined in RFC 3849) is commonly used in examples. The /32 prefix covers the first 32 bits: <strong>00100000000000010000110110111000</strong>.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common use cases</h3>
+  <ul class="muted">
+    <li><strong>IPv6 prefix boundary visualization:</strong> When working with a /48 allocation, the first 48 bits are the network prefix. Converting to binary makes the boundary between network and interface portions clearly visible at bit position 48.</li>
+    <li><strong>Subnetting coursework and certifications:</strong> IPv6+ certifications (CCNP, JNCIP) require understanding address structure at the bit level. This tool helps validate manual exercises.</li>
+    <li><strong>Teaching IPv6 compression rules:</strong> The <code>::</code> shorthand compresses consecutive zero groups. Showing the expanded binary form demonstrates exactly what is being omitted.</li>
+    <li><strong>Validating address expansion scripts:</strong> If you have written code to expand compressed IPv6 addresses, run known test cases through this tool to confirm the binary output matches your implementation.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">How it works</h3>
+  <p class="muted">The input is parsed and the <code>::</code> double-colon is expanded by inserting the correct number of zero groups to reach 8 hextets total. Each 4-character hextet is parsed as a 16-bit integer with <code>parseInt(hextet, 16)</code> and then converted to a 16-bit binary string with leading-zero padding. The 8 groups are concatenated into a 128-bit string, and also displayed grouped with colons for readability.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common mistakes</h3>
+  <ul class="muted">
+    <li><strong>Confusing prefix length with bit position:</strong> A /64 prefix means the first 64 bits are the network prefix. That is the first four 16-bit hextets. The remaining 64 bits are the interface identifier (EUI-64 or random). This does not mean 64 ones in the binary — it means the first 64 bits identify the network.</li>
+    <li><strong>Invalid <code>::</code> placement:</strong> The double-colon can only appear once in an address. <code>2001::db8::1</code> is invalid. This tool will return an error for addresses with multiple <code>::</code> instances.</li>
+    <li><strong>Expecting IPv4 behavior:</strong> IPv6 subnetting does not use the concept of broadcast addresses. The all-zeros and all-ones addresses in a subnet have different reserved uses than in IPv4.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">FAQ</h3>
+  <p class="muted"><strong>Does the tool accept compressed IPv6 addresses?</strong><br>Yes. Both compressed forms (with <code>::</code>) and fully expanded 8-hextet addresses are supported.</p>
+  <p class="muted"><strong>What is the binary for the loopback address ::1?</strong><br>::1 expands to 0000:0000:0000:0000:0000:0000:0000:0001, which is 127 zero bits followed by a single 1 bit.</p>
+  <p class="muted"><strong>Can I use this for production subnet planning?</strong><br>This tool shows binary representations — it does not calculate subnet ranges. For production planning, use a dedicated IPv6 subnet calculator.</p>
+  <p class="muted"><strong>What is a hextet?</strong><br>A hextet (sometimes called a group or field) is one of the eight 16-bit segments in an IPv6 address, written as four hex digits. IPv6 has 8 hextets; IPv4 has 4 octets. The terms reflect the different base representations.</p>
+</div></section>
 </div></main><div id="siteFooter"></div></div></body>
 </html>

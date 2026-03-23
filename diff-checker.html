@@ -134,29 +134,56 @@
 
                     <section class="card"><div class="pad">
             <h2 class="h2">About this tool</h2>
-            <p class="muted">Diff Checker is a free online text comparison tool for developers, QA teams, and technical writers. Compare two versions of code, docs, or config files with a fast client-side workflow that keeps your data local in the browser.</p>
+            <p class="muted">This diff checker compares two text inputs line by line and highlights additions, deletions, and modifications using a Longest Common Subsequence (LCS) algorithm. It supports side-by-side and unified views, inline character-level highlighting for modified lines, and structured comparison modes for JSON, YAML, and .env/INI files. Options include ignoring whitespace, case, or blank lines; sorting lines before comparing (useful for unordered config files); and navigating directly between changes with Previous/Next buttons. The result can be exported as a plain .txt diff or a standard .patch file. Everything runs locally in your browser — no uploads, no accounts.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Real example</h3>
+            <p class="muted">Original:</p>
+            <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">host = db.prod.example.com
+port = 5432
+max_connections = 100
+debug = false</pre>
+            <p class="muted">Updated:</p>
+            <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">host = db.prod.example.com
+port = 5432
+max_connections = 200
+debug = true
+log_level = info</pre>
+            <p class="muted">Diff output (unified view):</p>
+            <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">  host = db.prod.example.com
+  port = 5432
+~ max_connections = 100 → 200
+~ debug = false → true
++ log_level = info</pre>
+            <p class="muted">The inline highlight on the modified lines shows exactly which characters changed (<code>100</code>→<code>200</code>, <code>false</code>→<code>true</code>). The summary counters show: Added 1, Removed 0, Modified 2. Use the <strong>.env mode</strong> for this kind of config file to normalize key ordering before comparing, which eliminates false positives from key reordering.</p>
             <div class="hr"></div>
 
             <h3 class="h2">Common use cases</h3>
             <ul class="muted">
-              <li>Compare two versions of code before merge or release.</li>
-              <li>Review JSON, YAML, or .env changes during configuration updates.</li>
-              <li>Validate text revisions in documentation and support runbooks.</li>
+              <li><strong>Config file auditing:</strong> Before deploying an infrastructure change, diff the current and proposed <code>appsettings.json</code>, <code>nginx.conf</code>, or Kubernetes manifest to verify only the intended keys changed. Use JSON or YAML mode to normalize formatting before comparing so whitespace differences don't obscure real changes.</li>
+              <li><strong>Pre-commit code review:</strong> Paste two versions of a function or module here to review the diff locally before opening a pull request. Useful for catching accidental changes or verifying a refactor only moved code without changing logic.</li>
+              <li><strong>Documentation and runbook versioning:</strong> Diff two versions of an incident runbook, API spec, or support article to identify exactly what was added or removed between revisions, without needing access to a version control system.</li>
+              <li><strong>Preparing JSON diffs:</strong> Paste two API response payloads in JSON mode. The tool sorts keys before comparing, so you see only value changes — not false positives from key reordering between API calls. Pair with the <a href="/json-editor">JSON Editor</a> to sort and normalize keys first if needed.</li>
             </ul>
             <div class="hr"></div>
 
             <h3 class="h2">How it works</h3>
-            <ol class="muted">
-              <li>Paste original and updated text in each panel.</li>
-              <li>Choose compare options like ignore whitespace or case.</li>
-              <li>Run compare to view inline differences and export results.</li>
-            </ol>
+            <p class="muted">Text comparison uses an LCS (Longest Common Subsequence) dynamic programming algorithm — the same approach used by Unix <code>diff</code> and Git. Lines that appear in both inputs are marked as context (no change); lines only in the original are marked as deletions; lines only in the updated version are marked as additions. Adjacent single deletions and additions are merged into modifications, with character-level inline diff applied. For files with more than ~4 million line-pair combinations, a greedy fallback algorithm is used to avoid browser memory exhaustion. Structured modes (JSON, YAML, .env) normalize both inputs into a canonical key=value format before comparison so structural differences don't create false positives.</p>
+            <div class="hr"></div>
+
+            <h3 class="h2">Common mistakes</h3>
+            <ul class="muted">
+              <li><strong>Comparing JSON without JSON mode:</strong> Two JSON files with the same data but different key ordering will show many false-positive modifications in plain text mode. Switch to JSON mode, which sorts all keys recursively before comparing, so only genuine value changes appear as differences.</li>
+              <li><strong>Whitespace-sensitive comparisons:</strong> Indentation changes (e.g., switching from 2-space to 4-space JSON indentation) will show every line as modified in plain text mode. Enable "Ignore whitespace" to strip internal whitespace before comparing, or use JSON/YAML mode which normalizes indentation as part of parsing.</li>
+              <li><strong>Exporting .patch files for binary content:</strong> The .patch export follows the unified diff format (GNU patch compatible), but only works correctly for plain text. Binary files, base64-encoded content, or text with very long lines may produce malformed patch output.</li>
+            </ul>
             <div class="hr"></div>
 
             <h3 class="h2">FAQ</h3>
-            <p class="muted"><strong>Is this online diff checker private?</strong><br>Yes. Processing runs locally in your browser and does not require uploads.</p>
-            <p class="muted"><strong>Can I compare structured files like JSON and YAML?</strong><br>Yes. Use the mode selector to normalize and compare structured content.</p>
-            <p class="muted"><strong>Can I export diff output?</strong><br>Yes. You can copy the diff and export as .txt or .patch.</p>
+            <p class="muted"><strong>What is the difference between side-by-side and unified view?</strong><br>Side-by-side shows original and updated text in two columns, making it easy to read both versions in context. Unified view shows a single column where additions are prefixed with <code>+</code> and deletions with <code>-</code> — the same format used by <code>git diff</code> and patch files.</p>
+            <p class="muted"><strong>Can I compare JSON files with different key ordering?</strong><br>Yes. Select JSON mode in the Config Diff Mode dropdown. Both inputs are parsed and keys are sorted recursively before comparison. Only value differences and genuinely added/removed keys are shown as changes.</p>
+            <p class="muted"><strong>What does "sort lines before compare" do?</strong><br>It sorts both inputs alphabetically before running the diff. This is useful for comparing unordered lists (like <code>requirements.txt</code> or tag lists) where the order of items shouldn't count as a difference — only presence/absence matters.</p>
+            <p class="muted"><strong>Is my content sent to a server?</strong><br>No. The LCS algorithm, structured parsing, and rendering all run locally in your browser. No text is transmitted. This makes the tool safe for comparing sensitive config values, credentials references, or private document drafts.</p>
           </div></section>
         </section>
       </div>

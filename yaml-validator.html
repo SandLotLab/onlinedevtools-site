@@ -71,21 +71,56 @@ data:
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">This YAML validator is designed for infrastructure and CI/CD work. It catches parsing errors quickly and converts valid YAML into JSON so you can verify structure and values.</p>
+        <p class="muted">This YAML validator parses your YAML input and reports any syntax errors with the line and column number where the problem was found. If the YAML is valid, it also converts the result to formatted JSON — useful for verifying that the parsed structure matches what you expect. It is built for infrastructure engineers working with Kubernetes manifests, CI/CD pipeline definitions, Ansible playbooks, and Helm chart values files.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Input YAML:</p>
+        <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: production
+data:
+  LOG_LEVEL: info
+  MAX_CONNECTIONS: "100"</pre>
+        <p class="muted">JSON output confirms the structure parsed correctly:</p>
+        <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": { "name": "app-config", "namespace": "production" },
+  "data": { "LOG_LEVEL": "info", "MAX_CONNECTIONS": "100" }
+}</pre>
+        <p class="muted">Note: <code>MAX_CONNECTIONS: "100"</code> uses quotes to force string type. Without quotes, YAML parses <code>100</code> as an integer. The JSON output makes this visible immediately — an important difference for Kubernetes ConfigMap values that should always be strings.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
         <ul class="muted">
-          <li>Validate Kubernetes manifests before deployment.</li>
-          <li>Check GitHub Actions workflow files.</li>
-          <li>Review security/policy YAML in pipelines.</li>
+          <li><strong>Kubernetes manifests:</strong> Paste a Deployment, ConfigMap, Ingress, or Service manifest here before applying with <code>kubectl apply</code>. The JSON view confirms that nested structures (containers, volumes, resources) parsed correctly.</li>
+          <li><strong>GitHub Actions workflow files:</strong> Workflow YAML is sensitive to indentation and key names. Paste your <code>.github/workflows/</code> file here to catch syntax errors before pushing and wasting a CI run.</li>
+          <li><strong>Helm chart values files:</strong> <code>values.yaml</code> files drive templating logic. Validate the values file structure before running <code>helm upgrade</code> to prevent rendering failures.</li>
+          <li><strong>Ansible playbooks:</strong> YAML indentation errors in Ansible cause cryptic runtime failures. Validate the playbook structure first to catch problems at the syntax level.</li>
         </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Paste YAML input.</li><li>Click Validate YAML.</li><li>Review parser result and JSON conversion.</li></ol>
+        <p class="muted">The validator uses <a href="https://github.com/nodeca/js-yaml" target="_blank" rel="noopener">js-yaml</a>, a well-maintained JavaScript YAML parser. The <code>jsyaml.load()</code> function parses the input and throws a detailed error (with line/column information) if the syntax is invalid. If parsing succeeds, the resulting JavaScript object is serialized to JSON with <code>JSON.stringify(obj, null, 2)</code> and displayed in the output panel. Everything runs locally in your browser via the CDN-loaded js-yaml library.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>Tabs instead of spaces:</strong> YAML does not allow tab characters for indentation. Using tabs will cause a parse error. Configure your editor to insert spaces instead of tabs for YAML files.</li>
+          <li><strong>Inconsistent indentation depth:</strong> YAML uses indentation to define nesting. Mixing 2-space and 4-space indentation within the same file will produce unexpected parse results or errors.</li>
+          <li><strong>Unquoted special characters:</strong> Characters like <code>:</code>, <code>#</code>, <code>@</code>, and <code>*</code> have special meaning in YAML. Values containing these characters should be quoted: <code>value: "http://example.com"</code> instead of <code>value: http://example.com</code>.</li>
+          <li><strong>Implicit type coercion:</strong> YAML auto-converts <code>true</code>, <code>false</code>, <code>yes</code>, <code>no</code>, <code>on</code>, <code>off</code>, and bare numbers to their respective types. Use quotes to force string representation when you need the literal text.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Does this support multi-line YAML?</strong><br>Yes, standard YAML structures are supported.</p>
-        <p class="muted"><strong>Is validation server-side?</strong><br>No, parsing is done in your browser.</p>
+        <p class="muted"><strong>Does this support multi-document YAML?</strong><br>Single-document YAML is fully supported. Multi-document YAML (files with <code>---</code> separators between multiple documents) may produce unexpected results — validate each document separately.</p>
+        <p class="muted"><strong>Why does my Kubernetes YAML show integers where I expected strings?</strong><br>YAML parses unquoted numeric values as integers. In Kubernetes ConfigMaps, all values should be quoted strings. The JSON output from this validator makes it immediately clear which values parsed as numbers vs strings.</p>
+        <p class="muted"><strong>Is validation server-side?</strong><br>No. The js-yaml library is loaded from CDN and runs entirely in your browser. Your YAML content is not uploaded or stored.</p>
+        <p class="muted"><strong>Can I convert the JSON output back to YAML?</strong><br>This tool only converts YAML to JSON. To go the other direction, use the <a href="/json-formatter">JSON Formatter</a> to inspect the JSON structure, then manually reconstruct your YAML as needed.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>

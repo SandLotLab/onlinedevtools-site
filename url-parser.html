@@ -76,25 +76,50 @@
 
         <section class="card"><div class="pad">
           <h2 class="h2">About this tool</h2>
-          <p class="muted">This URL parser is built for debugging auth callbacks, redirects, API links, and tracking parameters. It helps you quickly inspect each URL segment without manual splitting.</p>
+          <p class="muted">This URL parser breaks any absolute URL into its structural components — protocol, host, pathname, search string, hash fragment — and separately decodes all query parameters into individual key-value pairs. URLs used in OAuth flows, API callbacks, redirect chains, and analytics tracking often contain multiple encoded parameters that are difficult to read as a raw string. This tool makes them instantly legible without writing any code.</p>
           <div class="hr"></div>
+
+          <h3 class="h2">Real example</h3>
+          <p class="muted">Input: <code>https://example.com/callback?code=abc123&amp;state=signed-in&amp;redirect_uri=https%3A%2F%2Fapp.example.com%2Fdashboard#done</code></p>
+          <p class="muted">Parsed URL components:<br>
+          protocol: <strong>https:</strong><br>
+          host: <strong>example.com</strong><br>
+          pathname: <strong>/callback</strong><br>
+          search: <strong>?code=abc123&amp;state=signed-in&amp;redirect_uri=https%3A%2F%2F...</strong><br>
+          hash: <strong>#done</strong></p>
+          <p class="muted">Decoded query parameters:<br>
+          code = <strong>abc123</strong><br>
+          state = <strong>signed-in</strong><br>
+          redirect_uri = <strong>https://app.example.com/dashboard</strong> (decoded from percent-encoded form)</p>
+          <p class="muted">The <code>redirect_uri</code> parameter is URL-encoded in the raw string — the parser decodes it so you can see the actual value immediately.</p>
+          <div class="hr"></div>
+
           <h3 class="h2">Common use cases</h3>
           <ul class="muted">
-            <li>Inspect OAuth callback query strings.</li>
-            <li>Debug malformed links and redirect paths.</li>
-            <li>Review UTM parameter values for analytics QA.</li>
+            <li><strong>OAuth callback debugging:</strong> Authorization code flows return callbacks like <code>/callback?code=...&state=...&error=...</code>. Paste the full callback URL here to instantly verify the authorization code, state parameter, and any error codes.</li>
+            <li><strong>API link inspection:</strong> Signed API URLs (AWS S3 presigned URLs, Stripe webhook URLs) embed credentials and expiry times in query parameters. Decode them here to verify the correct values without accidentally leaking them into logs.</li>
+            <li><strong>UTM parameter QA:</strong> Marketing campaigns embed UTM parameters in URLs (<code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code>). Paste campaign links here to verify every parameter is correctly set before launch.</li>
+            <li><strong>Redirect chain analysis:</strong> Long redirect URLs often have the destination URL encoded as a query parameter. Parsing reveals the actual destination without following the link.</li>
           </ul>
           <div class="hr"></div>
+
           <h3 class="h2">How it works</h3>
-          <ol class="muted">
-            <li>Paste a full URL.</li>
-            <li>Click Parse URL.</li>
-            <li>Review parsed structure and query key/value pairs.</li>
-          </ol>
+          <p class="muted">The URL is passed to the browser's native <code>new URL(input)</code> constructor. This gives access to all components: <code>href</code>, <code>protocol</code>, <code>host</code>, <code>pathname</code>, <code>search</code>, and <code>hash</code>. Query parameters are iterated with <code>url.searchParams.forEach()</code>, which automatically URL-decodes percent-encoded values like <code>%20</code> (space) and <code>%2F</code> (/). All processing is local — no network requests are made.</p>
           <div class="hr"></div>
+
+          <h3 class="h2">Common mistakes</h3>
+          <ul class="muted">
+            <li><strong>Relative URLs are not supported:</strong> The browser's URL API requires an absolute URL with a protocol. <code>/callback?code=abc</code> will fail — you need <code>https://example.com/callback?code=abc</code>. Add a placeholder domain if you are only interested in the query string.</li>
+            <li><strong>Double-encoded parameters:</strong> Sometimes <code>redirect_uri</code> is encoded twice (<code>%2520</code> instead of <code>%20</code>). The parser decodes one layer. If values still look encoded after parsing, the source URL has double-encoding — a common bug in redirect implementations.</li>
+            <li><strong>Fragment (#) is not sent to the server:</strong> The hash/fragment portion of a URL is never sent in HTTP requests — it exists only in the browser. If you are debugging server-side behavior, the <code>#</code> portion is irrelevant. It is typically used for single-page app routing or OAuth implicit flow tokens.</li>
+          </ul>
+          <div class="hr"></div>
+
           <h3 class="h2">FAQ</h3>
-          <p class="muted"><strong>Does this decode query parameters?</strong><br>Yes, URLSearchParams output is decoded for readability.</p>
-          <p class="muted"><strong>Can I parse relative URLs?</strong><br>This tool expects absolute URLs including protocol.</p>
+          <p class="muted"><strong>Are query parameters URL-decoded?</strong><br>Yes. <code>URLSearchParams</code> automatically decodes percent-encoded values, so <code>hello%20world</code> becomes <code>hello world</code> in the output.</p>
+          <p class="muted"><strong>What if a parameter appears multiple times?</strong><br>Some URLs include the same key multiple times (e.g., <code>?tag=a&amp;tag=b</code>). The parser outputs each occurrence as a separate line.</p>
+          <p class="muted"><strong>Can I parse data: or blob: URLs?</strong><br>No. This tool is designed for http/https URLs. Data URIs and blob URLs have different structures and are not supported.</p>
+          <p class="muted"><strong>Is anything sent to a server?</strong><br>No. Parsing uses the browser's built-in URL API — no network requests are made and the URL is not transmitted anywhere.</p>
         </div></section>
       </div>
     </main>

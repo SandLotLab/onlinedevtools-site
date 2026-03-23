@@ -68,17 +68,47 @@
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">This CIDR calculator helps network and security teams quickly translate subnet notation into actionable range data, including first/last host addresses and usable host count.</p>
+        <p class="muted">This CIDR calculator takes an IPv4 network address in CIDR notation (e.g., 10.0.0.0/24) and computes the complete subnet details: network address, subnet mask, first usable host, last usable host, broadcast address, and total usable host count. It is the essential tool for network engineers, security teams, and cloud architects who need to quickly verify subnet boundaries, plan address allocations, and validate firewall rules.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Input: <strong>10.0.0.0/24</strong></p>
+        <p class="muted">The /24 prefix means 24 bits are the network portion, leaving 8 host bits (2⁸ = 256 addresses):<br>
+        Network: <strong>10.0.0.0</strong><br>
+        Mask: <strong>255.255.255.0</strong><br>
+        First usable host: <strong>10.0.0.1</strong><br>
+        Last usable host: <strong>10.0.0.254</strong><br>
+        Broadcast: <strong>10.0.0.255</strong><br>
+        Usable hosts: <strong>254</strong> (256 minus network and broadcast addresses)</p>
+        <p class="muted">Common cloud VPC default: <strong>172.31.0.0/16</strong> gives you 65,534 usable hosts across a single subnet — suitable for splitting into smaller /24 or /20 subnets per availability zone.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Validate network segmentation plans.</li><li>Check firewall and ACL range assumptions.</li><li>Troubleshoot cloud/VPN subnet mismatches.</li></ul>
+        <ul class="muted">
+          <li><strong>Cloud VPC subnet planning:</strong> AWS, GCP, and Azure require you to specify CIDR blocks when creating VPCs and subnets. Calculate the right size before provisioning — you cannot shrink a CIDR block after creation.</li>
+          <li><strong>Firewall and security group rules:</strong> Verify whether a given IP falls within the intended CIDR block before writing the rule. Check if two CIDR blocks overlap using the first/last host ranges.</li>
+          <li><strong>VPN and site-to-site routing:</strong> Confirm that remote subnets do not overlap with your local network before configuring a VPN tunnel. Overlapping CIDR blocks cause routing failures that are difficult to diagnose.</li>
+          <li><strong>Network segmentation design:</strong> When dividing a /16 into department-level /24s, use this tool to enumerate each subnet's range and confirm no two overlap. Combine with <a href="/ip-to-binary">IP to Binary</a> to visualize the host/network bit boundary.</li>
+        </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Enter an IPv4 CIDR block.</li><li>Click Calculate Range.</li><li>Review network, mask, host span, and broadcast.</li></ol>
+        <p class="muted">The CIDR prefix length determines the subnet mask: a /24 produces a mask of 24 consecutive ones in binary (11111111.11111111.11111111.00000000 = 255.255.255.0). The network address is computed by ANDing the input IP with the mask. The broadcast is computed by ORing the network address with the inverted mask. First host is network + 1, last host is broadcast - 1. Usable hosts = 2^(32−prefix) − 2 for prefix lengths 0–30; /31 and /32 are point-to-point special cases.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>/32 is a single host, not a range:</strong> A /32 CIDR block (e.g., 10.0.0.1/32) refers to exactly one IP address. It has no usable host range — both first and last host are the same address. It is valid for firewall rules targeting a single IP.</li>
+          <li><strong>Off-by-one in host count:</strong> A /24 has 256 total addresses but only 254 usable hosts. The network address (x.x.x.0) and broadcast (x.x.x.255) are reserved and cannot be assigned to hosts.</li>
+          <li><strong>Using a host IP instead of the network address:</strong> CIDR notation should use the network address, not a host address. 10.0.0.5/24 is technically equivalent to 10.0.0.0/24 but is sloppy notation. Always use the network address as the base.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Does this support IPv6?</strong><br>No, this version focuses on IPv4 CIDR.</p>
-        <p class="muted"><strong>How are hosts calculated?</strong><br>Usable hosts are derived from CIDR size minus network/broadcast where applicable.</p>
+        <p class="muted"><strong>Does this support IPv6?</strong><br>No, this version focuses on IPv4 CIDR. IPv6 subnetting works on the same prefix-length principle but across 128 bits instead of 32.</p>
+        <p class="muted"><strong>How many hosts does a /28 give me?</strong><br>A /28 leaves 4 host bits: 2⁴ = 16 total addresses, 14 usable hosts. /28 subnets are common for small server segments and point-of-presence clusters.</p>
+        <p class="muted"><strong>What CIDR block should I use for a cloud subnet with ~500 hosts?</strong><br>A /23 gives 510 usable hosts (2⁹ − 2 = 510), which just covers 500. A /22 gives 1,022 — more headroom if you expect growth.</p>
+        <p class="muted"><strong>Can two CIDR blocks overlap?</strong><br>Yes, and overlapping blocks cause serious routing problems. To check for overlap, compare the first/last host ranges of both blocks. If the ranges intersect at any point, they overlap.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>

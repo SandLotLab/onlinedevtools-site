@@ -38,6 +38,43 @@
     <div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Hostname to IP</nav><h1 class="h1">Hostname to IP</h1><p class="muted">Resolve a DNS hostname into one or more IPv4 addresses.</p><input id="input" class="in" placeholder="Example: example.com" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Resolve</button></div></div></div>
     <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div>
   </section>
-  <section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">Hostname to IP performs a fast DNS A-record lookup so you can validate where a domain resolves.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Checking DNS propagation.</li><li>Confirming endpoint targets during migrations.</li><li>Troubleshooting connectivity and firewall issues.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter a hostname.</li><li>The tool requests DNS A records.</li><li>Returned IPv4 addresses are listed line by line.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Does this return IPv6?</strong><br>This version focuses on IPv4 A records.</p><p class="muted"><strong>Can results vary?</strong><br>Yes, DNS can return different answers based on location, caching, and load-balancing.</p></div></section>
+  <section class="card"><div class="pad">
+    <h2 class="h2">About this tool</h2>
+    <p class="muted">Hostname to IP performs a real-time DNS A-record lookup — it resolves a domain name to the IPv4 address (or addresses) that DNS returns at this moment. This is useful for confirming where traffic actually goes, checking whether a DNS change has propagated, and verifying endpoint targets before or after infrastructure migrations. The lookup uses Google's public DNS JSON API so results reflect global DNS, not just your local resolver cache.</p>
+    <div class="hr"></div>
+
+    <h3 class="h2">Real example</h3>
+    <p class="muted">Input: <strong>example.com</strong></p>
+    <p class="muted">The tool queries the Google DNS API for A records on <code>example.com</code>. The response includes one or more IPv4 addresses — in this case <strong>93.184.216.34</strong> (IANA's example domain).</p>
+    <p class="muted">For a load-balanced service like <strong>google.com</strong>, the response returns several IPs that rotate on each query. This is expected and is part of DNS-based load balancing — you will see different addresses depending on when and from where the query is made.</p>
+    <div class="hr"></div>
+
+    <h3 class="h2">Common use cases</h3>
+    <ul class="muted">
+      <li><strong>DNS propagation check:</strong> After updating an A record, use this tool to confirm the new IP is returned. Keep in mind TTL caching — the old address may still be returned for up to the TTL duration after the change.</li>
+      <li><strong>Infrastructure migration validation:</strong> Before cutting traffic to a new server, confirm the domain resolves to the new IP. After the migration, verify the old IP no longer appears in results.</li>
+      <li><strong>Firewall and allowlist configuration:</strong> When you need to allowlist a third-party SaaS service by IP, look up its hostname here first. For CDN-hosted services, you may need to allowlist a range — use <a href="/ip-lookup">IP Lookup</a> to find the ASN for the returned addresses.</li>
+      <li><strong>Security investigation:</strong> When investigating a suspicious domain, resolving its hostname gives you the hosting IP. Combine with <a href="/whois-lookup">WHOIS Lookup</a> and <a href="/ip-lookup">IP Lookup</a> to identify the registrar and hosting provider.</li>
+    </ul>
+    <div class="hr"></div>
+
+    <h3 class="h2">How it works</h3>
+    <p class="muted">The tool sends a request to <code>https://dns.google/resolve?name=&lt;hostname&gt;&type=A</code>. Google's DNS-over-HTTPS API returns A-record results in JSON format. Only records of type 1 (IPv4 A records) are extracted and displayed. The lookup reflects what Google's public resolver (8.8.8.8) sees — not your local resolver or ISP cache.</p>
+    <div class="hr"></div>
+
+    <h3 class="h2">Common mistakes</h3>
+    <ul class="muted">
+      <li><strong>Expecting a single IP for load-balanced services:</strong> High-traffic sites (AWS, Google, Cloudflare) return multiple IPs that change per query. You cannot reliably allowlist these services by IP — use hostname-based rules or the provider's published IP ranges instead.</li>
+      <li><strong>Confusing cached results with propagation:</strong> If a lookup still returns the old IP after a DNS change, it likely means Google's resolver still has the old record cached. Wait for the TTL to expire before concluding propagation is complete.</li>
+      <li><strong>Entering bare hostnames without a TLD:</strong> <code>myserver</code> is a valid hostname only inside a private DNS zone. External DNS will not resolve it. Use the fully qualified domain name (FQDN): <code>myserver.example.com</code>.</li>
+    </ul>
+    <div class="hr"></div>
+
+    <h3 class="h2">FAQ</h3>
+    <p class="muted"><strong>Does this return IPv6 addresses?</strong><br>No. This tool queries only IPv4 A records. AAAA records (IPv6) are not currently included in the output.</p>
+    <p class="muted"><strong>Why do I get different IPs on different lookups?</strong><br>DNS-based load balancing is intentional for large services. Each query returns a different member of a pool. This is normal and expected behavior.</p>
+    <p class="muted"><strong>Can I look up internal/private hostnames?</strong><br>No. The lookup goes through Google's public resolver, which does not have access to private DNS zones or split-horizon configurations. Use your local <code>nslookup</code> or <code>dig</code> for internal hostnames.</p>
+    <p class="muted"><strong>What is the TTL for these results?</strong><br>The Google DNS API returns TTL values in the JSON response, but this tool displays only the IP addresses. For TTL details, use <code>dig example.com A</code> from your terminal.</p>
+  </div></section>
 </div></main><div id="siteFooter"></div></div></body>
 </html>

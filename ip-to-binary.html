@@ -28,6 +28,48 @@
 </head>
 <body onload="loadPartials()"><div class="page"><div id="siteHeader"></div><main><div class="wrap">
 <section class="grid"><div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / IP to Binary</nav><h1 class="h1">IP to Binary Converter</h1><p class="muted">Convert dotted IPv4 addresses into raw 32-bit binary form.</p><input id="input" class="in" placeholder="Example: 192.168.1.1" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div><div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div></section>
-<section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">IP to Binary helps translate familiar IPv4 addresses into bit-level representation for subnet and routing analysis.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Learning binary subnetting.</li><li>Debugging ACL and wildcard masks.</li><li>Validating network math in scripts.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter a valid IPv4 address.</li><li>Each octet is converted into an 8-bit binary chunk.</li><li>All chunks are combined into a 32-bit string.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Can I output spaced octets?</strong><br>This output is continuous 32-bit binary for easy copy/paste.</p><p class="muted"><strong>IPv6 support?</strong><br>Use the IPv6 to Binary tool for 128-bit addresses.</p></div></section>
+<section class="card"><div class="pad">
+  <h2 class="h2">About this tool</h2>
+  <p class="muted">IP to Binary converts IPv4 dotted-decimal addresses into their raw 32-bit binary representation. This is the foundation of subnetting — every subnet mask, wildcard mask, and CIDR calculation operates on binary values. Seeing the bit-level structure of an address makes the logic of network/host boundaries, wildcard ACLs, and prefix matching immediately clear.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Real example</h3>
+  <p class="muted">Input: <strong>192.168.1.1</strong></p>
+  <p class="muted">Each decimal octet is converted to its 8-bit binary form:<br>
+  192 → <strong>11000000</strong><br>
+  168 → <strong>10101000</strong><br>
+  1 → <strong>00000001</strong><br>
+  1 → <strong>00000001</strong><br>
+  Result: <strong>11000000101010000000000100000001</strong></p>
+  <p class="muted">Now apply a /24 subnet mask (11111111111111111111111100000000 = 255.255.255.0): the ANDing of these two values gives the network address 11000000101010000000000000000000 = 192.168.1.0. This is how routers compute which subnet a packet belongs to.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common use cases</h3>
+  <ul class="muted">
+    <li><strong>Subnetting practice:</strong> CCNA and network+ exams require manual binary subnetting. Convert your IP and mask here to verify your work. Combine with the <a href="/cidr-ip-converter">CIDR / IP Converter</a> to check full subnet range calculations.</li>
+    <li><strong>ACL wildcard mask debugging:</strong> Cisco ACLs use wildcard masks (inverse masks) instead of subnet masks. Seeing both the IP and mask in binary makes it clear which bits are matched and which are wildcarded.</li>
+    <li><strong>Script validation:</strong> When writing code that performs bitwise IP operations, convert a few known IPs to binary and trace through your logic to confirm it is correct.</li>
+    <li><strong>Teaching and documentation:</strong> Binary representation diagrams help students and teammates understand why 192.168.0.0/16 contains 65,534 usable hosts — the 16 host bits become visible immediately.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">How it works</h3>
+  <p class="muted">Each of the four octets is converted from decimal to binary using <code>n.toString(2).padStart(8, '0')</code>. The <code>padStart(8, '0')</code> ensures each octet is exactly 8 bits, preserving leading zeros. For example, octet <code>1</code> becomes <code>00000001</code>, not <code>1</code>. The four 8-bit strings are concatenated into a single 32-bit output string.</p>
+  <div class="hr"></div>
+
+  <h3 class="h2">Common mistakes</h3>
+  <ul class="muted">
+    <li><strong>Forgetting leading zeros:</strong> Octet 1 is <code>00000001</code>, not <code>1</code>. If you are manually computing binary and drop leading zeros, your subnet math will produce wrong results.</li>
+    <li><strong>Confusing host and network bits:</strong> The binary output shows the full address. To identify the network portion, you need to AND it with the subnet mask. This tool shows the address alone — use the <a href="/cidr-ip-converter">CIDR / IP Converter</a> to compute the network address.</li>
+    <li><strong>Using this for IPv6:</strong> IPv6 addresses are 128 bits across 8 groups of 16 bits each. Use the <a href="/ipv6-to-binary">IPv6 to Binary</a> tool for those.</li>
+  </ul>
+  <div class="hr"></div>
+
+  <h3 class="h2">FAQ</h3>
+  <p class="muted"><strong>Can I see the binary with dots between octets?</strong><br>The output is a continuous 32-bit string for easy copy/paste into calculations. To see octets separated, just mentally split at every 8th character: positions 1–8, 9–16, 17–24, 25–32.</p>
+  <p class="muted"><strong>What is the binary for 255.255.255.0 (a /24 mask)?</strong><br>11111111111111111111111100000000 — 24 ones followed by 8 zeros. The count of leading ones is always the CIDR prefix length.</p>
+  <p class="muted"><strong>How do I go the other direction (binary to IP)?</strong><br>Use the <a href="/binary-to-ip">Binary to IP</a> tool — paste the 32-bit binary string and it returns the dotted-decimal address.</p>
+  <p class="muted"><strong>Does the bit pattern change for private vs public addresses?</strong><br>No — the conversion is purely mathematical. The RFC 1918 private ranges (10.x, 172.16–31.x, 192.168.x) convert the same way as any other address.</p>
+</div></section>
 </div></main><div id="siteFooter"></div></div></body>
 </html>

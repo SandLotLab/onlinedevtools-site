@@ -45,29 +45,51 @@
 
         <div class="card" style="margin-top:10px"><div class="pad">
       <h2 class="h2">About this tool</h2>
-      <p class="muted">Case Converter is a free online developer tool that converts text into common writing and programming formats like camelCase, PascalCase, snake_case, and kebab-case. It is a fast client-side text utility for formatting identifiers, headings, and URL-friendly strings.</p>
+      <p class="muted">This case converter transforms any input text into 14 naming and formatting conventions simultaneously, covering everything from standard writing formats (UPPERCASE, lowercase, Title Case, Sentence case) to programming identifier formats (camelCase, PascalCase, snake_case, kebab-case, SCREAMING_SNAKE_CASE, SCREAMING-KEBAB-CASE, dot.case, path/case) and novelty cases (Alternating CaSe, Inverse cASE). All formats appear in a live grid as you type — click any card to select it, copy the output, or apply it back as the new input for further transformation. File drag-and-drop, undo/redo, and export are also supported.</p>
+      <div class="hr"></div>
+
+      <h3 class="h2">Real example</h3>
+      <p class="muted">Input: <code>hello world json parser utility v2</code></p>
+      <p class="muted">Selected outputs across formats:</p>
+      <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">UPPERCASE:             HELLO WORLD JSON PARSER UTILITY V2
+lowercase:             hello world json parser utility v2
+Title Case:            Hello World Json Parser Utility V2
+Sentence case:         Hello world json parser utility v2
+camelCase:             helloWorldJsonParserUtilityV2
+PascalCase:            HelloWorldJsonParserUtilityV2
+snake_case:            hello_world_json_parser_utility_v2
+kebab-case:            hello-world-json-parser-utility-v2
+SCREAMING_SNAKE_CASE:  HELLO_WORLD_JSON_PARSER_UTILITY_V2
+dot.case:              hello.world.json.parser.utility.v2</pre>
+      <p class="muted">All 14 formats are generated from the same input in one pass. The tokenizer splits on word boundaries and handles Unicode characters, so accented names and multi-word phrases convert correctly.</p>
       <div class="hr"></div>
 
       <h3 class="h2">Common use cases</h3>
       <ul class="muted">
-        <li>Convert code identifiers between snake_case, camelCase, and PascalCase.</li>
-        <li>Format titles and copy for docs, UI labels, and content publishing.</li>
-        <li>Create kebab-case slugs for clean, SEO-friendly URLs.</li>
+        <li><strong>Refactoring identifier naming conventions:</strong> When migrating a codebase from snake_case (Python) to camelCase (JavaScript) or vice versa, paste a list of variable names here to convert them in bulk and paste the result back. Faster than manual find-and-replace for multi-word identifiers.</li>
+        <li><strong>Generating URL slugs:</strong> Paste a blog post title or product name and use kebab-case output as the URL slug. Kebab-case is the standard for SEO-friendly URLs (<code>/my-post-title</code>) and is required by most CMS platforms.</li>
+        <li><strong>Normalizing CSV column headers:</strong> Data pipelines often expect consistent header casing. Paste messy column headers (mixed Title Case and spaces) and export snake_case or camelCase equivalents for use in database inserts or API payloads.</li>
+        <li><strong>Content and UI copy formatting:</strong> Convert a block of feature names to Title Case for marketing copy or Sentence case for UI labels, where only the first word is capitalized (matching standard button and tooltip conventions).</li>
       </ul>
       <div class="hr"></div>
 
       <h3 class="h2">How it works</h3>
-      <ol class="muted">
-        <li>Paste text into the input area.</li>
-        <li>Review all generated case formats instantly.</li>
-        <li>Copy, apply, or export the selected output.</li>
-      </ol>
+      <p class="muted">Input text is tokenized by extracting all Unicode letter and digit sequences (<code>[\p{L}\p{M}\d]+</code>), discarding punctuation and whitespace. For programming cases (camelCase, snake_case, etc.), tokens are lowercased first, then joined with the appropriate delimiter. PascalCase capitalizes every token; camelCase capitalizes all but the first. For writing cases (Title Case, Sentence case), the original word boundaries from the input are preserved. SCREAMING variants uppercase the final joined string. The "Clean up spacing" option collapses multiple spaces to a single space before tokenizing, which is useful for pasting text from PDFs or formatted documents.</p>
+      <div class="hr"></div>
+
+      <h3 class="h2">Common mistakes</h3>
+      <ul class="muted">
+        <li><strong>Numbers in identifiers:</strong> A token like "v2" becomes "v2" in camelCase (lowercase) and "V2" in PascalCase. If you need "V2" to remain uppercase in camelCase (as in "parseV2Request"), you will need to manually adjust — the converter treats digits as word-boundary-neutral characters and does not infer acronym capitalization.</li>
+        <li><strong>Acronyms flattened to lowercase:</strong> "API Request" becomes "apiRequest" in camelCase, not "APIRequest". This is intentional — converting to "APIRequest" requires knowing which tokens are acronyms, which is ambiguous without a dictionary. If you need preserved acronym casing, apply the converter and then manually restore the acronym.</li>
+        <li><strong>Multi-line input produces single joined output:</strong> All lines are treated as one continuous text block. If you have a list of identifiers on separate lines, convert them one line at a time, or use a batch approach by processing them as a separated list.</li>
+      </ul>
       <div class="hr"></div>
 
       <h3 class="h2">FAQ</h3>
-      <p class="muted"><strong>Which case formats are supported?</strong><br>The tool supports standard writing and developer formats, including camelCase, PascalCase, snake_case, and kebab-case.</p>
-      <p class="muted"><strong>Can I use this for variable and function names?</strong><br>Yes. It is designed to speed up naming convention changes for code.</p>
-      <p class="muted"><strong>Is my text private?</strong><br>Yes. Conversion runs locally in your browser.</p>
+      <p class="muted"><strong>What is the difference between camelCase and PascalCase?</strong><br>camelCase starts with a lowercase letter (<code>myVariable</code>) and is the standard in JavaScript, Java, and TypeScript for variables and function names. PascalCase starts with an uppercase letter (<code>MyClass</code>) and is the standard for class names in most object-oriented languages.</p>
+      <p class="muted"><strong>What is SCREAMING_SNAKE_CASE used for?</strong><br>SCREAMING_SNAKE_CASE (all caps with underscores) is the convention for constants and environment variable names in most languages and platforms — for example, <code>MAX_RETRY_COUNT</code>, <code>DATABASE_URL</code>, <code>API_KEY</code>.</p>
+      <p class="muted"><strong>Can I convert a whole file?</strong><br>Yes. Use the file picker or drop a .txt or .md file onto the input area. The file content is loaded into the input and all formats are generated immediately.</p>
+      <p class="muted"><strong>Is my text sent anywhere?</strong><br>No. All transformations run locally in your browser using JavaScript string operations. Nothing is uploaded or stored.</p>
     </div></div>
   </div></section></section></div></main>
   <div id="siteFooter"></div></div>

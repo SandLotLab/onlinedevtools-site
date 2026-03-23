@@ -49,17 +49,46 @@
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">Binary to IP helps translate packet-level binary values into readable IPv4 format for troubleshooting and lab work.</p>
+        <p class="muted">Binary to IP translates 32-bit binary strings into IPv4 dotted-decimal notation. Every IPv4 address is fundamentally a 32-bit number — binary notation makes that structure visible. This tool is used by networking students working through subnetting exercises, engineers reading raw packet captures, and developers debugging bitwise IP logic in custom scripts.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Input: <strong>11000000101010000000000100000001</strong></p>
+        <p class="muted">The tool splits this into four 8-bit groups:<br>
+        <strong>11000000</strong> = 192<br>
+        <strong>10101000</strong> = 168<br>
+        <strong>00000001</strong> = 1<br>
+        <strong>00000001</strong> = 1<br>
+        Result: <strong>192.168.1.1</strong> — a standard private LAN gateway address.</p>
+        <p class="muted">You can also enter it with spaces between octets: <code>11000000 10101000 00000001 00000001</code> — non-binary characters are stripped before conversion.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Studying subnetting fundamentals.</li><li>Verifying binary output from scripts.</li><li>Troubleshooting bitwise networking logic.</li></ul>
+        <ul class="muted">
+          <li><strong>Subnetting study:</strong> When learning CIDR, you work with subnet masks in binary. Converting back to dotted-decimal confirms your bit math is correct. Pair this with the <a href="/cidr-ip-converter">CIDR / IP Converter</a> to verify your subnet calculations end-to-end.</li>
+          <li><strong>Wireshark and packet analysis:</strong> Some low-level protocol fields expose raw 32-bit IP values. Paste the binary string and get the readable address immediately.</li>
+          <li><strong>Script output verification:</strong> Debugging a script that computes IP addresses via bitwise operations? Paste the binary output here to confirm the result matches your intent.</li>
+          <li><strong>Networking exams and labs:</strong> CCNA and similar certifications require binary-to-IP conversions. Use this to self-check your answers against expected results.</li>
+        </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Paste 32 bits of binary data.</li><li>The tool splits bits into 8-bit octets.</li><li>Each octet is converted to decimal and combined into IPv4 notation.</li></ol>
+        <p class="muted">Any non-binary characters (spaces, dots, dashes) are stripped from the input first. The remaining string must be exactly 32 binary digits. These 32 bits are split into four 8-bit chunks, and each chunk is parsed as a base-2 integer using <code>parseInt(octet, 2)</code>. The four resulting integers are joined with dots to produce standard IPv4 notation.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>Wrong bit count:</strong> IPv4 requires exactly 32 bits. 31 or 33 bits will always produce an error. A leading zero is often accidentally dropped by copy-paste or script truncation.</li>
+          <li><strong>Confusing subnet masks with host addresses:</strong> A mask like <code>11111111111111111111111100000000</code> (255.255.255.0) is valid input — the tool converts it correctly. It represents a mask, not a host, but the binary math is identical.</li>
+          <li><strong>Expecting octet-grouped output:</strong> This tool outputs the readable IP. If you need to go the other direction — see an IP's binary representation — use the <a href="/ip-to-binary">IP to Binary</a> tool instead.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Can I include spaces?</strong><br>Yes. Non-binary characters are ignored before conversion.</p>
-        <p class="muted"><strong>Does this support IPv6?</strong><br>No, this page is for 32-bit IPv4 binary values.</p>
+        <p class="muted"><strong>Can I paste binary with spaces between octets?</strong><br>Yes. The converter strips all non-binary characters before processing, so <code>11000000 10101000 00000001 00000001</code> and <code>11000000101010000000000100000001</code> produce the same result.</p>
+        <p class="muted"><strong>Does this handle IPv6?</strong><br>No. IPv6 addresses are 128 bits. Use the <a href="/ipv6-to-binary">IPv6 to Binary</a> tool for 128-bit conversions.</p>
+        <p class="muted"><strong>What does a subnet mask look like in binary?</strong><br>A /24 mask is 24 ones followed by 8 zeros: <code>11111111111111111111111100000000</code>, which converts to 255.255.255.0. Paste any mask in binary here to get the dotted form.</p>
+        <p class="muted"><strong>Why does my binary string from another tool differ?</strong><br>Some tools separate octets with dots for readability. Strip the dots before pasting — the underlying value is the same.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>

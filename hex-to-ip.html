@@ -32,6 +32,48 @@
     <div class="card"><div class="pad"><nav class="breadcrumbs"><a href="/">Home</a> / <a href="/tools">Tools</a> / Hex to IP</nav><h1 class="h1">Hex to IP Converter</h1><p class="muted">Convert a 32-bit hexadecimal value into a dotted IPv4 address.</p><input id="input" class="in" placeholder="Example: C0A80101 or 0xC0A80101" /><div style="margin-top:10px;"><button class="pill" type="button" onclick="convert()">Convert</button></div></div></div>
     <div class="card"><div class="pad"><h2 class="h2">Result</h2><textarea id="out" class="in" style="min-height:220px;" readonly></textarea></div></div>
   </section>
-  <section class="card"><div class="pad"><h2 class="h2">About this tool</h2><p class="muted">Hex to IP makes it easy to decode IPv4 addresses shown in packet captures, configs, or code constants.</p><div class="hr"></div><h3 class="h2">Common use cases</h3><ul class="muted"><li>Reading low-level protocol dumps.</li><li>Translating embedded firmware values.</li><li>Converting logs that store IPs as hex.</li></ul><div class="hr"></div><h3 class="h2">How it works</h3><ol class="muted"><li>Enter 8 hex characters (with or without 0x).</li><li>The value is split into four bytes.</li><li>Each byte is converted to decimal octets.</li></ol><div class="hr"></div><h3 class="h2">FAQ</h3><p class="muted"><strong>Uppercase or lowercase hex?</strong><br>Both are accepted.</p><p class="muted"><strong>Can I paste separators?</strong><br>Yes, non-hex characters are stripped automatically.</p></div></section>
+  <section class="card"><div class="pad">
+    <h2 class="h2">About this tool</h2>
+    <p class="muted">Hex to IP converts 8-character hexadecimal strings into standard IPv4 dotted-decimal notation. IPv4 addresses are often stored or transmitted as 32-bit hex values in network protocol headers, embedded firmware, Windows registry entries, and SIEM log exports. This tool decodes those values into the readable form you can recognize and use immediately.</p>
+    <div class="hr"></div>
+
+    <h3 class="h2">Real example</h3>
+    <p class="muted">Input: <strong>C0A80101</strong></p>
+    <p class="muted">Each pair of hex digits represents one 8-bit octet:<br>
+    <strong>C0</strong> = 192 (12×16 + 0)<br>
+    <strong>A8</strong> = 168 (10×16 + 8)<br>
+    <strong>01</strong> = 1<br>
+    <strong>01</strong> = 1<br>
+    Result: <strong>192.168.1.1</strong> — the default gateway on most home networks.</p>
+    <p class="muted">The <code>0x</code> prefix is optional — both <code>C0A80101</code> and <code>0xC0A80101</code> work. Uppercase and lowercase hex are both accepted.</p>
+    <div class="hr"></div>
+
+    <h3 class="h2">Common use cases</h3>
+    <ul class="muted">
+      <li><strong>Packet capture analysis:</strong> Wireshark and tcpdump sometimes display IP addresses as raw hex in the packet bytes view. Paste the 8-character value here to read the address without mental arithmetic.</li>
+      <li><strong>Embedded firmware and system code:</strong> IP addresses in C, Rust, or assembly are often defined as hex constants like <code>0xC0A80101</code>. Decode them here to verify what address is actually hardcoded.</li>
+      <li><strong>Log file parsing:</strong> Some SIEMs, firewalls, and load balancers log IPv4 addresses as unsigned 32-bit hex values. This converter bridges the gap between raw log data and readable IPs.</li>
+      <li><strong>Windows registry inspection:</strong> Windows stores certain IP values in hex format in the registry. This tool decodes them in one step.</li>
+    </ul>
+    <div class="hr"></div>
+
+    <h3 class="h2">How it works</h3>
+    <p class="muted">The input is first lowercased and any <code>0x</code> prefix is stripped. All non-hexadecimal characters are removed. The result must be exactly 8 hex characters. These 8 characters are split into four 2-character pairs, and each pair is parsed with <code>parseInt(pair, 16)</code> to produce a decimal octet. The four octets are joined with dots.</p>
+    <div class="hr"></div>
+
+    <h3 class="h2">Common mistakes</h3>
+    <ul class="muted">
+      <li><strong>Odd-length input:</strong> Hex pairs must be complete — if your string is 7 characters, you likely have a leading zero stripped somewhere. <code>0A</code> is different from <code>A</code>; a missing leading zero changes the octet value entirely.</li>
+      <li><strong>Wrong byte order:</strong> Some protocols (notably little-endian x86 systems) store IP bytes in reversed order. If the converted IP looks wrong, try reversing the byte pairs: <code>0101A8C0</code> instead of <code>C0A80101</code>.</li>
+      <li><strong>Confusing with IPv6:</strong> IPv6 hex notation is 32 characters (128 bits). This tool only handles 8-character IPv4 values. For IPv6 binary work, use the <a href="/ipv6-to-binary">IPv6 to Binary</a> tool.</li>
+    </ul>
+    <div class="hr"></div>
+
+    <h3 class="h2">FAQ</h3>
+    <p class="muted"><strong>Does it matter if I use uppercase or lowercase hex?</strong><br>No. Both are normalized before conversion. <code>c0a80101</code> and <code>C0A80101</code> produce the same result.</p>
+    <p class="muted"><strong>Can I include the 0x prefix?</strong><br>Yes. The <code>0x</code> prefix is stripped automatically. You can paste values directly from code or a hex editor.</p>
+    <p class="muted"><strong>What if I need to go the other direction — IP to hex?</strong><br>Use the <a href="/ip-to-hex">IP to Hex</a> tool to convert a dotted-decimal address back to its 8-character hex representation.</p>
+    <p class="muted"><strong>Why does the converted IP look like a multicast or private address?</strong><br>The converter just does the math — it does not classify ranges. If you need to know what range an IP belongs to, check the result against RFC 1918 (private: 10.x, 172.16–31.x, 192.168.x) or RFC 5771 (multicast: 224.x–239.x).</p>
+  </div></section>
 </div></main><div id="siteFooter"></div></div></body>
 </html>

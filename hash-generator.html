@@ -228,42 +228,62 @@
 
         <section class="card">
           <div class="pad">
-		  
-                 <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
+
+            <h2 class="h2" style="margin:0 0 8px 0;">About this tool</h2>
             <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
-              This free online hash generator produces common digests and encodings directly in your browser. Use it to generate MD5, SHA-1, SHA-256, SHA-384, SHA-512, and HMAC-SHA256, plus Base64 and URL/Hex/HTML/ROT13 transforms. Everything runs client-side — no uploads and no server-side processing.
+              This hash generator and encoder suite combines six cryptographic hash functions (MD5, SHA-1, SHA-256, SHA-384, SHA-512, HMAC-SHA256) with eight encoding and decoding transforms (Base64 encode/decode, URL encode/decode, Hex encode/decode, HTML entity encode/decode, ROT13) and a JWT decoder — all in a single tool running entirely in your browser. Input text is processed using the browser's native Web Crypto API for SHA variants and HMAC; MD5 is implemented in pure JavaScript since it is not part of the Web Crypto standard. Auto-run mode updates the output as you type, making it fast to iterate on hash comparisons or encoding transforms without clicking Run each time.
             </p>
 
             <div class="hr"></div>
 
-            <h3 class="h3" style="margin:14px 0 8px 0;">Common use cases</h3>
-            <ul class="muted" style="margin:0 0 12px 18px; line-height:1.7;">
-              <li>Create checksums to compare two payloads or verify a download</li>
-              <li>Generate SHA-256 digests for API signing workflows and integrity checks</li>
-              <li>Produce HMAC-SHA256 signatures for request authentication (shared-secret schemes)</li>
-              <li>Base64 encode/decode tokens, headers, or binary blobs represented as text</li>
-              <li>URL encode/decode query strings and safely inspect encoded values</li>
+            <h3 class="h2" style="margin:14px 0 8px 0;">Real example</h3>
+            <p class="muted" style="margin:0 0 8px 0; line-height:1.6;">Input: <code>hello world</code></p>
+            <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;margin:0 0 12px 0;">MD5:      5eb63bbbe01eeed093cb22bb8f5acdc3
+SHA-1:    2aae6c69ce2b5483d34e39d2af4f7b93b69a498e
+SHA-256:  b94d27b9934d3e08a52e52d7da7dabfac484efe04294e576dc7d3af
+SHA-512:  309ecc489c12d6eb4cc40f50c902f2b4d0ed77ee511a7c7a9bcd3ca...
+Base64:   aGVsbG8gd29ybGQ=
+Hex enc:  68656c6c6f20776f726c64
+URL enc:  hello%20world</pre>
+            <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">Notice that the same input produces a completely different hash for each algorithm. SHA-256 output is 64 hex characters (256 bits); SHA-512 is 128 hex characters (512 bits). These are deterministic — the same input always produces the same hash, and a one-character change produces a completely different output (the avalanche effect).</p>
+
+            <div class="hr"></div>
+
+            <h3 class="h2" style="margin:14px 0 8px 0;">Common use cases</h3>
+            <ul class="muted" style="margin:0 0 12px 0; line-height:1.7;">
+              <li><strong>Checksum verification:</strong> Hash a configuration file, API response payload, or downloaded artifact to produce a SHA-256 fingerprint. Compare it against a known-good hash to verify integrity without needing a binary comparison tool.</li>
+              <li><strong>HMAC request signing:</strong> Many API authentication schemes (AWS Signature v4, Stripe webhook verification, GitHub webhook validation) use HMAC-SHA256 with a shared secret key. Paste the signing string and your secret to compute the expected signature and compare it against what your code produces.</li>
+              <li><strong>Base64 encoding for Authorization headers:</strong> HTTP Basic Auth sends credentials as <code>Base64(username:password)</code> in the Authorization header. Encode and decode credentials here to debug authentication issues without writing code.</li>
+              <li><strong>JWT inspection:</strong> JWT tokens are three dot-separated Base64url-encoded segments. Select JWT decode mode, paste the full token, and read the header and payload JSON directly — without needing to install a separate tool. Note: this decodes only; it does not verify the signature.</li>
             </ul>
 
             <div class="hr"></div>
 
-            <h3 class="h3" style="margin:14px 0 8px 0;">How it works</h3>
+            <h3 class="h2" style="margin:14px 0 8px 0;">How it works</h3>
             <p class="muted" style="margin:0 0 12px 0; line-height:1.6;">
-              Input text is converted to bytes in your browser, then hashed using standard digest algorithms. Where supported, modern browsers use the Web Crypto APIs for consistent results. Encoders/decoders perform deterministic transforms (Base64, URL, Hex, HTML entities, ROT13) so you can round-trip values and confirm outputs without sending data anywhere.
+              Processing runs in a Web Worker to avoid blocking the UI for large inputs. SHA-1, SHA-256, SHA-384, SHA-512, and HMAC-SHA256 use the browser's <code>crypto.subtle</code> API (Web Crypto standard), which produces spec-compliant results identical to OpenSSL and Python's <code>hashlib</code>. MD5 is not in the Web Crypto standard, so it is computed by a pure JavaScript implementation that produces the same output as OpenSSL's MD5. Base64 encoding converts the UTF-8 byte representation of the text to standard Base64 (RFC 4648). URL encoding uses JavaScript's <code>encodeURIComponent()</code>, which encodes all characters except unreserved characters (A–Z, a–z, 0–9, -, _, ., ~).
             </p>
 
             <div class="hr"></div>
 
-            <h3 class="h3" style="margin:14px 0 8px 0;">FAQ</h3>
+            <h3 class="h2" style="margin:14px 0 8px 0;">Common mistakes</h3>
+            <ul class="muted" style="margin:0 0 12px 0; line-height:1.7;">
+              <li><strong>Trailing newlines causing hash mismatches:</strong> When copying text from a terminal or editor, hidden trailing newlines are frequently included. The "Trim input" option strips these before hashing. If your hash differs from a reference value, try enabling trim first — this resolves the majority of "hash mismatch" debugging situations.</li>
+              <li><strong>CRLF vs LF line endings:</strong> A file with Windows line endings (CRLF, <code>\r\n</code>) produces a different hash than the same file with Unix line endings (LF, <code>\n</code>). When comparing hashes across operating systems, normalize line endings first. Git's <code>autocrlf</code> setting silently converts line endings on checkout, which can cause unexpected hash differences.</li>
+              <li><strong>MD5 for security purposes:</strong> MD5 is broken for cryptographic use — collisions are computationally feasible. Use MD5 only for non-security purposes like quick data integrity checksums or legacy system compatibility. For any authentication, integrity checking, or certificate use, use SHA-256 or SHA-512.</li>
+            </ul>
 
-            <h4 class="h4" style="margin:10px 0 6px 0;">Does this tool upload my input or store it?</h4>
-            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">No. Hashing and encoding run locally in your browser and are not persisted by the tool.</p>
+            <div class="hr"></div>
 
-            <h4 class="h4" style="margin:10px 0 6px 0;">Why do my hashes differ from another site?</h4>
-            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;">Differences usually come from hidden whitespace, newline style (LF vs CRLF), or text encoding. Try trimming or normalizing input before comparing.</p>
+            <h3 class="h2" style="margin:14px 0 8px 0;">FAQ</h3>
 
-            <h4 class="h4" style="margin:10px 0 6px 0;">Can I hash files instead of text?</h4>
-            <p class="muted" style="margin:0; line-height:1.6;">This page is optimized for text and clipboard workflows. If you need file hashing, add a file picker and stream the file bytes through the same digest functions.</p>
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;"><strong>Why does my SHA-256 hash not match what OpenSSL produces?</strong><br>The most common cause is a trailing newline. <code>echo "hello world" | openssl dgst -sha256</code> includes the newline character that <code>echo</code> appends. Use <code>printf "hello world" | openssl dgst -sha256</code> (no newline) and enable "Trim input" here — both should produce the same <code>b94d27b9...</code> hash.</p>
+
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;"><strong>What is the difference between Base64 and Base64url?</strong><br>Standard Base64 uses <code>+</code> and <code>/</code> as the 62nd and 63rd characters, plus <code>=</code> padding. Base64url replaces <code>+</code> with <code>-</code> and <code>/</code> with <code>_</code>, and omits padding — making it safe for URL query parameters without percent-encoding. JWTs use Base64url for all three segments.</p>
+
+            <p class="muted" style="margin:0 0 10px 0; line-height:1.6;"><strong>Does this tool upload my input?</strong><br>No. All hashing, encoding, and decoding runs in a browser Web Worker — a local JavaScript thread. Nothing is transmitted to any server. The tool is safe for hashing passwords, API keys, or other sensitive material during debugging.</p>
+
+            <p class="muted" style="margin:0; line-height:1.6;"><strong>Can I use this to verify HMAC webhook signatures?</strong><br>Yes. Select HMAC-SHA256, paste the webhook signing secret as the HMAC key, and paste the raw request body as the input. The output should match the signature in the webhook's header (e.g., <code>X-Hub-Signature-256</code> for GitHub, <code>Stripe-Signature</code> for Stripe). Most platforms prefix the hex with <code>sha256=</code> — compare only the hex portion.</p>
 
           </div>
         </section>

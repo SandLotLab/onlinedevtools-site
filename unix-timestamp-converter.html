@@ -70,17 +70,45 @@
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">This epoch converter is useful for logs, JWT claim inspection, and incident investigations. It quickly translates raw UNIX times into readable UTC/local timestamps and back.</p>
+        <p class="muted">The UNIX Timestamp Converter translates between epoch timestamps (seconds or milliseconds since 1970-01-01 00:00:00 UTC) and human-readable date/time values. UNIX timestamps appear throughout software engineering: application logs, JWT tokens, database records, API responses, and SIEM event data all use them. This tool converts them in both directions so you can read them without mental math.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Input: <strong>1700000000</strong> (seconds)</p>
+        <p class="muted">Output:<br>
+        UTC: <strong>Sat, 14 Nov 2023 22:13:20 GMT</strong><br>
+        ISO: <strong>2023-11-14T22:13:20.000Z</strong><br>
+        Local: depends on your browser's configured timezone</p>
+        <p class="muted">This timestamp falls in November 2023. The tool automatically distinguishes seconds (10-digit values like 1700000000) from milliseconds (13-digit values like 1700000000000) based on magnitude.</p>
+        <p class="muted">A common JWT claim value to recognize: <code>"exp": 1700000000</code> means the token expired on 2023-11-14. Always check this during token debugging.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Translate auth token times (exp/iat/nbf).</li><li>Debug SIEM and application log timestamps.</li><li>Convert human dates for scripts and API calls.</li></ul>
+        <ul class="muted">
+          <li><strong>JWT claim inspection:</strong> JWT tokens contain <code>exp</code> (expiration), <code>iat</code> (issued at), and <code>nbf</code> (not before) claims as UNIX timestamps. Paste any of these values here to see the actual date and confirm whether a token is expired. Pair with the <a href="/jwt-decoder">JWT Decoder</a> for full token inspection.</li>
+          <li><strong>Application and SIEM log analysis:</strong> Log management systems often store event timestamps as epoch integers. Convert them here to reconstruct an incident timeline in human-readable form.</li>
+          <li><strong>API call preparation:</strong> Some APIs require timestamps as integers in their request parameters (expiry windows, rate-limiting windows, signed URL expiry). Convert your target datetime here to get the right integer.</li>
+          <li><strong>Database timestamp debugging:</strong> Columns stored as <code>BIGINT</code> epoch milliseconds (common in Node.js apps and Cassandra) are unreadable in raw queries. Convert individual values here while debugging.</li>
+        </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Enter epoch or datetime.</li><li>Run the desired conversion.</li><li>Copy UTC/local/seconds/ms output.</li></ol>
+        <p class="muted">Epoch to date: the input is parsed as a number. If the value is greater than 10¹² (a threshold that distinguishes 10-digit second timestamps from 13-digit millisecond timestamps), it is treated as milliseconds; otherwise it is multiplied by 1000. A JavaScript <code>Date</code> object is constructed and formatted in UTC, ISO 8601, and local time. Date to epoch: the <code>datetime-local</code> input is parsed as a <code>Date</code> and <code>getTime()</code> is called to retrieve milliseconds, with a seconds value derived by dividing by 1000.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>Seconds vs milliseconds confusion:</strong> Many JavaScript-based systems (Node.js, browsers) use milliseconds by default. Many Unix-native systems (Python's <code>time.time()</code>, shell <code>date +%s</code>, most databases) use seconds. A 13-digit number is milliseconds; a 10-digit number is seconds. Mixing them up produces timestamps 1000× off.</li>
+          <li><strong>Timezone interpretation:</strong> Epoch timestamps are timezone-agnostic — they represent an absolute moment in time. "Local" output depends on the timezone configured in your browser, not where the event occurred. Always share timestamps in UTC or ISO 8601 format to avoid ambiguity.</li>
+          <li><strong>Year 2038 problem awareness:</strong> Signed 32-bit UNIX timestamps overflow on 2038-01-19. Legacy embedded systems and older databases using INT(4) for timestamps will be affected. Systems using 64-bit integers are safe through the year 292,277,026,596.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Seconds vs milliseconds?</strong><br>Both are supported. Large values are treated as milliseconds.</p>
-        <p class="muted"><strong>Does this use my timezone?</strong><br>Yes, local output uses your browser timezone.</p>
+        <p class="muted"><strong>What is epoch time?</strong><br>UNIX epoch time counts seconds elapsed since 1970-01-01 00:00:00 UTC, also called the "Unix epoch" or "POSIX time". It is timezone-independent and used universally across operating systems and programming languages.</p>
+        <p class="muted"><strong>What is the timestamp for "now"?</strong><br>In JavaScript: <code>Math.floor(Date.now() / 1000)</code>. In Python: <code>import time; int(time.time())</code>. In bash: <code>date +%s</code>.</p>
+        <p class="muted"><strong>How do I convert a timestamp in a JWT?</strong><br>Decode the JWT first with the <a href="/jwt-decoder">JWT Decoder</a>, then paste the <code>exp</code>, <code>iat</code>, or <code>nbf</code> values here to see the human-readable dates.</p>
+        <p class="muted"><strong>Why is the local time different from UTC?</strong><br>UTC is the reference timezone with no offset. Local time applies your browser's configured timezone offset. For example, US Pacific (UTC-8) is 8 hours behind UTC.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>

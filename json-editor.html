@@ -80,17 +80,59 @@
 
       <section class="card"><div class="pad">
         <h2 class="h2">About this tool</h2>
-        <p class="muted">This JSON editor combines validation and formatting tools in one place. It helps you clean payloads, standardize object structure, and troubleshoot malformed JSON rapidly.</p>
+        <p class="muted">The JSON Editor combines four operations in a single editing workflow: validate (check syntax), prettify (add indentation), minify (remove whitespace), and sort keys (alphabetical recursive sort). Unlike a pure formatter, the editor lets you modify JSON inline and apply operations directly to the edited content. It is designed for cleaning up API payloads, normalizing config files before committing, and preparing JSON for code review or comparison.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Real example</h3>
+        <p class="muted">Start with a minified API response payload:</p>
+        <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">{"service":"odt","env":"prod","settings":{"debug":false,"retries":3}}</pre>
+        <p class="muted">Click <strong>Prettify</strong> to expand:</p>
+        <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">{
+  "service": "odt",
+  "env": "prod",
+  "settings": {
+    "debug": false,
+    "retries": 3
+  }
+}</pre>
+        <p class="muted">Click <strong>Sort Keys</strong> to alphabetize (useful before running a diff to avoid key-order noise):</p>
+        <pre class="muted" style="background:rgba(11,21,40,.4);border-radius:8px;padding:10px;font-size:12px;overflow:auto;">{
+  "env": "prod",
+  "service": "odt",
+  "settings": {
+    "debug": false,
+    "retries": 3
+  }
+}</pre>
+        <p class="muted">Nested keys are sorted recursively — <code>settings</code> sub-keys are sorted too.</p>
+        <div class="hr"></div>
+
         <h3 class="h2">Common use cases</h3>
-        <ul class="muted"><li>Fix malformed API request/response JSON.</li><li>Normalize config files before commit.</li><li>Sort keys for easier diffs and reviews.</li></ul>
+        <ul class="muted">
+          <li><strong>API response debugging:</strong> Paste raw JSON from a curl response or browser DevTools network tab, prettify it, and read the structure clearly without needing to install a JSON viewer extension.</li>
+          <li><strong>Config file normalization:</strong> Before committing a config file (<code>appsettings.json</code>, <code>package.json</code>, etc.), prettify and sort keys so PR diffs show only real changes rather than formatting noise.</li>
+          <li><strong>Minification for production:</strong> Before embedding a JSON payload in source code or a test fixture, minify it to reduce size and avoid trailing whitespace issues.</li>
+          <li><strong>Diff preparation:</strong> Sort keys in both versions of a JSON file before comparing them with the <a href="/diff-checker">Diff Checker</a>. This eliminates false positives from key reordering and surfaces only value changes.</li>
+        </ul>
         <div class="hr"></div>
+
         <h3 class="h2">How it works</h3>
-        <ol class="muted"><li>Paste or edit JSON.</li><li>Run validate/prettify/minify/sort.</li><li>Copy final output into your project workflow.</li></ol>
+        <p class="muted">All operations parse the JSON with <code>JSON.parse()</code> first, so invalid JSON produces an error message before any transformation is attempted. Prettify calls <code>JSON.stringify(obj, null, 2)</code>. Minify calls <code>JSON.stringify(obj)</code> without the spacing argument. Sort Keys recursively walks the object and rebuilds it with keys sorted using <code>Object.keys(obj).sort()</code> — arrays are preserved in order, only object keys are sorted.</p>
         <div class="hr"></div>
+
+        <h3 class="h2">Common mistakes</h3>
+        <ul class="muted">
+          <li><strong>Trailing commas:</strong> JSON does not allow trailing commas after the last property or array element. <code>{"a": 1,}</code> is invalid JSON (it is valid JavaScript, which confuses many developers). The validator will catch this and report the exact parse error.</li>
+          <li><strong>Single quotes instead of double quotes:</strong> JSON strings must use double quotes. <code>{'key': 'value'}</code> is invalid JSON. Replace single quotes with double quotes — the validator will identify this error.</li>
+          <li><strong>Comments in JSON:</strong> JSON does not support comments (<code>//</code> or <code>/* */</code>). If your source file uses JSONC (JSON with Comments, used in VS Code configs), strip the comments before pasting here.</li>
+        </ul>
+        <div class="hr"></div>
+
         <h3 class="h2">FAQ</h3>
-        <p class="muted"><strong>Can this sort nested keys?</strong><br>Yes, nested objects are sorted recursively.</p>
-        <p class="muted"><strong>Does this replace JSON Formatter?</strong><br>It complements it with richer edit workflow controls.</p>
+        <p class="muted"><strong>Does sort keys affect arrays?</strong><br>No. Arrays are order-sensitive data structures and are not sorted. Only object keys are reordered alphabetically. Array elements remain in their original order.</p>
+        <p class="muted"><strong>What is the difference between this and the JSON Formatter?</strong><br>The <a href="/json-formatter">JSON Formatter</a> is designed for read-only inspection with path extraction, schema validation, and diff comparison. The JSON Editor is for quick inline editing and transformation. Use the editor for day-to-day cleanups, and the formatter for deeper structural analysis.</p>
+        <p class="muted"><strong>Can this validate against a JSON Schema?</strong><br>No. For schema validation, use the <a href="/json-formatter">JSON Formatter</a> which includes a JSON Schema subset validator.</p>
+        <p class="muted"><strong>Is my JSON sent anywhere?</strong><br>No. All operations run locally in your browser using JavaScript's built-in <code>JSON</code> object.</p>
       </div></section>
     </div></main>
     <div id="siteFooter"></div>
