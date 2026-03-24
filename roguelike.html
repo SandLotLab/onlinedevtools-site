@@ -117,7 +117,7 @@
       <section class="card"><div class="pad">
         <div class="roguelike-module">
           <p class="game-title">Derelict Station: Breachline</p>
-          <p class="sub">WASD / Arrows / Swipe • Reach the green extraction beacon before hostiles overrun you.</p>
+          <p class="sub">WASD / Arrows / Swipe to move • E to attack facing direction • Reach the green extraction beacon before hostiles overrun you.</p>
           <div id="frame">
             <div class="hud">
               <div class="hud-item"><div class="k">Sector</div><div class="v" id="lvlLabel">0</div></div>
@@ -170,7 +170,7 @@
               <label><input type="checkbox" id="motionToggle" checked> Motion FX</label>
             </div>
             <div class="hint-row">
-              <span>Move: WASD / Arrows / Swipe</span><span>Pause: Esc</span><span>Next Sector: N</span><span>Previous: P</span>
+              <span>Move: WASD / Arrows / Swipe</span><span>Attack: E (facing)</span><span>Pause: Esc</span><span>Next Sector: N</span><span>Previous: P</span>
             </div>
           </div>
         </div>
@@ -186,6 +186,7 @@
         <h2 class="h2">Controls</h2>
         <ul class="muted">
           <li><strong>Move:</strong> WASD or Arrow keys, plus swipe on touch devices.</li>
+          <li><strong>Attack:</strong> E key to strike in your current facing direction. Brute enemies require 2 hits.</li>
           <li><strong>Run controls:</strong> R to retry, N/P for sector navigation, Esc to pause.</li>
           <li><strong>Tactical toggles:</strong> fog, grid hints, touch confirmation, sound, and motion effects.</li>
         </ul>
@@ -225,7 +226,7 @@ const ui = {
 const settings = { crt:false, gridHint:false, fog:true, sound:true, reducedMotion:false, confirmMove:false };
 const TILE=16,W=Math.floor(canvas.width/TILE),H=Math.floor(canvas.height/TILE),WALL=0,FLOOR=1;
 
-const game = {level:0,map:[],player:{x:0,y:0,facing:{x:1,y:0}},exit:{x:0,y:0},enemies:[],alive:true,won:false,moves:0,running:false,startMs:0,seed:"",rng:null,explored:new Set(),log:[],hover:null,pendingMove:null};
+const game = {level:0,map:[],player:{x:0,y:0,facing:{x:1,y:0}},exit:{x:0,y:0},enemies:[],items:[],alive:true,won:false,moves:0,kills:0,hp:3,turns:0,running:false,startMs:0,seed:"",rng:null,explored:new Set(),log:[],hover:null,pendingMove:null};
 
 const AudioFx = {
   ctx:null, ensure(){ if(!this.ctx) this.ctx = new (window.AudioContext||window.webkitAudioContext)(); },
@@ -239,21 +240,28 @@ const randi=(min,max)=>Math.floor(game.rng()*(max-min+1))+min, clamp=(v,lo,hi)=>
 const isFloor=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&game.map[y][x]===FLOOR;
 const same=(a,b)=>a.x===b.x&&a.y===b.y;
 
-function paramsForLevel(lv){const cat=lv<=4?0:lv<=9?1:lv<=14?2:lv<=19?3:4;const sub=lv%5;return{enemySteps:cat<=2?1:2,enemyCount:clamp([1,2,3,4,6][cat]+sub+Math.floor(lv/12),1,12),minPath:clamp(10+lv,10,42),safetyMargin:[6,5,4,3,2][cat],roomAttempts:28+lv,maxRooms:clamp(12+Math.floor(lv*.35),12,26)}}
+function paramsForLevel(lv){const cat=lv<=4?0:lv<=9?1:lv<=14?2:lv<=19?3:4;const sub=lv%5;return{level:lv,enemySteps:cat<=2?1:2,enemyCount:clamp([1,2,3,4,6][cat]+sub+Math.floor(lv/12),1,12),itemCount:clamp(1+Math.floor(lv/4),1,5),minPath:clamp(10+lv,10,42),safetyMargin:[6,5,4,3,2][cat],roomAttempts:28+lv,maxRooms:clamp(12+Math.floor(lv*.35),12,26)}}
 function makeMap(w,h,roomAttempts,maxRooms){const g=Array.from({length:h},()=>Array.from({length:w},()=>WALL)),rooms=[];for(let i=0;i<roomAttempts&&rooms.length<maxRooms;i++){const rw=randi(4,12),rh=randi(4,10),rx=randi(1,w-rw-2),ry=randi(1,h-rh-2),room={x:rx,y:ry,w:rw,h:rh,cx:rx+(rw>>1),cy:ry+(rh>>1)};let ok=true;for(const r of rooms){if(room.x<r.x+r.w+1&&room.x+room.w+1>r.x&&room.y<r.y+r.h+1&&room.y+room.h+1>r.y){ok=false;break}}if(!ok) continue;for(let y=room.y;y<room.y+room.h;y++)for(let x=room.x;x<room.x+room.w;x++)g[y][x]=FLOOR;if(rooms.length)connect(g,rooms[rooms.length-1],room);rooms.push(room)}if(!rooms.length)for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++)g[y][x]=FLOOR;return g}
 function connect(g,a,b){let x=a.cx,y=a.cy;const tx=b.cx,ty=b.cy;if(game.rng()<.5){while(x!==tx){x+=x<tx?1:-1;g[y][x]=FLOOR}while(y!==ty){y+=y<ty?1:-1;g[y][x]=FLOOR}}else{while(y!==ty){y+=y<ty?1:-1;g[y][x]=FLOOR}while(x!==tx){x+=x<tx?1:-1;g[y][x]=FLOOR}}}
 function bfs(start){const dist=new Int16Array(W*H);dist.fill(-1);const parent=new Int32Array(W*H);parent.fill(-1);const q=[];dist[start.y*W+start.x]=0;q.push(start);for(let i=0;i<q.length;i++){const{x,y}=q[i],d=dist[y*W+x];for(const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]){if(!isFloor(nx,ny))continue;const idx=ny*W+nx;if(dist[idx]!==-1)continue;dist[idx]=d+1;parent[idx]=y*W+x;q.push({x:nx,y:ny})}}return{dist,parent}}
 function reconstruct(parent,start,goal){const path=[],startIdx=start.y*W+start.x;let cur=goal.y*W+goal.x;if(parent[cur]===-1&&cur!==startIdx)return null;while(cur!==-1){path.push({x:cur%W,y:(cur/W)|0});if(cur===startIdx)break;cur=parent[cur]}path.reverse();return path}
 function placeOnFloor(){for(let i=0;i<20000;i++){const x=randi(1,W-2),y=randi(1,H-2);if(isFloor(x,y))return{x,y}}return{x:2,y:2}}
-function spawnEnemies(path,pl,ex,p){const ens=[];let tries=0;while(ens.length<p.enemyCount&&tries<2e4){tries++;const e=placeOnFloor();if(same(e,pl)||same(e,ex)||Math.abs(e.x-pl.x)+Math.abs(e.y-pl.y)<8)continue;if(path.some(t=>same(t,e)))continue;if(ens.some(t=>same(t,e)))continue;ens.push(e)}return ens}
+function spawnEnemies(path,pl,ex,p){const ens=[];let tries=0;while(ens.length<p.enemyCount&&tries<2e4){tries++;const e=placeOnFloor();if(same(e,pl)||same(e,ex)||Math.abs(e.x-pl.x)+Math.abs(e.y-pl.y)<8)continue;if(path.some(t=>same(t,e)))continue;if(ens.some(t=>same(t,e)))continue;
+  // Type assignment: 0=Drone (basic), 1=Specter (fast, 2 steps), 2=Brute (slow, every 2 turns, 2 HP)
+  let type=0;
+  if(p.level>=5&&game.rng()<Math.min(.28+p.level*.012,.50)) type=1;
+  if(p.level>=10&&game.rng()<Math.min(.08+p.level*.007,.22)) type=2;
+  ens.push({x:e.x,y:e.y,type,hp:type===2?2:1})
+}return ens}
+function spawnItems(pl,ex,p){const items=[];let tries=0;while(items.length<p.itemCount&&tries<5000){tries++;const pos=placeOnFloor();if(same(pos,pl)||same(pos,ex)||items.some(i=>same(i,pos)))continue;items.push({x:pos.x,y:pos.y,kind:"medkit"});}return items;}
 
 function setLevel(lv){game.level=clamp(lv|0,0,24);ui.levelInput.value=String(game.level);game.seed=makeSeed();game.rng=mulberry32(hash32(game.seed));game.alive=true;game.won=false;game.moves=0;game.running=false;game.startMs=0;game.log=[];game.explored.clear();
 const p=paramsForLevel(game.level);game.map=makeMap(W,H,p.roomAttempts,p.maxRooms);game.player=placeOnFloor();const b=bfs(game.player);let pick=null;for(let i=0;i<2e4;i++){const ex=placeOnFloor();const d=b.dist[ex.y*W+ex.x];if(d>=p.minPath){pick={ex,path:reconstruct(b.parent,game.player,ex)};break}}if(!pick){pick={ex:{x:W-3,y:H-3},path:[{x:2,y:2}]};game.player={x:2,y:2,facing:{x:1,y:0}}}
-game.exit=pick.ex;game.enemies=spawnEnemies(pick.path,game.player,game.exit,p);game.player.facing={x:1,y:0};updateHud();addLog(`Entered sector ${game.level}. ${game.enemies.length} hostiles detected.`);ui.status.textContent="Infiltration active";showStartOverlay();draw()}
+game.exit=pick.ex;game.enemies=spawnEnemies(pick.path,game.player,game.exit,p);game.items=spawnItems(game.player,game.exit,p);game.hp=3;game.kills=0;game.turns=0;game.player.facing={x:1,y:0};updateHud();addLog(`Entered sector ${game.level}. ${game.enemies.length} hostiles detected. ${game.items.length} supply caches visible.`);ui.status.textContent="Infiltration active";showStartOverlay();draw()}
 
 function nowMs(){return performance.now()} const elapsedMs=()=>game.running?Math.max(0,nowMs()-game.startMs):0; const startTimer=()=>{if(!game.running){game.running=true;game.startMs=nowMs();}}
 function addLog(text){game.log.unshift({text,time:new Date().toLocaleTimeString()});game.log=game.log.slice(0,120);renderTab()}
-function updateHud(){ui.lvlLabel.textContent=String(game.level);ui.enemyLabel.textContent=String(game.enemies.length);ui.movesRun.textContent=String(game.moves);ui.timeRun.textContent=(elapsedMs()/1000).toFixed(1)+"s";ui.best.textContent=formatBest(loadBest(game.level));ui.hp.textContent=game.alive?"1":"0"}
+function updateHud(){ui.lvlLabel.textContent=String(game.level);ui.enemyLabel.textContent=String(game.enemies.length);ui.movesRun.textContent=String(game.moves);ui.timeRun.textContent=(elapsedMs()/1000).toFixed(1)+"s";ui.best.textContent=formatBest(loadBest(game.level));ui.hp.textContent=game.alive?`${game.hp}/3`:"0/3"}
 
 function bestKey(lv){return "swyn_roguelike_best_v4_"+lv} function loadBest(lv){try{return JSON.parse(localStorage.getItem(bestKey(lv))||"null")}catch{return null}} function saveBest(lv,ms,moves){const cur=loadBest(lv);const better=!cur||ms<cur.ms||(ms===cur.ms&&moves<cur.moves);if(better)localStorage.setItem(bestKey(lv),JSON.stringify({ms,moves}));return better}
 const formatBest=obj=>obj?`${obj.moves}m ${(obj.ms/1000).toFixed(1)}s`:"—";
@@ -262,21 +270,66 @@ function move(dx,dy,source="kbd"){
   if(!game.alive||game.won) return; if(settings.confirmMove&&source==="touch"){game.pendingMove={dx,dy}; ui.status.textContent="Tap again to confirm"; settings.confirmMove=false; setTimeout(()=>settings.confirmMove=document.getElementById("confirmMove").checked,180); return;}
   const nx=clamp(game.player.x+dx,0,W-1),ny=clamp(game.player.y+dy,0,H-1); if(!isFloor(nx,ny)) return;
   startTimer(); game.player.facing={x:dx,y:dy}; game.player.x=nx;game.player.y=ny; game.moves++; addLog(`Moved to (${nx},${ny}).`); AudioFx.tick();
+  // Item pickup: auto-collect on step
+  const pickedItems=game.items.filter(item=>item.x===nx&&item.y===ny);
+  for(const item of pickedItems){ if(item.kind==="medkit"){game.hp=Math.min(game.hp+1,5);addLog(`Medkit recovered. HP: ${game.hp}/3.`);spawnFloater("+HP",nx,ny,"#7eff9a");AudioFx.clear();} }
+  if(pickedItems.length) game.items=game.items.filter(item=>!(item.x===nx&&item.y===ny));
   if(nx===game.exit.x&&ny===game.exit.y){game.won=true; const ms=elapsedMs(); saveBest(game.level,ms,game.moves); addLog("Extraction beacon reached."); ui.status.textContent="Sector cleared"; AudioFx.goal(); AudioFx.clear(); showEndOverlay(true); updateHud(); draw(); return;}
   enemyTurn(); if(checkLose()) return; updateHud(); draw();
 }
-function enemyTurn(){const {enemySteps}=paramsForLevel(game.level);for(let step=0;step<enemySteps;step++){const dist=bfs(game.player).dist;for(const e of game.enemies){const opts=[[e.x+1,e.y],[e.x-1,e.y],[e.x,e.y+1],[e.x,e.y-1]].filter(([x,y])=>isFloor(x,y));let best=null,bestD=1e9;for(const [x,y] of opts){const d=dist[y*W+x];if(d!==-1&&d<bestD){bestD=d;best={x,y}}}if(best){e.x=best.x;e.y=best.y}}
-if(game.enemies.some(e=>same(e,game.player)))return;}}
-function checkLose(){if(!game.enemies.some(e=>same(e,game.player))) return false; game.alive=false; ui.status.textContent="Operative lost"; addLog("Hostile contact. Run terminated."); AudioFx.hit(); if(!settings.reducedMotion) ui.playArea.classList.add("shake"); setTimeout(()=>ui.playArea.classList.remove("shake"),220); spawnFloater("-1",game.player.x,game.player.y,"#ff768a"); showEndOverlay(false); updateHud(); draw(); return true}
+function enemyTurn(){
+  game.turns++;
+  // Single BFS per turn — all enemies share the same distance map
+  const dist=bfs(game.player).dist;
+  for(const e of game.enemies){
+    // Per-type movement: Specter=2 steps always, Brute=1 step every other turn, Drone=1 step
+    let maxSteps=1;
+    if(e.type===1) maxSteps=2;                          // Specter: fast
+    if(e.type===2&&game.turns%2!==0) maxSteps=0;       // Brute: slow cadence
+    for(let s=0;s<maxSteps;s++){
+      if(same(e,game.player)) break; // already in contact — stop here
+      const opts=[[e.x+1,e.y],[e.x-1,e.y],[e.x,e.y+1],[e.x,e.y-1]].filter(([x,y])=>isFloor(x,y));
+      let best=null,bestD=1e9;
+      for(const [x,y] of opts){ const d=dist[y*W+x]; if(d!==-1&&d<bestD){bestD=d;best={x,y};} }
+      if(best){e.x=best.x;e.y=best.y;}
+    }
+  }
+}
+function checkLose(){
+  const contacts=game.enemies.filter(e=>same(e,game.player));
+  if(!contacts.length) return false;
+  // Melee combat: each contacting enemy deals 1 damage then is eliminated
+  for(const ce of contacts){ game.hp--; game.kills++; addLog(`Contact with ${["Drone","Specter","Brute"][ce.type]||"hostile"}! -1 HP. Hostile eliminated.`); spawnFloater("-1HP",ce.x,ce.y,"#ff768a"); }
+  game.enemies=game.enemies.filter(e=>!same(e,game.player));
+  AudioFx.hit(); if(!settings.reducedMotion) ui.playArea.classList.add("shake"); setTimeout(()=>ui.playArea.classList.remove("shake"),220);
+  if(game.hp<=0){ game.alive=false; ui.status.textContent="Operative lost"; addLog("Hull integrity lost. Run terminated."); showEndOverlay(false); updateHud(); draw(); return true; }
+  addLog(`Hull integrity: ${game.hp}/3.`); updateHud(); draw(); return false;
+}
+
+function attack(){
+  if(!game.alive||game.won) return;
+  startTimer();
+  const tx=game.player.x+game.player.facing.x, ty=game.player.y+game.player.facing.y;
+  const hitIdx=game.enemies.findIndex(e=>e.x===tx&&e.y===ty);
+  if(hitIdx===-1){ addLog("No target in facing direction."); return; }
+  const e=game.enemies[hitIdx]; e.hp--;
+  if(e.hp<=0){ game.enemies.splice(hitIdx,1); game.kills++; addLog(`${["Drone","Specter","Brute"][e.type]||"Hostile"} eliminated at (${tx},${ty}).`); spawnFloater("KILL",tx,ty,"#7eff9a"); AudioFx.clear(); }
+  else { addLog(`${["Drone","Specter","Brute"][e.type]||"Hostile"} hit! ${e.hp} HP left.`); spawnFloater("-1",tx,ty,"#ffcc44"); AudioFx.hit(); }
+  game.moves++; enemyTurn(); if(checkLose()) return; updateHud(); draw();
+}
 
 function spawnFloater(text,tx,ty,color){const el=document.createElement("div");el.className="floater";el.textContent=text;el.style.color=color;el.style.left=(tx*TILE+8)+"px";el.style.top=(ty*TILE+2)+"px";ui.floaters.appendChild(el);setTimeout(()=>el.remove(),650)}
 
 const tabs={active:"log"};
 function renderTab(){const h=game.hover; if(tabs.active==="log"){ui.tabContent.innerHTML=game.log.map(x=>`<p class="event">[${x.time}] ${x.text}</p>`).join("")||"<p class='sub'>No events yet.</p>";}
-else if(tabs.active==="inventory"){ui.tabContent.innerHTML="<p>• Medkit: none</p><p>• Battery Cells: 0</p><p>• Artifact Slots: empty</p><p class='sub'>Inventory is placeholder-only to preserve current mechanics.</p>";}
-else if(tabs.active==="character"){ui.tabContent.innerHTML=`<p>Operative: White Ghost</p><p>Hull Integrity: ${game.alive?"100%":"0%"}</p><p>Moves: ${game.moves}</p><p>Hostiles nearby: ${game.enemies.length}</p>${h?`<p>Scan (${h.x},${h.y}): ${describeTile(h.x,h.y)}</p>`:"<p>Hover a tile for scan details.</p>"}`;}
-else {ui.tabContent.innerHTML="<p>Controls: WASD / Arrows / Swipe</p><p>Goal: reach beacon tile 🟢</p><p>Toggles: Grid hint, fog, sound, reduced motion, confirm touch move.</p><p>Pause: ESC</p><p>Retry: R • Next: N • Previous: P</p>";}}
-function describeTile(x,y){if(x===game.player.x&&y===game.player.y)return"You are here.";if(x===game.exit.x&&y===game.exit.y)return"Extraction beacon (goal).";const e=game.enemies.find(z=>z.x===x&&z.y===y);if(e)return"Hostile drone. Contact lethal.";return isFloor(x,y)?"Walkable deck tile.":"Bulkhead wall."}
+else if(tabs.active==="inventory"){
+  const meds=game.items.filter(i=>i.kind==="medkit").length;
+  const typeSet=[...new Set(game.enemies.map(e=>e.type))].sort();
+  const typeNames=typeSet.map(t=>["Drone (basic)","Specter (fast, 2 steps)","Brute (armored, 2 HP, slow)"][t]||`Unknown ${t}`);
+  ui.tabContent.innerHTML=`<p>Hull Integrity: <b>${game.hp}/3 HP</b></p><p>Medkits on map: <b>${meds}</b> (walk over to collect)</p><p>Kills this run: <b>${game.kills||0}</b></p><p>Hostile types present: ${typeNames.join(", ")||"none"}</p><p class="sub" style="margin-top:8px">Attack: press <b>E</b> to strike in facing direction. Brutes require 2 hits.</p>`;}
+else if(tabs.active==="character"){ui.tabContent.innerHTML=`<p>Operative: White Ghost</p><p>Hull Integrity: ${game.alive?`${game.hp}/3 HP`:"0/3 HP (KIA)"}</p><p>Moves: ${game.moves} • Kills: ${game.kills||0}</p><p>Sector: ${game.level} • Hostiles remaining: ${game.enemies.length}</p>${h?`<p>Scan (${h.x},${h.y}): ${describeTile(h.x,h.y)}</p>`:"<p>Hover a tile for scan details.</p>"}`;}
+else {ui.tabContent.innerHTML="<p>Move: WASD / Arrows / Swipe</p><p>Attack: E (strike facing direction)</p><p>Goal: reach the 🟢 beacon tile</p><p>Collect ✚ medkits by walking over them (+1 HP)</p><p>Pause: ESC • Retry: R • Next sector: N • Previous: P</p><p class='sub'>Enemy types: Drone (red ✶) | Specter (purple ◈, fast) | Brute (orange ⬡, slow but tanky)</p>";}}
+function describeTile(x,y){if(x===game.player.x&&y===game.player.y)return"You are here.";if(x===game.exit.x&&y===game.exit.y)return"Extraction beacon (goal).";const e=game.enemies.find(z=>z.x===x&&z.y===y);if(e)return[`Drone — 1 HP, standard pursuit.`,`Specter — 1 HP, moves 2 steps per turn. Dangerous at range.`,`Brute — ${e.hp}/2 HP, slow every other turn. Requires 2 hits to eliminate.`][e.type]||"Hostile.";const it=game.items.find(z=>z.x===x&&z.y===y);if(it)return"Medkit cache — recovers 1 HP on contact.";return isFloor(x,y)?"Walkable deck tile.":"Bulkhead wall."}
 
 document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{tabs.active=btn.dataset.tab;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===btn));renderTab();}));
 
@@ -296,7 +349,23 @@ function draw(){
   const glow=4+Math.sin(t*3)*2; ctx.fillStyle="rgba(126,255,154,.15)";ctx.beginPath();ctx.arc(game.exit.x*TILE+8,game.exit.y*TILE+8,glow+6,0,Math.PI*2);ctx.fill();
   ctx.fillStyle="#7eff9a";ctx.fillText("⬢",game.exit.x*TILE+3,game.exit.y*TILE+13);
 
-  for(const e of game.enemies){const pulse=Math.sin(t*4+e.x)*.5+.5;ctx.fillStyle=`rgba(255,94,122,${.65+.3*pulse})`;ctx.beginPath();ctx.arc(e.x*TILE+8,e.y*TILE+8,5+pulse,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ffd7df";ctx.fillText("✶",e.x*TILE+4,e.y*TILE+12)}
+  // Items — medkits rendered as red cross symbol
+  for(const item of game.items){
+    if(settings.fog&&!game.explored.has(`${item.x},${item.y}`)) continue;
+    const px=item.x*TILE, py=item.y*TILE, glow2=2+Math.sin(t*2+item.x)*.8;
+    ctx.fillStyle=`rgba(255,100,136,${.25+.15*Math.sin(t*2+item.x)})`; ctx.beginPath(); ctx.arc(px+8,py+8,glow2+4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#ff9aaa"; ctx.fillText("✚",px+3,py+12);
+  }
+
+  // Enemies — type-differentiated colors and symbols
+  const eColors=["rgba(255,94,122","rgba(180,100,255","rgba(255,145,50"];
+  const eSymbols=["✶","◈","⬡"]; const eFgColors=["#ffd7df","#e0c0ff","#ffd090"];
+  for(const e of game.enemies){const pulse=Math.sin(t*4+e.x)*.5+.5;const col=eColors[e.type]||eColors[0];
+    ctx.fillStyle=`${col},${.65+.3*pulse})`;ctx.beginPath();ctx.arc(e.x*TILE+8,e.y*TILE+8,5+pulse,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=eFgColors[e.type]||eFgColors[0]; ctx.fillText(eSymbols[e.type]||"✶",e.x*TILE+4,e.y*TILE+12);
+    // HP bar for brutes with 2 HP
+    if(e.type===2&&e.hp>0){ ctx.fillStyle="#553"; ctx.fillRect(e.x*TILE+2,e.y*TILE+14,12,2); ctx.fillStyle="#f80"; ctx.fillRect(e.x*TILE+2,e.y*TILE+14,12*(e.hp/2),2); }
+  }
 
   ctx.fillStyle="#ffffff";ctx.font="13px 'JetBrains Mono'";ctx.fillText("◉",game.player.x*TILE+2,game.player.y*TILE+12);
   ctx.strokeStyle="#a8d4ff";ctx.beginPath();ctx.moveTo(game.player.x*TILE+8,game.player.y*TILE+8);ctx.lineTo(game.player.x*TILE+8+game.player.facing.x*6,game.player.y*TILE+8+game.player.facing.y*6);ctx.stroke();
@@ -318,7 +387,7 @@ document.getElementById("retryBtn").addEventListener("click",()=>setLevel(game.l
 document.getElementById("resetBestBtn").addEventListener("click",()=>{localStorage.removeItem(bestKey(game.level));updateHud();addLog("Best stats reset.")});
 ["confirmMove","gridHint","fogToggle","soundToggle","motionToggle"].forEach(id=>document.getElementById(id).addEventListener("change",e=>{const c=e.target.checked;if(id==="confirmMove")settings.confirmMove=c; if(id==="gridHint")settings.gridHint=c; if(id==="fogToggle")settings.fog=c; if(id==="soundToggle")settings.sound=c; if(id==="motionToggle")settings.reducedMotion=!c; draw(); renderTab();}));
 
-addEventListener("keydown",e=>{const k=e.key.toLowerCase(); if(k==="escape"){showPauseOverlay();return} if(k==="r"){setLevel(game.level);return} if(k==="n"){setLevel(Math.min(24,game.level+1));return} if(k==="p"){setLevel(Math.max(0,game.level-1));return} if(document.activeElement?.tagName==="INPUT") return; if(k==="arrowup"||k==="w")move(0,-1); if(k==="arrowdown"||k==="s")move(0,1); if(k==="arrowleft"||k==="a")move(-1,0); if(k==="arrowright"||k==="d")move(1,0);});
+addEventListener("keydown",e=>{const k=e.key.toLowerCase(); if(k==="escape"){showPauseOverlay();return} if(k==="r"){setLevel(game.level);return} if(k==="n"){setLevel(Math.min(24,game.level+1));return} if(k==="p"){setLevel(Math.max(0,game.level-1));return} if(document.activeElement?.tagName==="INPUT") return; if(k==="arrowup"||k==="w")move(0,-1); if(k==="arrowdown"||k==="s")move(0,1); if(k==="arrowleft"||k==="a")move(-1,0); if(k==="arrowright"||k==="d")move(1,0); if(k==="e"||k===" "){e.preventDefault();attack();}});
 
 canvas.addEventListener("mousemove",e=>{const r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/(r.width/canvas.width)/TILE),y=Math.floor((e.clientY-r.top)/(r.height/canvas.height)/TILE);game.hover={x:clamp(x,0,W-1),y:clamp(y,0,H-1)};if(tabs.active!=="log")renderTab();draw()});
 

@@ -158,8 +158,8 @@ let banners=[]; let scorePopups=[]; let shake=0; let hitStop=0;
 let gameState="menu"; // menu playing paused gameover waveclear
 
 const player={x:W/2,y:H-66,w:28,h:24,hp:3,vx:0,weapon:1,missiles:0,missileCd:0,fireCd:0,invuln:0,thruster:0};
-let bullets=[],missiles=[],enemies=[],enemyBullets=[],particles=[];
-let curParams=null,swarmDir=1,dropTimer=0,fireTimer=0,waveTransition=0;
+let bullets=[],missiles=[],enemies=[],enemyBullets=[],particles=[],powerups=[];
+let curParams=null,swarmDir=1,dropTimer=0,fireTimer=0,waveTransition=0,waveTimer=0;
 
 const starLayers=[];
 function initParallax(){
@@ -174,7 +174,7 @@ function initParallax(){
 initParallax();
 
 // audio
-let audioCtx=null,master=null,musicGain=null,musicOsc=[];
+let audioCtx=null,master=null,musicGain=null,musicOsc=[],musicIntervalId=null;
 let muted=false,volume=Number(volInput.value);
 function ensureAudio(){
   if(audioCtx) return;
@@ -183,7 +183,7 @@ function ensureAudio(){
   musicGain=audioCtx.createGain(); musicGain.gain.value=0.05; musicGain.connect(master);
   const tones=[110,165,220];
   for(const f of tones){ const o=audioCtx.createOscillator(); const og=audioCtx.createGain(); o.type="triangle"; o.frequency.value=f; og.gain.value=0.0001; o.connect(og); og.connect(musicGain); o.start(); musicOsc.push({o,og}); }
-  let i=0; setInterval(()=>{ if(!audioCtx)return; for(let n=0;n<musicOsc.length;n++){ const t=audioCtx.currentTime; const amp= n===i%musicOsc.length?0.025:0.003; musicOsc[n].og.gain.cancelScheduledValues(t); musicOsc[n].og.gain.linearRampToValueAtTime(amp,t+0.02); } i++; },360);
+  if(!musicIntervalId){ let i=0; musicIntervalId=setInterval(()=>{ if(!audioCtx)return; for(let n=0;n<musicOsc.length;n++){ const t=audioCtx.currentTime; const amp= n===i%musicOsc.length?0.025:0.003; musicOsc[n].og.gain.cancelScheduledValues(t); musicOsc[n].og.gain.linearRampToValueAtTime(amp,t+0.02); } i++; },360); }
 }
 function setMaster(){ if(master) master.gain.value=muted?0:volume; }
 function sfx(kind){
@@ -203,7 +203,7 @@ function levelParams(lv){
   const cols=clamp(6+cat+(sub>=2?1:0),6,10), rows=clamp(3+Math.floor(lv/10),3,7);
   return {cat,sub,cols,rows,count:cols*rows,enemySpeed:lerp(20,58,lv/50),dropEvery:lerp(1.4,0.62,lv/50),dropSize:lerp(12,26,lv/50),fireRate:lerp(1.12,0.34,lv/50),bulletSpeed:lerp(195,300,lv/50),upgradeEvery:8};
 }
-function resetRunState(){ bullets=[];missiles=[];enemyBullets=[];particles=[];scorePopups=[];waveClear=false;score=0;kills=0;shake=0;hitStop=0; player.x=W/2;player.vx=0;player.hp=3;player.invuln=0;player.fireCd=0;player.missileCd=0;player.weapon=1;player.missiles=0; }
+function resetRunState(){ bullets=[];missiles=[];enemyBullets=[];particles=[];scorePopups=[];powerups=[];waveClear=false;score=0;kills=0;shake=0;hitStop=0;waveTimer=0; player.x=W/2;player.vx=0;player.hp=3;player.invuln=0;player.fireCd=0;player.missileCd=0;player.weapon=1;player.missiles=0; }
 function startTimer(){ if(!running){running=true;startMs=performance.now();} }
 const elapsedMs=()=>running?Math.max(0,performance.now()-startMs):0;
 
@@ -244,7 +244,10 @@ function enemyShootEvent(dt){
   for(const e of enemies){ if(!e.alive||e.state==="enter")continue; const key=Math.round(e.tx/18); const cur=cols.get(key); if(!cur||e.y>cur.y) cols.set(key,e); }
   const shooters=[...cols.values()]; if(!shooters.length) return;
   const shots=clamp(1+Math.floor(level/12),1,4);
-  for(let i=0;i<shots;i++){ const s=shooters[Math.floor(Math.random()*shooters.length)]; enemyBullets.push({x:s.x,y:s.y+12,vx:(Math.random()-0.5)*(level>=30?65:35),vy:curParams.bulletSpeed+Math.random()*38,w:4,h:11}); }
+  for(let i=0;i<shots;i++){ const s=shooters[Math.floor(Math.random()*shooters.length)];
+    // Type 2 (Aegis Node) fires aimed shots toward player; others fire spread
+    const vx=s.type===2?clamp((player.x-s.x)*0.38,-95,95):(Math.random()-0.5)*(level>=30?65:35);
+    enemyBullets.push({x:s.x,y:s.y+12,vx,vy:curParams.bulletSpeed+Math.random()*38,w:4,h:11}); }
 }
 
 function updateEnemies(dt){
@@ -258,19 +261,32 @@ function updateEnemies(dt){
       e.y = e.ty + Math.sin(performance.now()/370 + e.phase)*3.4;
       if(Math.random()<0.0009+level*0.00002){ e.state="attack"; e.diveT=0; }
     } else if(e.state==="attack"){
-      e.diveT+=dt; e.x += Math.sin(e.diveT*7+e.phase)*130*dt; e.y += (120+level*2.2)*dt;
+      e.diveT+=dt;
+      // Type 1 (Relay Wasp) dives toward player X for more threatening behavior
+      const diveVx = e.type===1 ? (player.x-e.x)*0.9 : Math.sin(e.diveT*7+e.phase)*130;
+      e.x += diveVx*dt; e.y += (120+level*2.2)*dt;
+      if(e.y>H+65){ e.alive=false; continue; } // escaped below screen — clean up
       if(e.y>H*0.72){ e.state="regroup"; }
     } else if(e.state==="regroup"){
-      e.x=lerp(e.x,e.tx,dt*2.8); e.y=lerp(e.y,e.ty,dt*2.7); if(Math.abs(e.x-e.tx)<2&&Math.abs(e.y-e.ty)<2) e.state="formation";
+      e.x=lerp(e.x,e.tx,dt*2.8); e.y=lerp(e.y,e.ty,dt*2.7);
+      if(e.y>H+65){ e.alive=false; continue; } // failsafe: off-screen during regroup
+      if(Math.abs(e.x-e.tx)<2&&Math.abs(e.y-e.ty)<2) e.state="formation";
     }
   }
-  const minX=Math.min(...alive.filter(e=>e.state!=="enter").map(e=>e.x),999), maxX=Math.max(...alive.filter(e=>e.state!=="enter").map(e=>e.x),-999);
+  // Fix: use manual loop instead of spread operator to avoid stack overflow with 60+ enemies
+  let minX=999,maxX=-999;
+  for(const e of alive){ if(e.state==="enter") continue; if(e.x<minX) minX=e.x; if(e.x>maxX) maxX=e.x; }
   const hitEdge=(maxX>W-44&&swarmDir>0)||(minX<44&&swarmDir<0);
   if(hitEdge||dropTimer>=curParams.dropEvery){ dropTimer=0; swarmDir*=-1; for(const e of alive) if(e.state==="formation") e.ty += curParams.dropSize; }
 }
 
 function onEnemyDestroyed(e,basePts){
   e.alive=false; kills++; score += basePts + level*2 + (e.type===2?22:0); addParticles(e.x,e.y,20,"boom"); addScorePopup(e.x,e.y,basePts); sfx("boom"); hitStop=0.035; shake=Math.max(shake,7);
+  // Power-up drops: hp ~6%, missile ~7%, weapon upgrade ~4% (when below max)
+  const roll=Math.random();
+  if(roll<0.06) powerups.push({x:e.x,y:e.y,vy:75,kind:"hp",t:0,collected:false});
+  else if(roll<0.13) powerups.push({x:e.x,y:e.y,vy:75,kind:"missile",t:0,collected:false});
+  else if(roll<0.17&&player.weapon<4) powerups.push({x:e.x,y:e.y,vy:75,kind:"weapon",t:0,collected:false});
 }
 
 function update(dt){
@@ -312,9 +328,25 @@ function update(dt){
     enemyBullets=enemyBullets.filter(eb=>eb.y<H+200);
   }
 
-  for(const e of enemies){ if(e.alive&&e.y>H-120&&player.hp>0){ score=Math.max(0,score-1); break; } }
+  // Power-up movement and collection
+  for(const pw of powerups){ pw.y+=pw.vy*dt; pw.t+=dt; }
+  const pr2={x:player.x-16,y:player.y-12,w:32,h:28};
+  for(const pw of powerups){ if(pw.collected) continue; const er={x:pw.x-10,y:pw.y-10,w:20,h:20}; if(rectHit(pr2,er)){ pw.collected=true;
+    if(pw.kind==="hp"){ player.hp=Math.min(player.hp+1,6); score+=50; addScorePopup(pw.x,pw.y,50); }
+    else if(pw.kind==="missile"){ player.missiles=Math.min(player.missiles+2,9); score+=25; addScorePopup(pw.x,pw.y,25); }
+    else { player.weapon=clamp(player.weapon+1,1,4); score+=100; addScorePopup(pw.x,pw.y,100); }
+    sfx("ui");
+  }}
+  powerups=powerups.filter(pw=>!pw.collected&&pw.y<H+20&&pw.t<14);
 
-  if(!waveClear){ let alive=0; for(const e of enemies) if(e.alive) alive++; if(alive===0){ waveClear=true; onWin(); }}
+  // Score drain for formation enemies that descend into player zone; force-kill if fully off screen
+  for(const e of enemies){ if(!e.alive) continue; if(e.y>H-80&&player.hp>0){ score=Math.max(0,score-1); if(e.y>H+30) e.alive=false; break; } }
+
+  // Wave timeout safety net — after 90s force-clear any stuck enemies (prevents unresolvable waves)
+  waveTimer+=dt;
+  if(waveTimer>90){ for(const e of enemies){ if(e.alive){ addParticles(e.x,e.y,8,"boom"); e.alive=false; } } }
+
+  if(!waveClear){ let aliveCount=0; for(const e of enemies) if(e.alive) aliveCount++; if(aliveCount===0){ waveClear=true; onWin(); }}
 }
 
 function onWin(){
@@ -343,13 +375,41 @@ function drawPlayer(){
 }
 
 function drawEnemies(){
-  for(const e of enemies){ if(!e.alive) continue; const bob=Math.sin(performance.now()/280+e.phase)*1.8, x=e.x,y=e.y+bob,w=e.w,h=e.h;
-    const color=e.type===2?["#ff8ca2","#65243d"]:e.type===1?["#ffd38b","#775018"]:["#8bf1ff","#23556f"];
-    const eg=g.createLinearGradient(x-w/2,y-h/2,x+w/2,y+h/2); eg.addColorStop(0,color[0]); eg.addColorStop(1,color[1]); g.fillStyle=eg;
-    g.beginPath(); g.roundRect(x-w/2,y-h/2,w,h,5); g.fill();
-    g.fillStyle="rgba(0,0,0,0.25)"; g.fillRect(x-6,y-2,12,4);
-    g.strokeStyle="rgba(255,255,255,0.25)"; g.strokeRect(x-w/2+0.5,y-h/2+0.5,w-1,h-1);
-    if(e.hp>1){ g.fillStyle="rgba(255,255,255,0.7)"; g.fillRect(x-7,y+h/2+5,14,2); }
+  const now=performance.now();
+  for(const e of enemies){ if(!e.alive) continue;
+    const bob=Math.sin(now/280+e.phase)*1.8, x=e.x, y=e.y+bob;
+    g.save();
+    if(e.type===0){
+      // Shard Drone — classic arrow/invader silhouette, cyan
+      g.fillStyle="#8bf1ff";
+      g.beginPath(); g.moveTo(x,y-11); g.lineTo(x+14,y+4); g.lineTo(x+8,y+10); g.lineTo(x-8,y+10); g.lineTo(x-14,y+4); g.closePath(); g.fill();
+      g.fillStyle="rgba(140,240,255,0.55)"; g.beginPath(); g.arc(x,y+1,4,0,Math.PI*2); g.fill();
+      // wing fins
+      g.fillStyle="rgba(60,200,240,0.7)"; g.fillRect(x-16,y+4,5,5); g.fillRect(x+11,y+4,5,5);
+      g.strokeStyle="rgba(180,255,255,0.4)"; g.lineWidth=0.7;
+      g.strokeRect(x-14,y-11,28,21);
+    } else if(e.type===1){
+      // Relay Wasp — elongated dart, gold/amber — fast dive attacker
+      g.fillStyle="#ffc855";
+      g.beginPath(); g.moveTo(x,y-13); g.lineTo(x+10,y+2); g.lineTo(x+6,y+11); g.lineTo(x-6,y+11); g.lineTo(x-10,y+2); g.closePath(); g.fill();
+      // center stripe
+      g.fillStyle="rgba(255,200,60,0.6)"; g.fillRect(x-2,y-13,4,24);
+      // cockpit
+      g.fillStyle="rgba(255,240,160,0.8)"; g.beginPath(); g.arc(x,y-5,3,0,Math.PI*2); g.fill();
+      g.strokeStyle="rgba(255,210,80,0.45)"; g.lineWidth=0.7; g.strokeRect(x-10,y-13,20,24);
+    } else {
+      // Aegis Node — armored hexagon, magenta/crimson — heavy, aimed shots, hp=2
+      const hw=15, hh=12;
+      g.fillStyle="#ff7090";
+      g.beginPath(); g.moveTo(x,y-hh-2); g.lineTo(x+hw+2,y-hh/2); g.lineTo(x+hw+2,y+hh/2); g.lineTo(x,y+hh+2); g.lineTo(x-hw-2,y+hh/2); g.lineTo(x-hw-2,y-hh/2); g.closePath(); g.fill();
+      // inner core glow
+      g.fillStyle="rgba(255,50,100,0.35)"; g.beginPath(); g.arc(x,y,7,0,Math.PI*2); g.fill();
+      // armor trim lines
+      g.strokeStyle="rgba(255,150,180,0.55)"; g.lineWidth=1; g.beginPath(); g.moveTo(x-hw,y-hh/2); g.lineTo(x,y-hh); g.lineTo(x+hw,y-hh/2); g.stroke();
+      // HP bar (shows remaining HP of 2 max)
+      if(e.hp>0){ g.fillStyle="rgba(0,0,0,0.5)"; g.fillRect(x-9,y+hh+4,18,3); g.fillStyle=e.hp>=2?"#ff4477":"#ff8800"; g.fillRect(x-9,y+hh+4,18*(e.hp/2),3); }
+    }
+    g.restore();
   }
 }
 
@@ -363,6 +423,27 @@ function drawParticles(){
   for(const p of particles){ const t=p.t/p.life, a=1-t; if(p.kind==="boom"){ g.fillStyle=`rgba(255,200,130,${0.6*a})`; g.fillRect(p.x,p.y,2.5,2.5); g.fillStyle=`rgba(255,90,140,${0.3*a})`; g.fillRect(p.x-2,p.y-2,6,6);} else { g.fillStyle=`rgba(150,230,255,${0.55*a})`; g.fillRect(p.x,p.y,1.9,1.9);} }
   g.font="12px 'Press Start 2P', monospace";
   for(const pop of scorePopups){ const a=1-pop.t/pop.life; g.fillStyle=`rgba(150,255,210,${a})`; g.fillText(`+${pop.v}`,pop.x-10,pop.y); }
+}
+
+function drawPowerups(){
+  for(const pw of powerups){ if(pw.collected) continue;
+    const x=pw.x, y=pw.y, pulse=0.65+Math.sin(pw.t*6)*0.35;
+    g.save(); g.globalAlpha=pulse;
+    g.strokeStyle="rgba(255,255,255,0.5)"; g.lineWidth=1; g.strokeRect(x-11,y-11,22,22);
+    if(pw.kind==="hp"){
+      // Red cross (health)
+      g.fillStyle="#ff4466"; g.fillRect(x-9,y-3,18,6); g.fillRect(x-3,y-9,6,18);
+    } else if(pw.kind==="missile"){
+      // Green missile shape
+      g.fillStyle="#66ff88"; g.fillRect(x-3,y-9,6,14); g.fillRect(x-6,y+3,12,4);
+      g.beginPath(); g.moveTo(x,y-11); g.lineTo(x-3,y-7); g.lineTo(x+3,y-7); g.closePath(); g.fill();
+    } else {
+      // Yellow star / weapon upgrade
+      g.fillStyle="#ffee44";
+      g.beginPath(); for(let i=0;i<5;i++){ const a=i*Math.PI*2/5-Math.PI/2; g.lineTo(x+Math.cos(a)*9,y+Math.sin(a)*9); const b=a+Math.PI/5; g.lineTo(x+Math.cos(b)*4,y+Math.sin(b)*4); } g.closePath(); g.fill();
+    }
+    g.restore();
+  }
 }
 
 function drawHud(){
@@ -417,7 +498,7 @@ function draw(dt){
   drawBackground(dt);
   const shx=(Math.random()-0.5)*shake, shy=(Math.random()-0.5)*shake;
   g.save(); g.translate(shx,shy);
-  drawEnemies(); drawProjectiles(); drawPlayer(); drawParticles();
+  drawEnemies(); drawProjectiles(); drawPowerups(); drawPlayer(); drawParticles();
   g.restore();
   drawHud(); drawBanners(dt); drawOverlayState(); drawCRT();
 }
