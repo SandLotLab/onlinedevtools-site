@@ -515,6 +515,14 @@ async function anthropicMessages(env, payload) {
   throw new Error(`Anthropic API failed: ${res.status} ${t}`);
 }
 
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Anthropic API failed: ${res.status} ${t}`);
+  }
+
+  return res.json();
+}
+
 function extractAnthropicText(resp) {
   return (resp?.content || [])
     .filter(b => b?.type === "text" && typeof b?.text === "string")
@@ -961,5 +969,4 @@ function longestCommonSubstring(a, b) {
     }
   }
   return s1.slice(endIdx - maxLen, endIdx);
-}
 }
