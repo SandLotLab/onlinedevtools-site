@@ -511,10 +511,8 @@ async function anthropicMessages(env, payload) {
   });
 
   if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`Anthropic API failed: ${res.status} ${t.slice(0, 200)}`);
-  }
-  return res.json();
+  const t = await res.text();
+  throw new Error(`Anthropic API failed: ${res.status} ${t}`);
 }
 
 function extractAnthropicText(resp) {
