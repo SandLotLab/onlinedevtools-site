@@ -35,10 +35,11 @@ export default {
       }
 
       const body = await safeJson(request);
-      const dryRun      = !!body?.dryRun;
+      const dryRun        = !!body?.dryRun;
+      const force         = !!body?.force;  // bypass schedule gate (testing only)
       const topicOverride = typeof body?.topic === "string" ? body.topic : null;
 
-      const result = await runOnce(env, ctx, { trigger: "api", dryRun, topicOverride });
+      const result = await runOnce(env, ctx, { trigger: "api", dryRun, force, topicOverride });
       return json({ ok: true, result }, 200);
     }
 
@@ -144,32 +145,44 @@ if (lastLocalDate === localDate) {
 
 // ─── Orchestrator ─────────────────────────────────────────────────────────────
 
-async function runOnce(env, ctx, { trigger, dryRun, topicOverride }) {
+async function runOnce(env, ctx, { trigger, dryRun, force, topicOverride }) {
   const now         = new Date();
   const tz          = env.TIMEZONE      || "America/Los_Angeles";
   const publishDays = env.PUBLISH_DAYS  || "2,5";
 
   const stub = env.BLOGBOT_STATE.get(env.BLOGBOT_STATE.idFromName("singleton"));
 
-  // Gate: schedule check + run-lock (strongly consistent via DO)
-  const beginRes = await stub.fetch("https://blogbot-state/begin", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ nowIso: now.toISOString(), tz, publishDays })
-  });
+  let rotationIndex = 0;
+  let localDate     = toZonedParts(now, tz).date;
 
-  if (!beginRes.ok) {
-  const payload = await safeJson(beginRes);
-  return { status: "blocked", reason: payload?.reason || "lock_failed", http: beginRes.status };
-}
+  if (force) {
+    // Bypass schedule gate — for manual testing outside publish days.
+    const stateRes  = await stub.fetch("https://blogbot-state/last", { method: "GET" });
+    const stateData = await safeJson(stateRes);
+    rotationIndex   = Number.isFinite(stateData?.state?.rotationIndex) ? stateData.state.rotationIndex : 0;
+    console.log("force=true: bypassing schedule gate, rotationIndex=", rotationIndex);
+  } else {
+    // Gate: schedule check + run-lock (strongly consistent via DO)
+    const beginRes = await stub.fetch("https://blogbot-state/begin", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ nowIso: now.toISOString(), tz, publishDays })
+    });
 
-const begin = await beginRes.json();
+    // Use safeJson — 204 has no body; raw .json() would throw outside the try-catch below.
+    const begin = await safeJson(beginRes);
 
-if (begin?.allowed === false) {
-  return { status: "skipped", reason: begin?.reason || "not_due" };
-}
-  const rotationIndex = begin.rotationIndex || 0;
-  const localDate     = begin.localDate;
+    if (!beginRes.ok) {
+      return { status: "blocked", reason: begin?.reason || "lock_failed", http: beginRes.status };
+    }
+
+    if (!begin || begin?.allowed === false) {
+      return { status: "skipped", reason: begin?.reason || "not_due" };
+    }
+
+    rotationIndex = begin.rotationIndex || 0;
+    localDate     = begin.localDate || localDate;
+  }
 
   try {
     const topic = pickTopic(env, rotationIndex, topicOverride);
@@ -951,3 +964,4 @@ function longestCommonSubstring(a, b) {
   }
   return s1.slice(endIdx - maxLen, endIdx);
 }
+                                                                                                         
