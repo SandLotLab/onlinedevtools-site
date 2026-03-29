@@ -964,4 +964,3 @@ function longestCommonSubstring(a, b) {
   }
   return s1.slice(endIdx - maxLen, endIdx);
 }
-                                                                                                         

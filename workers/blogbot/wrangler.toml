@@ -27,7 +27,7 @@ preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
 # Non-secret configuration vars
 [vars]
 SITE_ORIGIN          = "https://onlinedevtools.app"
-GITHUB_OWNER         = "BigHomieCed"
+GITHUB_OWNER         = "SandLotLab"
 GITHUB_REPO          = "onlinedevtools-site"
 GITHUB_TARGET_BRANCH = "main"
 AUTHOR_NAME          = "Online Dev Tools"
