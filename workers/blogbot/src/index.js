@@ -456,12 +456,16 @@ async function generatePostDraft(env, { topic, sources, localDate, now, tz }) {
     messages: [{ role: "user", content: user }]
   });
 
-  const text   = extractAnthropicText(resp);
-  const parsed = safeParseJson(text);
+  const text = extractAnthropicText(resp);
+console.log("RAW_LLM_TEXT_START");
+console.log(text);
+console.log("RAW_LLM_TEXT_END");
 
-  if (!parsed?.title || !parsed?.body_html) {
-    throw new Error("LLM output missing required fields (title or body_html)");
-  }
+const parsed = safeParseJson(text);
+
+if (!parsed?.title || !parsed?.body_html) {
+  throw new Error(`LLM output missing required fields (title or body_html). Raw text: ${text}`);
+}
 
   const slug = sanitizeSlug(parsed.slug || slugify(parsed.title));
 
