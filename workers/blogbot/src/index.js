@@ -460,16 +460,10 @@ async function generatePostDraft(env, { topic, sources, localDate, now, tz }) {
   const parsed = safeParseJson(text);
 
   if (!parsed?.title || !parsed?.body_html) {
-    // Log what safeParseJson actually attempted so we can debug via wrangler tail
-    const s = String(text).trim();
-    const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    const candidate  = fenceMatch ? fenceMatch[1].trim() : s;
-    const firstBrace = candidate.indexOf("{");
-    const lastBrace  = candidate.lastIndexOf("}");
-    const attempted  = (firstBrace !== -1 && lastBrace > firstBrace)
-      ? candidate.slice(firstBrace, lastBrace + 1)
-      : candidate;
-    console.log("PARSE_FAILED — attempted JSON (first 800 chars):", attempted.slice(0, 800));
+    // Log raw LLM output and the escaped version so we can see the actual problem
+    console.log("PARSE_FAILED raw text (first 600):", String(text).slice(0, 600));
+    const escaped = escapeControlsInJsonStrings(String(text).trim());
+    console.log("PARSE_FAILED after escape (first 600):", escaped.slice(0, 600));
     throw new Error("LLM output missing required fields (title or body_html)");
   }
 
@@ -855,26 +849,64 @@ async function safeJson(reqOrRes) {
 
 function safeParseJson(text) {
   const s = String(text).trim();
-  // Extract content from inside a markdown code fence if present (allows preamble text)
+  // Strip markdown fence if present — handles preamble text before the fence
   const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
   const candidate  = fenceMatch ? fenceMatch[1].trim() : s;
-  // Slice from the first { to the last } to tolerate surrounding prose
+  // Slice from first { to last } to tolerate surrounding prose
   const firstBrace = candidate.indexOf("{");
   const lastBrace  = candidate.lastIndexOf("}");
   const jsonStr    = (firstBrace !== -1 && lastBrace > firstBrace)
     ? candidate.slice(firstBrace, lastBrace + 1)
     : candidate;
-  // First attempt: parse as-is
+
+  // Attempt 1: parse as-is (works when model output is already valid JSON)
   try { return JSON.parse(jsonStr); } catch {}
 
-  // Second attempt: fix literal newlines/tabs inside JSON string values.
-  // The model often emits multi-line HTML in body_html without escaping the newlines,
-  // which is invalid JSON. The regex matches each "..." string token (including the
-  // embedded newlines because [^"\\] matches them) and replaces bare control chars.
-  const fixed = jsonStr.replace(/("(?:[^"\\]|\\.)*")/gs, (m) =>
-    m.replace(/\r\n/g, "\\n").replace(/\r/g, "\\n").replace(/\n/g, "\\n").replace(/\t/g, "\\t")
-  );
-  try { return JSON.parse(fixed); } catch { return null; }
+  // Attempt 2: escape bare control chars inside string values via state machine.
+  // Regex approaches backtrack catastrophically on 10 000+ char article bodies
+  // in the Workers V8 engine; a linear scan has no such problem.
+  try { return JSON.parse(escapeControlsInJsonStrings(jsonStr)); } catch { return null; }
+}
+
+// Walk the JSON character-by-character and replace unescaped control characters
+// (newlines, carriage returns, tabs, and any other U+0000–U+001F) that appear
+// inside string values with their proper JSON escape sequences.  The model
+// commonly emits multi-line HTML in body_html without escaping the newlines,
+// making the raw text invalid JSON.
+function escapeControlsInJsonStrings(jsonStr) {
+  const out = [];
+  let inStr  = false;
+  let i      = 0;
+  while (i < jsonStr.length) {
+    const ch   = jsonStr[i];
+    const code = ch.charCodeAt(0);
+    if (inStr) {
+      if (ch === "\\") {
+        // consume the escape sequence verbatim — already valid
+        out.push(ch);
+        if (i + 1 < jsonStr.length) out.push(jsonStr[++i]);
+      } else if (ch === '"') {
+        inStr = false;
+        out.push(ch);
+      } else if (ch === "\n") {
+        out.push("\\n");
+      } else if (ch === "\r") {
+        out.push("\\r");
+      } else if (ch === "\t") {
+        out.push("\\t");
+      } else if (code < 0x20) {
+        // other control characters → \uXXXX
+        out.push("\\u" + code.toString(16).padStart(4, "0"));
+      } else {
+        out.push(ch);
+      }
+    } else {
+      if (ch === '"') inStr = true;
+      out.push(ch);
+    }
+    i++;
+  }
+  return out.join("");
 }
 
 function slugify(s) {
