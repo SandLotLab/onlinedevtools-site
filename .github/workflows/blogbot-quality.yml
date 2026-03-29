@@ -1,0 +1,71 @@
+name: blogbot-quality
+
+on:
+  pull_request:
+    paths:
+      - "blog/**"
+      - "sitemap.xml"
+      - "rss.xml"
+      - "templates/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: HTML policy checks on blog posts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Ensure each generated blog post has the required SEO elements
+          for f in blog/*.html; do
+            [ -f "$f" ] || continue
+            echo "Checking $f ..."
+
+            if ! grep -q '<link rel="canonical"' "$f"; then
+              echo "❌ Missing canonical tag in $f"; exit 1
+            fi
+
+            if ! grep -q 'application/ld+json' "$f"; then
+              echo "❌ Missing JSON-LD in $f"; exit 1
+            fi
+
+            if ! grep -q 'Sources</h2>' "$f"; then
+              echo "❌ Missing Sources section in $f"; exit 1
+            fi
+
+            # Warn (not fail) on <script> inside post body — template injector is acceptable
+            if grep -q '<script' "$f"; then
+              echo "⚠️  <script> tag found in $f — verify it is only the partial injector"
+            fi
+          done
+
+      - name: Sitemap sanity
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "<urlset" sitemap.xml && echo "✅ sitemap.xml valid"
+          # Ensure blog index URL is present
+          grep -q "/blog" sitemap.xml && echo "✅ /blog present in sitemap"
+
+      - name: RSS sanity
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "<rss"      rss.xml && echo "✅ rss.xml has <rss>"
+          grep -q "<channel>" rss.xml && echo "✅ rss.xml has <channel>"
+
+      - name: Citation count check
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in blog/*.html; do
+            [ -f "$f" ] || continue
+            count=$(grep -oP '\[\d+\]' "$f" | sort -u | wc -l || true)
+            echo "$f — unique citation refs: $count"
+            if [ "$count" -lt 3 ]; then
+              echo "⚠️  Fewer than 3 unique citations in $f — review for quality"
+            fi
+          done

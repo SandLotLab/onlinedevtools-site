@@ -1,0 +1,13 @@
+{
+  "name": "onlinedevtools-blogbot",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  }
+}

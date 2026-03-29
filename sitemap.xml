@@ -42,4 +42,10 @@
   <url><loc>https://onlinedevtools.app/roguelike</loc></url>
   <url><loc>https://onlinedevtools.app/galactica</loc></url>
 
+  <!-- Blog index — individual post URLs are appended here by blogbot -->
+  <url>
+    <loc>https://onlinedevtools.app/blog</loc>
+    <lastmod>2026-03-28</lastmod>
+  </url>
+
 </urlset>

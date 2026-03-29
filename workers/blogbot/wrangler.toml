@@ -1,0 +1,47 @@
+name = "onlinedevtools-blogbot"
+main = "src/index.js"
+compatibility_date = "2026-03-20"
+
+# Run daily at 17:15 UTC; Worker internally gates on Tue/Fri in America/Los_Angeles
+# to avoid DST drift. Change to "15 17 * * 2,5" if you prefer fixed UTC days.
+[triggers]
+crons = ["15 17 * * *"]
+
+# Durable Object for run-locking and state
+[[durable_objects.bindings]]
+name = "BLOGBOT_STATE"
+class_name = "BlogBotState"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["BlogBotState"]
+
+# KV namespace (optional — for topic rotation cache)
+# After creating via: wrangler kv namespace create blogbot-kv
+# Replace the IDs below with the output values.
+[[kv_namespaces]]
+binding = "BLOGBOT_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+
+# Non-secret configuration vars
+[vars]
+SITE_ORIGIN          = "https://onlinedevtools.app"
+GITHUB_OWNER         = "BigHomieCed"
+GITHUB_REPO          = "onlinedevtools-site"
+GITHUB_TARGET_BRANCH = "main"
+AUTHOR_NAME          = "Online Dev Tools"
+TIMEZONE             = "America/Los_Angeles"
+PUBLISH_DAYS         = "2,5"    # 0=Sun, 1=Mon, 2=Tue … 5=Fri, 6=Sat
+MIN_WORDS            = "1400"
+MAX_WORDS            = "2600"
+MAX_SOURCES          = "8"
+ANTHROPIC_MODEL      = "claude-opus-4-6"
+
+# ─── SECRETS (never put real values here) ────────────────────────────────────
+# Set these via Cloudflare dashboard or:
+#   wrangler secret put BLOGBOT_ADMIN_TOKEN
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put BRAVE_SEARCH_API_KEY
+#   wrangler secret put GITHUB_TOKEN
+# ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,10 @@
 # Canonical host redirect
 https://www.onlinedevtools.app/*    https://onlinedevtools.app/:splat    301!
 
+# Blog pretty URLs (must precede the *.html catch-all)
+/blog                               /blog/index.html                200
+/blog/*                             /blog/:splat.html               200
+
 # Clean URLs
 /index.html                         /                               301
 /*.html                             /:splat                         301
