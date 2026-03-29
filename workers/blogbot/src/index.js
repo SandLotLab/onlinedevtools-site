@@ -461,7 +461,13 @@ console.log("RAW_LLM_TEXT_START");
 console.log(text);
 console.log("RAW_LLM_TEXT_END");
 
-const parsed = safeParseJson(text);
+const cleaned = text
+  .replace(/^```json\s*/i, "")
+  .replace(/^```\s*/i, "")
+  .replace(/\s*```$/, "")
+  .trim();
+
+const parsed = safeParseJson(cleaned);
 
 if (!parsed?.title || !parsed?.body_html) {
   throw new Error(`LLM output missing required fields (title or body_html). Raw text: ${text}`);
