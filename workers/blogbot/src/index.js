@@ -91,12 +91,12 @@ export class BlogBotState {
       const localDow  = local.dow;  // 0..6
 
       if (!publishDays.includes(localDow)) {
-        return json({ allowed: false, status: "skipped", reason: "not_publish_day", local }, 204);
-      }
+  return json({ allowed: false, status: "skipped", reason: "not_publish_day", local }, 200);
+}
 
-      if (lastLocalDate === localDate) {
-        return json({ allowed: false, status: "skipped", reason: "already_ran_today", local }, 204);
-      }
+if (lastLocalDate === localDate) {
+  return json({ allowed: false, status: "skipped", reason: "already_ran_today", local }, 200);
+}
 
       const rotationIndex = Number.isFinite(stateObj.rotationIndex) ? stateObj.rotationIndex : 0;
 
@@ -158,17 +158,16 @@ async function runOnce(env, ctx, { trigger, dryRun, topicOverride }) {
     body: JSON.stringify({ nowIso: now.toISOString(), tz, publishDays })
   });
 
-  if (beginRes.status === 204) {
-    const payload = await safeJson(beginRes) || {};
-    return { status: "skipped", reason: payload?.reason || "not_due" };
-  }
-
   if (!beginRes.ok) {
-    const payload = await safeJson(beginRes);
-    return { status: "blocked", reason: payload?.reason || "lock_failed", http: beginRes.status };
-  }
+  const payload = await safeJson(beginRes);
+  return { status: "blocked", reason: payload?.reason || "lock_failed", http: beginRes.status };
+}
 
-  const begin         = await beginRes.json();
+const begin = await beginRes.json();
+
+if (begin?.allowed === false) {
+  return { status: "skipped", reason: begin?.reason || "not_due" };
+}
   const rotationIndex = begin.rotationIndex || 0;
   const localDate     = begin.localDate;
 
