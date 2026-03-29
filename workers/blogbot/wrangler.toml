@@ -14,7 +14,7 @@ class_name = "BlogBotState"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["BlogBotState"]
+new_sqlite_classes = ["BlogBotState"]
 
 # KV namespace (optional — for topic rotation cache)
 # After creating via: wrangler kv namespace create blogbot-kv
@@ -44,4 +44,4 @@ ANTHROPIC_MODEL      = "claude-opus-4-6"
 #   wrangler secret put ANTHROPIC_API_KEY
 #   wrangler secret put BRAVE_SEARCH_API_KEY
 #   wrangler secret put GITHUB_TOKEN
-# ─────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────
