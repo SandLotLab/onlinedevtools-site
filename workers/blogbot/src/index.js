@@ -848,24 +848,43 @@ async function safeJson(reqOrRes) {
 }
 
 function safeParseJson(text) {
-  const s = String(text).trim();
-  // Strip markdown fence if present — handles preamble text before the fence
-  const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-  const candidate  = fenceMatch ? fenceMatch[1].trim() : s;
-  // Slice from first { to last } to tolerate surrounding prose
-  const firstBrace = candidate.indexOf("{");
-  const lastBrace  = candidate.lastIndexOf("}");
-  const jsonStr    = (firstBrace !== -1 && lastBrace > firstBrace)
-    ? candidate.slice(firstBrace, lastBrace + 1)
-    : candidate;
+  const s = String(text);
 
-  // Attempt 1: parse as-is (works when model output is already valid JSON)
+  // Find the first { then use a brace-balanced scan to locate the matching }.
+  // Do NOT use a fence regex: an article about regex/code may have triple-backtick
+  // code blocks inside body_html, which causes a non-greedy ```...``` pattern to
+  // stop at the wrong fence and hand us a truncated, invalid JSON string.
+  const firstBrace = s.indexOf("{");
+  if (firstBrace === -1) return null;
+
+  const jsonStr = extractBalancedBraces(s, firstBrace);
+  if (!jsonStr) return null;
+
+  // Attempt 1: parse as-is
   try { return JSON.parse(jsonStr); } catch {}
 
-  // Attempt 2: escape bare control chars inside string values via state machine.
-  // Regex approaches backtrack catastrophically on 10 000+ char article bodies
-  // in the Workers V8 engine; a linear scan has no such problem.
+  // Attempt 2: escape bare control chars (newlines, tabs …) that the model
+  // sometimes emits literally inside JSON string values.
   try { return JSON.parse(escapeControlsInJsonStrings(jsonStr)); } catch { return null; }
+}
+
+// Walk from startPos and return text[startPos..matchingClose], correctly
+// skipping over JSON string literals (including escaped characters).
+function extractBalancedBraces(text, startPos) {
+  let depth  = 0;
+  let inStr  = false;
+  let escape = false;
+  for (let i = startPos; i < text.length; i++) {
+    const ch = text[i];
+    if (escape)               { escape = false; continue; }
+    if (ch === "\\" && inStr) { escape = true;  continue; }
+    if (ch === '"')           { inStr  = !inStr; continue; }
+    if (!inStr) {
+      if      (ch === "{") { depth++; }
+      else if (ch === "}") { depth--; if (depth === 0) return text.slice(startPos, i + 1); }
+    }
+  }
+  return null;
 }
 
 // Walk the JSON character-by-character and replace unescaped control characters
