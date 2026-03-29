@@ -456,22 +456,22 @@ async function generatePostDraft(env, { topic, sources, localDate, now, tz }) {
     messages: [{ role: "user", content: user }]
   });
 
-  const text = extractAnthropicText(resp);
-console.log("RAW_LLM_TEXT_START");
-console.log(text);
-console.log("RAW_LLM_TEXT_END");
+  const text   = extractAnthropicText(resp);
+  const parsed = safeParseJson(text);
 
-const cleaned = text
-  .replace(/^```json\s*/i, "")
-  .replace(/^```\s*/i, "")
-  .replace(/\s*```$/, "")
-  .trim();
-
-const parsed = safeParseJson(cleaned);
-
-if (!parsed?.title || !parsed?.body_html) {
-  throw new Error(`LLM output missing required fields (title or body_html). Raw text: ${text}`);
-}
+  if (!parsed?.title || !parsed?.body_html) {
+    // Log what safeParseJson actually attempted so we can debug via wrangler tail
+    const s = String(text).trim();
+    const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    const candidate  = fenceMatch ? fenceMatch[1].trim() : s;
+    const firstBrace = candidate.indexOf("{");
+    const lastBrace  = candidate.lastIndexOf("}");
+    const attempted  = (firstBrace !== -1 && lastBrace > firstBrace)
+      ? candidate.slice(firstBrace, lastBrace + 1)
+      : candidate;
+    console.log("PARSE_FAILED — attempted JSON (first 800 chars):", attempted.slice(0, 800));
+    throw new Error("LLM output missing required fields (title or body_html)");
+  }
 
   const slug = sanitizeSlug(parsed.slug || slugify(parsed.title));
 
@@ -854,10 +854,27 @@ async function safeJson(reqOrRes) {
 }
 
 function safeParseJson(text) {
-  // Strip markdown code fences if model wraps the JSON
-  const trimmed = String(text).trim();
-  const fenced  = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  try { return JSON.parse(fenced ? fenced[1] : trimmed); } catch { return null; }
+  const s = String(text).trim();
+  // Extract content from inside a markdown code fence if present (allows preamble text)
+  const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  const candidate  = fenceMatch ? fenceMatch[1].trim() : s;
+  // Slice from the first { to the last } to tolerate surrounding prose
+  const firstBrace = candidate.indexOf("{");
+  const lastBrace  = candidate.lastIndexOf("}");
+  const jsonStr    = (firstBrace !== -1 && lastBrace > firstBrace)
+    ? candidate.slice(firstBrace, lastBrace + 1)
+    : candidate;
+  // First attempt: parse as-is
+  try { return JSON.parse(jsonStr); } catch {}
+
+  // Second attempt: fix literal newlines/tabs inside JSON string values.
+  // The model often emits multi-line HTML in body_html without escaping the newlines,
+  // which is invalid JSON. The regex matches each "..." string token (including the
+  // embedded newlines because [^"\\] matches them) and replaces bare control chars.
+  const fixed = jsonStr.replace(/("(?:[^"\\]|\\.)*")/gs, (m) =>
+    m.replace(/\r\n/g, "\\n").replace(/\r/g, "\\n").replace(/\n/g, "\\n").replace(/\t/g, "\\t")
+  );
+  try { return JSON.parse(fixed); } catch { return null; }
 }
 
 function slugify(s) {
