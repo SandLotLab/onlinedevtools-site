@@ -1,1 +1,12 @@
-{ "posts": [] }
+{
+  "posts": [
+    {
+      "title": "Building a Lightweight Incident-Response Toolbelt in the Browser: Repeatable Workflows",
+      "slug": "browser-incident-response-toolbelt-repeatable-workflows",
+      "description": "Learn how to build a browser-based incident response toolbelt with repeatable workflows using lightweight online dev tools for faster triage and resolution.",
+      "date": "2026-04-01",
+      "canonical": "https://onlinedevtools.app/blog/browser-incident-response-toolbelt-repeatable-workflows",
+      "primary_tool_url": "https://onlinedevtools.app/tools"
+    }
+  ]
+}
