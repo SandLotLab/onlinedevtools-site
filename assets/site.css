@@ -184,6 +184,7 @@ header h2{
 .mega-item.disabled{opacity:.62;cursor:not-allowed}
 .mega-tab[open] .mega-panel{display:block}
 @media (hover:hover){.mega-tab:hover .mega-panel{display:block}}
+@media (hover:hover){.mega-tab[open]:not(:hover) .mega-panel{display:none}}
 
 /* Cards */
 .grid{
