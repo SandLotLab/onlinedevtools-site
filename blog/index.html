@@ -14,8 +14,9 @@
   <div id="odt-header"></div>
 
   <main class="container">
-    <h1>Blog</h1>
-    <p>Twice-weekly technical write-ups that link back to relevant tools and workflows.</p>
+    <p class="blog-index-eyebrow">Online Dev Tools</p>
+    <h1 class="blog-index-headline">Technical Write-Ups</h1>
+    <p class="blog-index-sub">Practical guides on security workflows, API tooling, and developer operations — written for engineers who ship.</p>
 
     <!-- BLOG_LIST_START -->
 <ul class="blog-list">
@@ -40,20 +41,4 @@
 
   <div id="odt-footer"></div>
 
-  <script>
-    (function () {
-      async function inject(id, url) {
-        try {
-          const r = await fetch(url, { cache: "no-cache" });
-          const html = await r.text();
-          document.getElementById(id).innerHTML = html;
-        } catch (e) {
-          console.warn("Partial inject failed:", url, e);
-        }
-      }
-      inject("odt-header", "/partials/header");
-      inject("odt-footer", "/partials/footer");
-    })();
-  </script>
-</body>
-</html>
+  <script
