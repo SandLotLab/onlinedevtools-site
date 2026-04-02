@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "title": "JSON Formatting for API Debugging: Predictable Diffs, Key Sorting, and Schema Checks",
+      "slug": "json-formatting-api-debugging-diffs-key-sorting-schema-checks",
+      "description": "Learn how JSON formatting with key sorting and schema validation streamlines API debugging, produces predictable diffs, and speeds up code review.",
+      "date": "2026-04-02",
+      "canonical": "https://onlinedevtools.app/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks",
+      "primary_tool_url": "https://onlinedevtools.app/json-formatter"
+    },
+    {
       "title": "CSP Hardening Workflow: From Report-Only to Full Enforcement with Practical Testing",
       "slug": "csp-hardening-workflow-report-only-to-enforcement",
       "description": "Learn how to harden Content Security Policy step by step—starting in report-only mode, analyzing violations, and enforcing safely with practical testing.",
