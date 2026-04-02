@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "title": "CSP Hardening Workflow: From Report-Only to Full Enforcement with Practical Testing",
+      "slug": "csp-hardening-workflow-report-only-to-enforcement",
+      "description": "Learn how to harden Content Security Policy step by step—starting in report-only mode, analyzing violations, and enforcing safely with practical testing.",
+      "date": "2026-04-02",
+      "canonical": "https://onlinedevtools.app/blog/csp-hardening-workflow-report-only-to-enforcement",
+      "primary_tool_url": "https://onlinedevtools.app/csp-analyzer"
+    },
+    {
       "title": "Building a Lightweight Incident-Response Toolbelt in the Browser: Repeatable Workflows",
       "slug": "browser-incident-response-toolbelt-repeatable-workflows",
       "description": "Learn how to build a browser-based incident response toolbelt with repeatable workflows using lightweight online dev tools for faster triage and resolution.",
