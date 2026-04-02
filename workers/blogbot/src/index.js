@@ -451,7 +451,7 @@ async function generatePostDraft(env, { topic, sources, localDate, now, tz }) {
 
   const resp = await anthropicMessages(env, {
     model,
-    max_tokens: 3200,
+    max_tokens: 8192,   // 3200 was too low — a 2600-word HTML article alone is ~5000 tokens
     system,
     messages: [{ role: "user", content: user }]
   });
