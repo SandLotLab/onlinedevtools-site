@@ -11,6 +11,8 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -20,8 +22,10 @@ jobs:
           set -euo pipefail
 
           # Ensure each generated blog post has the required SEO elements
+          # blog/index.html is the listing page — skip it
           for f in blog/*.html; do
             [ -f "$f" ] || continue
+            [ "$f" = "blog/index.html" ] && continue
             echo "Checking $f ..."
 
             if ! grep -q '<link rel="canonical"' "$f"; then
@@ -63,6 +67,7 @@ jobs:
           set -euo pipefail
           for f in blog/*.html; do
             [ -f "$f" ] || continue
+            [ "$f" = "blog/index.html" ] && continue
             count=$(grep -oP '\[\d+\]' "$f" | sort -u | wc -l || true)
             echo "$f — unique citation refs: $count"
             if [ "$count" -lt 3 ]; then
