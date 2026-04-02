@@ -5,8 +5,16 @@
     <link>https://onlinedevtools.app/blog</link>
     <description>Static-first dev/security workflow notes and tool deep-dives.</description>
     <language>en-us</language>
-    <lastBuildDate>Sat, 28 Mar 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 02 Apr 2026 06:05:44 GMT</lastBuildDate>
 
     <!-- Worker inserts <item> entries here -->
+      <item>
+      <title>Building a Lightweight Incident-Response Toolbelt in the Browser: Repeatable Workflows</title>
+      <link>https://onlinedevtools.app/blog/browser-incident-response-toolbelt-repeatable-workflows</link>
+      <guid>https://onlinedevtools.app/blog/browser-incident-response-toolbelt-repeatable-workflows</guid>
+      <pubDate>Thu, 02 Apr 2026 06:05:44 GMT</pubDate>
+      <description>Learn how to build a browser-based incident response toolbelt with repeatable workflows using lightweight online dev tools for faster triage and resolution.</description>
+    </item>
+
   </channel>
 </rss>
