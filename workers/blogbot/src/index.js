@@ -574,45 +574,22 @@ async function buildRepoWrites(env, { draft, topic, localDate, now, tz }) {
   const sourcesHtml  = renderSourcesHtml(draft.citations);
   const readingTime  = estimateReadingTime(draft.body_html);
 
-  // Category inference
-  const category = inferCategory(draft, topic);
+  const postHtml = templatePost
+    .replaceAll("{{TITLE}}",        escapeHtml(draft.title))
+    .replaceAll("{{DESCRIPTION}}",  escapeHtml(draft.description))
+    .replaceAll("{{CANONICAL_URL}}", canonicalUrl)
+    .replaceAll("{{AUTHOR}}",       escapeHtml(env.AUTHOR_NAME || "Online Dev Tools"))
+    .replaceAll("{{DATE_ISO}}",     localDate)
+    .replaceAll("{{DATE_HUMAN}}",   formatHumanDate(localDate, tz))
+    .replaceAll("{{READING_TIME}}", readingTime)
+    .replaceAll("{{BODY_HTML}}",    draft.body_html)
+    .replaceAll("{{SOURCES_HTML}}", sourcesHtml)
+    .replaceAll("{{JSON_LD}}",      draft.json_ld);
 
   // Load posts registry from repo, prepend new entry
   const postsJsonPath = "blog/posts.json";
   const postsJsonRaw  = await githubGetTextOptional(env, postsJsonPath, env.GITHUB_TARGET_BRANCH);
   const postsData     = postsJsonRaw ? (safeParseJson(postsJsonRaw) || { posts: [] }) : { posts: [] };
-
-  // Related posts: up to 2 existing posts that aren't the current one
-  const existingPosts = Array.isArray(postsData?.posts) ? postsData.posts : [];
-  const relatedPosts  = existingPosts.filter(p => p.slug !== draft.slug).slice(0, 2);
-  const relatedHtml   = relatedPosts.length > 0
-    ? relatedPosts.map(p => `<li>
-            <a href="/blog/${escapeHtml(p.slug)}">
-              <strong>${escapeHtml(p.title)}</strong>
-              <span>${escapeHtml(p.description || "")}</span>
-            </a>
-          </li>`).join("\n")
-    : `<li><a href="/blog"><strong>More articles →</strong><span>Browse all posts on the blog.</span></a></li>`;
-
-  const titleShort = draft.title.length > 42
-    ? draft.title.slice(0, 40).trimEnd() + "…"
-    : draft.title;
-
-  const postHtml = templatePost
-    .replaceAll("{{TITLE}}",          escapeHtml(draft.title))
-    .replaceAll("{{TITLE_SHORT}}",    escapeHtml(titleShort))
-    .replaceAll("{{DESCRIPTION}}",    escapeHtml(draft.description))
-    .replaceAll("{{CANONICAL_URL}}",  canonicalUrl)
-    .replaceAll("{{AUTHOR}}",         escapeHtml(env.AUTHOR_NAME || "Online Dev Tools"))
-    .replaceAll("{{DATE_ISO}}",       localDate)
-    .replaceAll("{{DATE_HUMAN}}",     formatHumanDate(localDate, tz))
-    .replaceAll("{{READING_TIME}}",   readingTime)
-    .replaceAll("{{BODY_HTML}}",      draft.body_html)
-    .replaceAll("{{SOURCES_HTML}}",   sourcesHtml)
-    .replaceAll("{{JSON_LD}}",        draft.json_ld)
-    .replaceAll("{{CATEGORY_SLUG}}",  escapeHtml(category.slug))
-    .replaceAll("{{CATEGORY_LABEL}}", escapeHtml(category.label))
-    .replaceAll("{{RELATED_HTML}}",   relatedHtml);
 
   const newEntry = {
     title:            draft.title,
@@ -620,8 +597,6 @@ async function buildRepoWrites(env, { draft, topic, localDate, now, tz }) {
     description:      draft.description,
     date:             localDate,
     reading_time:     readingTime,
-    category:         category.slug,
-    category_label:   category.label,
     canonical:        canonicalUrl,
     primary_tool_url: topic.primaryUrl
   };
@@ -635,11 +610,7 @@ async function buildRepoWrites(env, { draft, topic, localDate, now, tz }) {
   const blogListHtml = nextPosts.posts.map(p => {
     const humanDate = formatHumanDate(p.date, tz);
     const readTime  = p.reading_time || "";
-    const catSlug   = p.category || "";
-    const catLabel  = p.category_label || "";
-    const catTag    = catLabel ? `<span class="blog-cat-tag">${escapeHtml(catLabel)}</span>` : "";
-    return `<li class="blog-list-item"${catSlug ? ` data-category="${escapeHtml(catSlug)}"` : ""}>
-      ${catTag}
+    return `<li class="blog-list-item">
       <a href="/blog/${p.slug}">${escapeHtml(p.title)}</a>
       <div class="blog-list-meta">
         <time datetime="${p.date}">${escapeHtml(humanDate)}</time>${readTime ? `<span class="read-time">${escapeHtml(readTime)}</span>` : ""}
@@ -1006,29 +977,6 @@ function escapeXml(s) {
 
 function stripTags(html) {
   return String(html).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
-
-function inferCategory(draft, topic) {
-  const text = [
-    topic?.primaryUrl || "",
-    draft?.title      || "",
-    draft?.description || "",
-    (draft?.keywords || []).join(" ")
-  ].join(" ").toLowerCase();
-
-  if (/csp|content.security|security.header|xss|owasp|devsecop|pentest|vulnerabilit/.test(text)) {
-    return { slug: "security", label: "Security" };
-  }
-  if (/incident.respon|triage|on.?call|postmortem|alerting|pagerduty|runbook/.test(text)) {
-    return { slug: "incident-response", label: "Incident Response" };
-  }
-  if (/json|yaml|xml|schema|diff|formatter|key.sort|data.format|api.debug/.test(text)) {
-    return { slug: "json-data", label: "JSON / Data" };
-  }
-  if (/network|cidr|ip.address|dns|whois|subnet|latency|bandwidth|tcp/.test(text)) {
-    return { slug: "networking", label: "Networking" };
-  }
-  return { slug: "tooling", label: "Tooling / Workflows" };
 }
 
 function estimateReadingTime(bodyHtml) {

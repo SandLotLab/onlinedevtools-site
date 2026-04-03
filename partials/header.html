@@ -25,11 +25,6 @@
         <a class="pill" href="/tools">All Tools</a>
         <a class="pill" href="/blog">Blog</a>
 
-        <button class="search-trigger" id="odt-search-btn" type="button" aria-label="Search (Ctrl+K)">
-          <span class="search-trigger-label">Search</span>
-          <kbd id="odt-search-shortcut">⌘K</kbd>
-        </button>
-
         <details class="mega-tab">
           <summary class="pill category-tab">JSON Tools</summary>
           <div class="mega-panel">
@@ -123,22 +118,3 @@
 
   </div>
 </header>
-
-<!-- Search overlay — activated by /assets/search.js -->
-<div id="odt-search" class="search-overlay" hidden role="dialog" aria-modal="true" aria-label="Search">
-  <div class="search-backdrop" id="odt-search-backdrop"></div>
-  <div class="search-modal">
-    <div class="search-input-row">
-      <span class="search-modal-icon" aria-hidden="true">⌕</span>
-      <input type="search" id="odt-search-input" placeholder="Search posts and tools…" autocomplete="off" spellcheck="false" />
-      <kbd class="search-esc-hint" id="odt-search-close">ESC</kbd>
-    </div>
-    <ul class="search-results" id="odt-search-results" role="listbox"></ul>
-    <p class="search-no-results" id="odt-search-empty" hidden>No results found</p>
-    <div class="search-modal-footer" aria-hidden="true">
-      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
-      <span><kbd>↵</kbd> open</span>
-      <span><kbd>ESC</kbd> close</span>
-    </div>
-  </div>
-</div>
