@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "title": "WHOIS and Domain Intelligence: Investigating Ownership, Registrar Signals, and Response Workflows",
+      "slug": "whois-domain-intelligence-ownership-registrar-response-workflows",
+      "description": "Learn how WHOIS lookups reveal domain ownership, registrar data, and abuse signals. Build effective investigation and response workflows with domain intelligenc",
+      "date": "2026-04-03",
+      "canonical": "https://onlinedevtools.app/blog/whois-domain-intelligence-ownership-registrar-response-workflows",
+      "primary_tool_url": "https://onlinedevtools.app/whois-lookup"
+    },
+    {
       "title": "JSON Formatting for API Debugging: Predictable Diffs, Key Sorting, and Schema Checks",
       "slug": "json-formatting-api-debugging-diffs-key-sorting-schema-checks",
       "description": "Learn how JSON formatting with key sorting and schema validation streamlines API debugging, produces predictable diffs, and speeds up code review.",
