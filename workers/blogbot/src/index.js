@@ -596,6 +596,7 @@ async function buildRepoWrites(env, { draft, topic, localDate, now, tz }) {
     slug:             draft.slug,
     description:      draft.description,
     date:             localDate,
+    reading_time:     readingTime,
     canonical:        canonicalUrl,
     primary_tool_url: topic.primaryUrl
   };
@@ -606,11 +607,18 @@ async function buildRepoWrites(env, { draft, topic, localDate, now, tz }) {
       .slice(0, 60)
   };
 
-  const blogListHtml = nextPosts.posts.map(p => `<li class="blog-list-item">
-      <a href="/blog/${p.slug}"><strong>${escapeHtml(p.title)}</strong></a>
-      <div class="blog-list-meta"><time datetime="${p.date}">${escapeHtml(p.date)}</time></div>
+  const blogListHtml = nextPosts.posts.map(p => {
+    const humanDate = formatHumanDate(p.date, tz);
+    const readTime  = p.reading_time || "";
+    return `<li class="blog-list-item">
+      <a href="/blog/${p.slug}">${escapeHtml(p.title)}</a>
+      <div class="blog-list-meta">
+        <time datetime="${p.date}">${escapeHtml(humanDate)}</time>${readTime ? `<span class="read-time">${escapeHtml(readTime)}</span>` : ""}
+      </div>
       <p>${escapeHtml(p.description || "")}</p>
-    </li>`).join("\n");
+      <a class="blog-list-read-more" href="/blog/${p.slug}">Read article →</a>
+    </li>`;
+  }).join("\n");
 
   const indexHtml = templateIndex.replace(
     /<!-- BLOG_LIST_START -->[\s\S]*<!-- BLOG_LIST_END -->/m,
