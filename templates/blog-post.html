@@ -19,6 +19,7 @@
 
   <link rel="alternate" type="application/rss+xml" title="Online Dev Tools Blog RSS" href="/rss.xml" />
   <link rel="stylesheet" href="/assets/site.css" />
+  <script src="/assets/search.js" defer></script>
 
   <script type="application/ld+json">
 {{JSON_LD}}
@@ -29,7 +30,15 @@
 
   <main class="container">
     <article class="blog-post">
-      <a href="/blog" class="post-back">Blog</a>
+      <nav class="post-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+        <a href="/blog">Blog</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+        <a href="/blog?filter={{CATEGORY_SLUG}}">{{CATEGORY_LABEL}}</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+        <span class="bc-current">{{TITLE_SHORT}}</span>
+      </nav>
       <header>
         <h1>{{TITLE}}</h1>
         <p class="post-meta">
@@ -47,6 +56,13 @@
         <h2>Sources</h2>
         {{SOURCES_HTML}}
       </section>
+
+      <aside class="post-related">
+        <p class="post-related-label">Related articles</p>
+        <ul class="post-related-list">
+          {{RELATED_HTML}}
+        </ul>
+      </aside>
     </article>
   </main>
 

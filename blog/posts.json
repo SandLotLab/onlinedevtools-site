@@ -5,6 +5,9 @@
       "slug": "json-formatting-api-debugging-diffs-key-sorting-schema-checks",
       "description": "Learn how JSON formatting with key sorting and schema validation streamlines API debugging, produces predictable diffs, and speeds up code review.",
       "date": "2026-04-02",
+      "reading_time": "7 min read",
+      "category": "json-data",
+      "category_label": "JSON / Data",
       "canonical": "https://onlinedevtools.app/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks",
       "primary_tool_url": "https://onlinedevtools.app/json-formatter"
     },
@@ -13,6 +16,9 @@
       "slug": "csp-hardening-workflow-report-only-to-enforcement",
       "description": "Learn how to harden Content Security Policy step by step—starting in report-only mode, analyzing violations, and enforcing safely with practical testing.",
       "date": "2026-04-02",
+      "reading_time": "6 min read",
+      "category": "security",
+      "category_label": "Security",
       "canonical": "https://onlinedevtools.app/blog/csp-hardening-workflow-report-only-to-enforcement",
       "primary_tool_url": "https://onlinedevtools.app/csp-analyzer"
     },
@@ -21,6 +27,9 @@
       "slug": "browser-incident-response-toolbelt-repeatable-workflows",
       "description": "Learn how to build a browser-based incident response toolbelt with repeatable workflows using lightweight online dev tools for faster triage and resolution.",
       "date": "2026-04-01",
+      "reading_time": "7 min read",
+      "category": "incident-response",
+      "category_label": "Incident Response",
       "canonical": "https://onlinedevtools.app/blog/browser-incident-response-toolbelt-repeatable-workflows",
       "primary_tool_url": "https://onlinedevtools.app/tools"
     }

@@ -18,9 +18,19 @@
     <h1 class="blog-index-headline">Technical Write-Ups</h1>
     <p class="blog-index-sub">Practical guides on security workflows, API tooling, and developer operations — written for engineers who ship.</p>
 
+    <!-- Category filter bar -->
+    <div class="blog-filter-bar" id="blog-filters" role="group" aria-label="Filter by category">
+      <button class="blog-filter-btn active" data-filter="all" type="button">All</button>
+      <button class="blog-filter-btn" data-filter="json-data" type="button">JSON / Data</button>
+      <button class="blog-filter-btn" data-filter="security" type="button">Security</button>
+      <button class="blog-filter-btn" data-filter="incident-response" type="button">Incident Response</button>
+      <button class="blog-filter-btn" data-filter="tooling" type="button">Tooling / Workflows</button>
+    </div>
+
     <!-- BLOG_LIST_START -->
-<ul class="blog-list">
-<li class="blog-list-item">
+<ul class="blog-list" id="blog-list">
+<li class="blog-list-item" data-category="json-data">
+      <span class="blog-cat-tag">JSON / Data</span>
       <a href="/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks">JSON Formatting for API Debugging: Predictable Diffs, Key Sorting, and Schema Checks</a>
       <div class="blog-list-meta">
         <time datetime="2026-04-02">Apr 02, 2026</time><span class="read-time">7 min read</span>
@@ -28,7 +38,8 @@
       <p>Learn how JSON formatting with key sorting and schema validation streamlines API debugging, produces predictable diffs, and speeds up code review.</p>
       <a class="blog-list-read-more" href="/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks">Read article →</a>
     </li>
-<li class="blog-list-item">
+<li class="blog-list-item" data-category="security">
+      <span class="blog-cat-tag">Security</span>
       <a href="/blog/csp-hardening-workflow-report-only-to-enforcement">CSP Hardening Workflow: From Report-Only to Full Enforcement with Practical Testing</a>
       <div class="blog-list-meta">
         <time datetime="2026-04-02">Apr 02, 2026</time><span class="read-time">6 min read</span>
@@ -36,7 +47,8 @@
       <p>Learn how to harden Content Security Policy step by step—starting in report-only mode, analyzing violations, and enforcing safely with practical testing.</p>
       <a class="blog-list-read-more" href="/blog/csp-hardening-workflow-report-only-to-enforcement">Read article →</a>
     </li>
-<li class="blog-list-item">
+<li class="blog-list-item" data-category="incident-response">
+      <span class="blog-cat-tag">Incident Response</span>
       <a href="/blog/browser-incident-response-toolbelt-repeatable-workflows">Building a Lightweight Incident-Response Toolbelt in the Browser: Repeatable Workflows</a>
       <div class="blog-list-meta">
         <time datetime="2026-04-01">Apr 01, 2026</time><span class="read-time">7 min read</span>
@@ -46,8 +58,52 @@
     </li>
 </ul>
 <!-- BLOG_LIST_END -->
+
+    <p class="blog-no-results" id="blog-no-results" style="display:none;color:var(--muted);font-family:system-ui,sans-serif;font-size:14px;padding:24px 0">
+      No posts in this category yet.
+    </p>
   </main>
 
   <div id="odt-footer"></div>
 
-  <script
+  <script src="/assets/search.js" defer></script>
+
+  <script>
+    (function () {
+      /* ── Category filter ── */
+      var btns  = document.querySelectorAll('.blog-filter-btn');
+      var items = document.querySelectorAll('.blog-list-item');
+      var noRes = document.getElementById('blog-no-results');
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          btns.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+
+          var cat     = btn.dataset.filter;
+          var visible = 0;
+          items.forEach(function (item) {
+            var show = cat === 'all' || item.dataset.category === cat;
+            item.style.display = show ? '' : 'none';
+            if (show) visible++;
+          });
+          noRes.style.display = visible === 0 ? '' : 'none';
+        });
+      });
+
+      /* ── Partial injection ── */
+      async function inject(id, url) {
+        try {
+          var r    = await fetch(url, { cache: 'no-cache' });
+          var html = await r.text();
+          document.getElementById(id).innerHTML = html;
+        } catch (e) {
+          console.warn('Partial inject failed:', url, e);
+        }
+      }
+      inject('odt-header', '/partials/header');
+      inject('odt-footer', '/partials/footer');
+    })();
+  </script>
+</body>
+</html>

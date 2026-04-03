@@ -19,6 +19,7 @@
 
   <link rel="alternate" type="application/rss+xml" title="Online Dev Tools Blog RSS" href="/rss.xml" />
   <link rel="stylesheet" href="/assets/site.css" />
+  <script src="/assets/search.js" defer></script>
 
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Article","headline":"JSON Formatting for API Debugging: Predictable Diffs, Key Sorting, and Schema Checks","description":"Learn how JSON formatting with key sorting and schema validation streamlines API debugging, produces predictable diffs, and speeds up code review.","url":"https://onlinedevtools.app/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks","datePublished":"2026-04-02","dateModified":"2026-04-02","publisher":{"@type":"Organization","name":"Online Dev Tools","url":"https://onlinedevtools.app"},"author":{"@type":"Organization","name":"Online Dev Tools"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://onlinedevtools.app/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks"},"keywords":["JSON formatter","API debugging","key sorting","JSON schema validation","predictable diffs","JSON pretty print","developer tools"]}
@@ -29,7 +30,15 @@
 
   <main class="container">
     <article class="blog-post">
-      <a href="/blog" class="post-back">Blog</a>
+      <nav class="post-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+        <a href="/blog">Blog</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+        <a href="/blog?filter=json-data">JSON / Data</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+        <span class="bc-current">JSON Formatting for API Debugging</span>
+      </nav>
       <header>
         <h1>JSON Formatting for API Debugging: Predictable Diffs, Key Sorting, and Schema Checks</h1>
         <p class="post-meta">
@@ -55,6 +64,24 @@
 <li id="source-8">[8] <a href="https://jsonviewertool.com/json-formatter" rel="nofollow noopener" target="_blank">JSON Formatter with Sort Keys &amp; Minify | Format JSON Online</a></li>
 </ol>
       </section>
+
+      <aside class="post-related">
+        <p class="post-related-label">Related articles</p>
+        <ul class="post-related-list">
+          <li>
+            <a href="/blog/csp-hardening-workflow-report-only-to-enforcement">
+              <strong>CSP Hardening Workflow: From Report-Only to Full Enforcement</strong>
+              <span>Deploy Content Security Policy with confidence — from observation to enforcement.</span>
+            </a>
+          </li>
+          <li>
+            <a href="/blog/browser-incident-response-toolbelt-repeatable-workflows">
+              <strong>Building a Lightweight Incident-Response Toolbelt in the Browser</strong>
+              <span>Build repeatable browser-based workflows for faster triage and resolution.</span>
+            </a>
+          </li>
+        </ul>
+      </aside>
     </article>
   </main>
 
