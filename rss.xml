@@ -5,7 +5,7 @@
     <link>https://onlinedevtools.app/blog</link>
     <description>Static-first dev/security workflow notes and tool deep-dives.</description>
     <language>en-us</language>
-    <lastBuildDate>Thu, 02 Apr 2026 08:00:39 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 03 Apr 2026 17:15:42 GMT</lastBuildDate>
 
     <!-- Worker inserts <item> entries here -->
       <item>
@@ -30,6 +30,14 @@
       <guid>https://onlinedevtools.app/blog/json-formatting-api-debugging-diffs-key-sorting-schema-checks</guid>
       <pubDate>Thu, 02 Apr 2026 08:00:39 GMT</pubDate>
       <description>Learn how JSON formatting with key sorting and schema validation streamlines API debugging, produces predictable diffs, and speeds up code review.</description>
+    </item>
+
+      <item>
+      <title>WHOIS and Domain Intelligence: Investigating Ownership, Registrar Signals, and Response Workflows</title>
+      <link>https://onlinedevtools.app/blog/whois-domain-intelligence-ownership-registrar-response-workflows</link>
+      <guid>https://onlinedevtools.app/blog/whois-domain-intelligence-ownership-registrar-response-workflows</guid>
+      <pubDate>Fri, 03 Apr 2026 17:15:42 GMT</pubDate>
+      <description>Learn how WHOIS lookups reveal domain ownership, registrar data, and abuse signals. Build effective investigation and response workflows with domain intelligenc</description>
     </item>
 
   </channel>
