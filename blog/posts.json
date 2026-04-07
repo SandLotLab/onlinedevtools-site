@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "title": "Hashing vs HMAC for Engineers: Choosing Algorithms and Avoiding Common Mistakes",
+      "slug": "hashing-vs-hmac-choosing-algorithms-avoiding-mistakes",
+      "description": "Learn when to use plain hashing vs HMAC, how to choose algorithms like SHA-256, and avoid critical security mistakes. Practical guide for engineers.",
+      "date": "2026-04-07",
+      "canonical": "https://onlinedevtools.app/blog/hashing-vs-hmac-choosing-algorithms-avoiding-mistakes",
+      "primary_tool_url": "https://onlinedevtools.app/hash-generator"
+    },
+    {
       "title": "WHOIS and Domain Intelligence: Investigating Ownership, Registrar Signals, and Response Workflows",
       "slug": "whois-domain-intelligence-ownership-registrar-response-workflows",
       "description": "Learn how WHOIS lookups reveal domain ownership, registrar data, and abuse signals. Build effective investigation and response workflows with domain intelligenc",
