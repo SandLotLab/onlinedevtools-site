@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "title": "Regex Testing and Debugging in the Browser: Flags, Lookaheads, and Common Pitfalls",
+      "slug": "regex-testing-debugging-browser-flags-lookaheads-pitfalls",
+      "description": "Master regex testing in the browser. Learn flags, lookaheads, lookbehinds, and common pitfalls with our interactive regex tester tool.",
+      "date": "2026-04-10",
+      "canonical": "https://onlinedevtools.app/blog/regex-testing-debugging-browser-flags-lookaheads-pitfalls",
+      "primary_tool_url": "https://onlinedevtools.app/regex-tester"
+    },
+    {
       "title": "Hashing vs HMAC for Engineers: Choosing Algorithms and Avoiding Common Mistakes",
       "slug": "hashing-vs-hmac-choosing-algorithms-avoiding-mistakes",
       "description": "Learn when to use plain hashing vs HMAC, how to choose algorithms like SHA-256, and avoid critical security mistakes. Practical guide for engineers.",
